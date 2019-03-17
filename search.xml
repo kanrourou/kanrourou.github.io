@@ -1,16 +1,17 @@
 <?xml version="1.0" encoding="utf-8"?>
 <search>
   <entry>
-    <title><![CDATA[Hello World]]></title>
-    <url>%2F2019%2F03%2F15%2Fhello-world%2F</url>
-    <content type="text"><![CDATA[Welcome to Hexo! This is your very first post. Check documentation for more info. If you get any problems when using Hexo, you can find the answer in troubleshooting or you can ask me on GitHub. Quick StartCreate a new post1$ hexo new "My New Post" More info: Writing Run server1$ hexo server More info: Server Generate static files1$ hexo generate More info: Generating Deploy to remote sites1$ hexo deploy More info: Deployment]]></content>
+    <title><![CDATA[Create your own blog with Hexo and Github Pages]]></title>
+    <url>%2F2019%2F03%2F16%2Fhexo_github_pages_blog%2F</url>
+    <content type="text"><![CDATA[Set up local development environment on MacOSInstall Node.jsHexo is based on Node.js which can be installed here. It comes with npm, once the installation is done, run the following commands to make sure it is installed successfully12node -vnpm -v Install GitFollow the steps to install Git on your machine and verify by running12git --versiongit version 2.17.2 (Apple Git-113) Install HexoHexo can be installed from npm1sudo npm install -g hexo Create your personal blog folder, cd into it. And run the following command to initialze and install all required packages12hexo initsudo npm install Once it is done, run12hexo generatehexo server hexo generate or hexo g will generate all static files, and hexo server or hexo s starts a local server and you can navigate to http://localhost:4000 in browser to see your blog. Once the local server is started, hexo will watch for file updates automatically, so you don’t need to restart the server, simply refreshing the page and you will see the changes. Create a Github Pages projectWhat is Github Pages? According to the official website: GitHub Pages is a static site hosting service designed to host your personal, organization, or project pages directly from a GitHub repository As stated above, GitHub Pages is a static site hosting service, which means it doesn’t support server side programming. But it is good enough for building a personal blog, people may want to add some cool dynamic website features, which won’t be a problem. Hexo and different thirdparty tools can help us with it, we will talk about it later.To use Github Pages, we need to create and configure our github account, we won’t dive deep into this part, there are a lot of related resouces can be easily googled. Once the Github account is set up, create a repository named as &lt;username&gt;.github.io. Link Github Pages project to your local repositoryThis can be easily done by modifying the config file. To do that, cd into you blog folder and open _config.yml with whatever text editor you like, and adding the following deploy configration to the file1234deploy: type: git repository: https://github.com/&lt;username&gt;/&lt;username&gt;.github.io.git branch: master To deploy on server, we need to install git deployer by1npm install hexo-deployer-git --save then run1hexo deploy or1hexo d to deploy your project. Every time after you make some changes, you can follow the workflow above to view your changes locally then deploy. If you can’t see the changes after depolyment, you can run1hexo clean to clean the cached and generated files. Select a ThemeHexo has a variety of themes you can select from the offical website. This blog is powered by NexT. To install it, cd into your blog folder and run1git clone https://github.com/iissnan/hexo-theme-next themes/next This will clone the NexT project to your local repository. To enable the new theme, open _config.yml, under theme, change landscape to next and deploy it. The next article will discuss about theme configuration and third party integration tools.]]></content>
       <categories>
-        <category>Test</category>
-        <category>Test2</category>
+        <category>Programming</category>
+        <category>Javascript</category>
+        <category>Hexo</category>
       </categories>
       <tags>
-        <tag>tag1</tag>
-        <tag>tag2</tag>
+        <tag>Hexo</tag>
+        <tag>Javascript</tag>
       </tags>
   </entry>
 </search>
