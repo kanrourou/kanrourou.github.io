@@ -46,15 +46,20 @@
   };
 </script>
 
-  <meta property="og:type" content="website">
-<meta property="og:title" content="码字的呵呵君">
-<meta property="og:url" content="http://yoursite.com/tags/Javascript/index.html">
+  <meta name="description" content="ZooKeeper is a service for coordinating processes of distributed applications, which provides wait-free coordination for Internet-scale systems.">
+<meta name="keywords" content="Distributed System,Infrastructure,Paper Reading">
+<meta property="og:type" content="article">
+<meta property="og:title" content="[Paper Reading]ZooKeeper">
+<meta property="og:url" content="http://yoursite.com/2021/01/02/paper_reading_zookeeper/index.html">
 <meta property="og:site_name" content="码字的呵呵君">
+<meta property="og:description" content="ZooKeeper is a service for coordinating processes of distributed applications, which provides wait-free coordination for Internet-scale systems.">
 <meta property="og:locale" content="default">
+<meta property="og:updated_time" content="2021-01-02T21:32:16.924Z">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="码字的呵呵君">
+<meta name="twitter:title" content="[Paper Reading]ZooKeeper">
+<meta name="twitter:description" content="ZooKeeper is a service for coordinating processes of distributed applications, which provides wait-free coordination for Internet-scale systems.">
 
-<link rel="canonical" href="http://yoursite.com/tags/Javascript/">
+<link rel="canonical" href="http://yoursite.com/2021/01/02/paper_reading_zookeeper/">
 
 
 <script id="page-configurations">
@@ -62,11 +67,11 @@
   CONFIG.page = {
     sidebar: "",
     isHome: false,
-    isPost: false
+    isPost: true
   };
 </script>
 
-  <title>Tag: Javascript | 码字的呵呵君</title>
+  <title>[Paper Reading]ZooKeeper | 码字的呵呵君</title>
   
     <script async src="https://www.googletagmanager.com/gtag/js?id=UA-133451584-2"></script>
     <script>
@@ -185,54 +190,160 @@
           <div class="content">
             
 
+  <div class="posts-expand">
+      
   
   
-  
-  <div class="post-block">
-    <div class="posts-collapse">
-      <div class="collection-title">
-        <h1 class="collection-header">Javascript
-          <small>Tag</small>
+  <article itemscope itemtype="http://schema.org/Article" class="post-block " lang="default">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2021/01/02/paper_reading_zookeeper/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="hehejun">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="码字的呵呵君">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          [Paper Reading]ZooKeeper
         </h1>
-      </div>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+
+              <time title="Created: 2021-01-02 13:32:16" itemprop="dateCreated datePublished" datetime="2021-01-02T13:32:16-08:00">2021-01-02</time>
+            </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">In</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/System-Infrastructure/" itemprop="url" rel="index">
+                    <span itemprop="name">System Infrastructure</span>
+                  </a>
+                </span>
+                  , 
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/System-Infrastructure/Coordination-Service/" itemprop="url" rel="index">
+                    <span itemprop="name">Coordination Service</span>
+                  </a>
+                </span>
+            </span>
+
+          
+            <span id="/2021/01/02/paper_reading_zookeeper/" class="post-meta-item leancloud_visitors" data-flag-title="[Paper Reading]ZooKeeper" title="Views">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-eye"></i>
+              </span>
+              <span class="post-meta-item-text">Views: </span>
+              <span class="leancloud-visitors-count"></span>
+            </span>
+            <span class="post-meta-item" title="Views" id="busuanzi_container_page_pv" style="display: none;">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-eye"></i>
+              </span>
+              <span class="post-meta-item-text">Views: </span>
+              <span id="busuanzi_value_page_pv"></span>
+            </span>
+  
+  <span class="post-meta-item">
+    
+      <span class="post-meta-item-icon">
+        <i class="fa fa-comment-o"></i>
+      </span>
+      <span class="post-meta-item-text">Disqus: </span>
+    
+    <a title="disqus" href="/2021/01/02/paper_reading_zookeeper/#comments" itemprop="discussionUrl">
+      <span class="post-comments-count disqus-comment-count" data-disqus-identifier="2021/01/02/paper_reading_zookeeper/" itemprop="commentCount"></span>
+    </a>
+  </span>
+  
+  <br>
+            <span class="post-meta-item" title="Symbols count in article">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-file-word-o"></i>
+              </span>
+                <span class="post-meta-item-text">Symbols count in article: </span>
+              <span>1.4k</span>
+            </span>
+            <span class="post-meta-item" title="Reading time">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-clock-o"></i>
+              </span>
+                <span class="post-meta-item-text">Reading time &asymp;</span>
+              <span>1 mins.</span>
+            </span>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
 
       
-    <div class="collection-year">
-      <h1 class="collection-header">2019</h1>
+        <p><a href="https://en.wikipedia.org/wiki/Apache_ZooKeeper" target="_blank" rel="noopener">ZooKeeper</a> is a service for coordinating processes of distributed applications, which provides wait-free coordination for Internet-scale systems.<br><a id="more"></a></p>
+<h2 id="Design-Decisions"><a href="#Design-Decisions" class="headerlink" title="Design Decisions"></a>Design Decisions</h2><p>Moved away from implementing specific primitives on the server side, opted for exposing an API that enables application developers to implement their own primitives, which enables new primitives without requiring changes to the service core.</p>
+<p>Moved away from blocking primitives, such as locks (e.g. Chubby). Since blocking primitives can cause, among other problems, slow or faulty clients to impact negatively the performance of faster clients. Instead, ZooKeeper implements an API that manipulates simple wait-free data objects (znodes) organized hierarchically as in file systems.</p>
+<p>ZooKeepers guarantees two following properties for client operations:</p>
+<ol>
+<li>FIFO client order: all requests from <strong>a given client</strong> are executed in the order that they were sent by the client. Note this order guarantee is per client level, for example, read operation order is not guaranteed among clients, since read operations are handled locally by the connected server.</li>
+<li>Linearizable writes: all requests that update the state of ZooKeeper are serializable and respect precendence. This is guaranteed by implementing a leader-based atomic broadcast protocol, called Zab.</li>
+</ol>
+<p>Improve read performace by caching data on the client side, for example, the process can cache the identifier fo the current leader instead of probing ZooKeeper every time in needs to know the leader. ZooKeepers uses a watch mechanism, with this mechanism, a client can watch for an update to a given data object and receive a notification upon an update.</p>
+
     </div>
 
-  <article itemscope itemtype="http://schema.org/Article">
-    <header class="post-header">
+    
+    
+    
 
-      <div class="post-meta">
-        <time itemprop="dateCreated"
-              datetime="2019-03-17T11:11:04-07:00"
-              content="2019-03-17">
-          03-17
-        </time>
-      </div>
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/Distributed-System/" rel="tag"># Distributed System</a>
+              <a href="/tags/Infrastructure/" rel="tag"># Infrastructure</a>
+              <a href="/tags/Paper-Reading/" rel="tag"># Paper Reading</a>
+          </div>
 
-      <h2 class="post-title">
-          <a class="post-title-link" href="/2019/03/17/hexo_github_pages_blog/" itemprop="url">
-            <span itemprop="name">Create your own blog with Hexo and Github Pages</span>
-          </a>
-      </h2>
+        
 
-    </header>
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2021/01/02/hexo_next_page_user_views/" rel="prev" title="Hexo: Adding PV/UV  counters to NexT theme">
+      <i class="fa fa-chevron-left"></i> Hexo: Adding PV/UV  counters to NexT theme
+    </a></div>
+      <div class="post-nav-item"></div>
+    </div>
+      </footer>
+    
   </article>
+  
+  
+  
 
-    </div>
   </div>
-  
-  
-  
-
-  
-
 
 
           </div>
           
+    
+  <div class="comments" id="comments">
+    <div id="disqus_thread">
+      <noscript>Please enable JavaScript to view the comments powered by Disqus.</noscript>
+    </div>
+  </div>
+  
 
 <script>
   window.addEventListener('tabs:register', () => {
@@ -279,6 +390,7 @@
 
       <!--noindex-->
       <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#Design-Decisions"><span class="nav-number">1.</span> <span class="nav-text">Design Decisions</span></a></li></ol></div>
       </div>
       <!--/noindex-->
 
@@ -509,6 +621,26 @@
   }
   // defer loading until the whole page loading is completed
   window.addEventListener('load', loadCount, false);
+</script>
+<script>
+  NexT.utils.loadComments(() => {
+    if (window.DISQUS) {
+      DISQUS.reset({
+        reload: true,
+        config: {page: {
+            url: "http://yoursite.com/2021/01/02/paper_reading_zookeeper/",
+            identifier: "2021/01/02/paper_reading_zookeeper/",
+            title: "[Paper Reading]ZooKeeper"
+          }
+        }
+      });
+    } else {
+      var d = document, s = d.createElement('script');
+      s.src = 'https://hehejun.disqus.com/embed.js';
+      s.setAttribute('data-timestamp', '' + +new Date());
+      (d.head || d.body).appendChild(s);
+    }
+  });
 </script>
 
 </body>

@@ -1,6 +1,62 @@
 <?xml version="1.0" encoding="utf-8"?>
 <search>
   <entry>
+    <title>[Paper Reading]ZooKeeper</title>
+    <url>/2021/01/02/paper_reading_zookeeper/</url>
+    <content><![CDATA[<p><a href="https://en.wikipedia.org/wiki/Apache_ZooKeeper" target="_blank" rel="noopener">ZooKeeper</a> is a service for coordinating processes of distributed applications, which provides wait-free coordination for Internet-scale systems.<br><a id="more"></a></p>
+<h2 id="Design-Decisions"><a href="#Design-Decisions" class="headerlink" title="Design Decisions"></a>Design Decisions</h2><p>Moved away from implementing specific primitives on the server side, opted for exposing an API that enables application developers to implement their own primitives, which enables new primitives without requiring changes to the service core.</p>
+<p>Moved away from blocking primitives, such as locks (e.g. Chubby). Since blocking primitives can cause, among other problems, slow or faulty clients to impact negatively the performance of faster clients. Instead, ZooKeeper implements an API that manipulates simple wait-free data objects (znodes) organized hierarchically as in file systems.</p>
+<p>ZooKeepers guarantees two following properties for client operations:</p>
+<ol>
+<li>FIFO client order: all requests from <strong>a given client</strong> are executed in the order that they were sent by the client. Note this order guarantee is per client level, for example, read operation order is not guaranteed among clients, since read operations are handled locally by the connected server.</li>
+<li>Linearizable writes: all requests that update the state of ZooKeeper are serializable and respect precendence. This is guaranteed by implementing a leader-based atomic broadcast protocol, called Zab.</li>
+</ol>
+<p>Improve read performace by caching data on the client side, for example, the process can cache the identifier fo the current leader instead of probing ZooKeeper every time in needs to know the leader. ZooKeepers uses a watch mechanism, with this mechanism, a client can watch for an update to a given data object and receive a notification upon an update.</p>
+]]></content>
+      <categories>
+        <category>System Infrastructure</category>
+        <category>Coordination Service</category>
+      </categories>
+      <tags>
+        <tag>Distributed System</tag>
+        <tag>Infrastructure</tag>
+        <tag>Paper Reading</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>Hexo: Adding PV/UV  counters to NexT theme</title>
+    <url>/2021/01/02/hexo_next_page_user_views/</url>
+    <content><![CDATA[<h2 id="Site-PV-UV"><a href="#Site-PV-UV" class="headerlink" title="Site PV/UV"></a>Site PV/UV</h2><p>NexT supports integration with different metrics/analytics services, which you can check on their <a href="https://theme-next.iissnan.com/third-party-services.html#analytics-system" target="_blank" rel="noopener">website</a>. To track the PV/UV for the whole site, we choose <a href="http://ibruce.info/2015/04/04/busuanzi/" target="_blank" rel="noopener">busuanzi</a>, since it supports displaying those information on your webpage.<br><a id="more"></a></p>
+<h3 id="Install-busuanzi-js"><a href="#Install-busuanzi-js" class="headerlink" title="Install busuanzi.js"></a>Install busuanzi.js</h3><p>NexT already integrates busuanzi, but based on their <a href="http://ibruce.info/2015/04/04/busuanzi/" target="_blank" rel="noopener">website</a>, busuanzi has to change their host name for some reasons and the old one is not compatibale anymore, we have to fix this problem by ourselves. To fix it, simply navigate to <code>themes/next/layout/_third-party/analytics/busuanzi-counter.swig</code> and change<br><figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">&lt;script async src=<span class="string">"//dn-lbstatics.qbox.me/busuanzi/2.3/busuanzi.pure.mini.js"</span>&gt;&lt;/script&gt;</span><br></pre></td></tr></table></figure></p>
+<p>to<br><figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">&lt;script async src=<span class="string">"//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"</span>&gt;&lt;/script&gt;</span><br></pre></td></tr></table></figure></p>
+<h3 id="Congifure-NexT"><a href="#Congifure-NexT" class="headerlink" title="Congifure NexT"></a>Congifure NexT</h3><p>To enable busuanzi in NexT, we need to configure <code>_config.yml</code> under <code>themes/next</code>. Search for <code>busuanzi_count</code> and modify based on your requirement<br><figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">busuanzi_count:</span><br><span class="line">  <span class="comment"># count values only if the other configs are false</span></span><br><span class="line">  <span class="built_in">enable</span>: <span class="literal">true</span></span><br><span class="line">  <span class="comment"># custom uv span for the whole site</span></span><br><span class="line">  site_uv: <span class="literal">true</span></span><br><span class="line">  site_uv_header: &lt;i class=<span class="string">"fa fa-user"</span>&gt;&lt;/i&gt;</span><br><span class="line">  site_uv_footer: </span><br><span class="line">  <span class="comment"># custom pv span for the whole site</span></span><br><span class="line">  site_pv: <span class="literal">true</span></span><br><span class="line">  site_pv_header: &lt;i class=<span class="string">"fa fa-eye"</span>&gt;&lt;/i&gt;</span><br><span class="line">  site_pv_footer:</span><br><span class="line">  <span class="comment"># custom pv span for one page only</span></span><br><span class="line">  page_pv: <span class="literal">false</span></span><br><span class="line">  page_pv_header: &lt;i class=<span class="string">"fa fa-file-o"</span>&gt;&lt;/i&gt;</span><br><span class="line">  page_pv_footer:</span><br></pre></td></tr></table></figure></p>
+<p>The above configuration only enables site_uv and site_pv, you can also customize the header and footer to make it more expressive. I disabled the page_pv since it only supports displaying visitors in the artical page, which means you can’t see it in home page, and we have a better replacement for it.<br>Update the settings and run <code>hexo s</code>, you will see the data in the footer:</p>
+<p><img src="/images/site_pv_uv.png" alt></p>
+<p>It currently displays all the counts to <code>http://localhost:4000</code>, once you deploy it, you will see the actual data of your website.</p>
+<h2 id="Page-PV"><a href="#Page-PV" class="headerlink" title="Page PV"></a>Page PV</h2><p>To implement page pv counter, we need the corresponding backend service. Here, we choose <a href="https://leancloud.cn/" target="_blank" rel="noopener">LeanCloud</a> which is well supported by NexT.</p>
+<h3 id="Setup-LeanCloud"><a href="#Setup-LeanCloud" class="headerlink" title="Setup LeanCloud"></a>Setup LeanCloud</h3><p>Create a LeanCloud account and then create a new application with the name you want</p>
+<p><img src="/images/lean_cloud.png" alt></p>
+<p>Click the application and create a new class with name <code>Counter</code> and set the ACL permission to be unlimited</p>
+<p><img src="/images/lean_cloud_counter.png" alt></p>
+<p>This creates a new DB table to store the page view counter information for each of your article, the key is the combination of you title and create time. You can also manually modify each data entry to change the actually number.</p>
+<h3 id="Configure-NexT"><a href="#Configure-NexT" class="headerlink" title="Configure NexT"></a>Configure NexT</h3><p>Open <code>_config.yml</code> under <code>themes/next</code> and search for leancloud<br><figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">leancloud_visitors:</span><br><span class="line">  <span class="built_in">enable</span>: <span class="literal">true</span></span><br><span class="line">  app_id: **your_app_id**</span><br><span class="line">  app_key: **your_app_key**</span><br></pre></td></tr></table></figure></p>
+<p>You can find the <code>app_id</code> and <code>app_key</code> under settings in you LeanCloud application</p>
+<p><img src="/images/lean_cloud_app_key.png" alt></p>
+<p>Once you deploy the change, you will see the new page visitor counter in your articles.</p>
+<p><img src="/images/page_pv.png" alt></p>
+]]></content>
+      <categories>
+        <category>Programming</category>
+        <category>Javascript</category>
+        <category>Hexo</category>
+      </categories>
+      <tags>
+        <tag>Hexo</tag>
+        <tag>JavaScript</tag>
+        <tag>NexT</tag>
+      </tags>
+  </entry>
+  <entry>
     <title>于是开始奔跑</title>
     <url>/2019/12/08/run_with_the_wind/</url>
     <content><![CDATA[<p>我很佩服三浦紫苑，讲好一个故事本身就很不简单，她却偏偏选择依托在编纂辞典《编舟记》或者长跑《强风吹拂》这种让人听上去就觉得枯燥乏味的事物上，然后将一切娓娓道来。相较于其他运动而言，跑步确实听上去不那么让人热血沸腾，不像足篮排那样典型的热血物语，它并不能够给人带来和对手厮杀的压迫感，和赢得比赛、击败对手的畅快感，而更多的时候是一种与自我的搏斗。就像在动画中所说的，箱根驿传的后半段棒次奔跑在路上的时候可能一个人都看不见，所能听见的只有自己的呼吸和心跳。但正是这种习惯在孤独中让自己变得强大的姿态，才是这项运动的迷人之处。<br><a id="more"></a></p>
@@ -59,39 +115,6 @@
       </categories>
       <tags>
         <tag>随笔</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>Hexo: Adding PV/UV  counters to NexT theme</title>
-    <url>/2019/12/08/hexo_next_page_user_views/</url>
-    <content><![CDATA[<h2 id="Site-PV-UV"><a href="#Site-PV-UV" class="headerlink" title="Site PV/UV"></a>Site PV/UV</h2><p>NexT supports integration with different metrics/analytics services, which you can check on their <a href="https://theme-next.iissnan.com/third-party-services.html#analytics-system" target="_blank" rel="noopener">website</a>. To track the PV/UV for the whole site, we choose <a href="http://ibruce.info/2015/04/04/busuanzi/" target="_blank" rel="noopener">busuanzi</a>, since it supports displaying those information on your webpage.<br><a id="more"></a></p>
-<h3 id="Install-busuanzi-js"><a href="#Install-busuanzi-js" class="headerlink" title="Install busuanzi.js"></a>Install busuanzi.js</h3><p>NexT already integrates busuanzi, but based on their <a href="http://ibruce.info/2015/04/04/busuanzi/" target="_blank" rel="noopener">website</a>, busuanzi has to change their host name for some reasons and the old one is not compatibale anymore, we have to fix this problem by ourselves. To fix it, simply navigate to <code>themes/next/layout/_third-party/analytics/busuanzi-counter.swig</code> and change<br><figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">&lt;script async src=<span class="string">"//dn-lbstatics.qbox.me/busuanzi/2.3/busuanzi.pure.mini.js"</span>&gt;&lt;/script&gt;</span><br></pre></td></tr></table></figure></p>
-<p>to<br><figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">&lt;script async src=<span class="string">"//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"</span>&gt;&lt;/script&gt;</span><br></pre></td></tr></table></figure></p>
-<h3 id="Congifure-NexT"><a href="#Congifure-NexT" class="headerlink" title="Congifure NexT"></a>Congifure NexT</h3><p>To enable busuanzi in NexT, we need to configure <code>_config.yml</code> under <code>themes/next</code>. Search for <code>busuanzi_count</code> and modify based on your requirement<br><figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">busuanzi_count:</span><br><span class="line">  <span class="comment"># count values only if the other configs are false</span></span><br><span class="line">  <span class="built_in">enable</span>: <span class="literal">true</span></span><br><span class="line">  <span class="comment"># custom uv span for the whole site</span></span><br><span class="line">  site_uv: <span class="literal">true</span></span><br><span class="line">  site_uv_header: &lt;i class=<span class="string">"fa fa-user"</span>&gt;&lt;/i&gt;</span><br><span class="line">  site_uv_footer: </span><br><span class="line">  <span class="comment"># custom pv span for the whole site</span></span><br><span class="line">  site_pv: <span class="literal">true</span></span><br><span class="line">  site_pv_header: &lt;i class=<span class="string">"fa fa-eye"</span>&gt;&lt;/i&gt;</span><br><span class="line">  site_pv_footer:</span><br><span class="line">  <span class="comment"># custom pv span for one page only</span></span><br><span class="line">  page_pv: <span class="literal">false</span></span><br><span class="line">  page_pv_header: &lt;i class=<span class="string">"fa fa-file-o"</span>&gt;&lt;/i&gt;</span><br><span class="line">  page_pv_footer:</span><br></pre></td></tr></table></figure></p>
-<p>The above configuration only enables site_uv and site_pv, you can also customize the header and footer to make it more expressive. I disabled the page_pv since it only supports displaying visitors in the artical page, which means you can’t see it in home page, and we have a better replacement for it.<br>Update the settings and run <code>hexo s</code>, you will see the data in the footer:</p>
-<p><img src="/images/site_pv_uv.png" alt></p>
-<p>It currently displays all the counts to <code>http://localhost:4000</code>, once you deploy it, you will see the actual data of your website.</p>
-<h2 id="Page-PV"><a href="#Page-PV" class="headerlink" title="Page PV"></a>Page PV</h2><p>To implement page pv counter, we need the corresponding backend service. Here, we choose <a href="https://leancloud.cn/" target="_blank" rel="noopener">LeanCloud</a> which is well supported by NexT.</p>
-<h3 id="Setup-LeanCloud"><a href="#Setup-LeanCloud" class="headerlink" title="Setup LeanCloud"></a>Setup LeanCloud</h3><p>Create a LeanCloud account and then create a new application with the name you want</p>
-<p><img src="/images/lean_cloud.png" alt></p>
-<p>Click the application and create a new class with name <code>Counter</code> and set the ACL permission to be unlimited</p>
-<p><img src="/images/lean_cloud_counter.png" alt></p>
-<p>This creates a new DB table to store the page view counter information for each of your article, the key is the combination of you title and create time. You can also manually modify each data entry to change the actually number.</p>
-<h3 id="Configure-NexT"><a href="#Configure-NexT" class="headerlink" title="Configure NexT"></a>Configure NexT</h3><p>Open <code>_config.yml</code> under <code>themes/next</code> and search for leancloud<br><figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">leancloud_visitors:</span><br><span class="line">  <span class="built_in">enable</span>: <span class="literal">true</span></span><br><span class="line">  app_id: **your_app_id**</span><br><span class="line">  app_key: **your_app_key**</span><br></pre></td></tr></table></figure></p>
-<p>You can find the <code>app_id</code> and <code>app_key</code> under settings in you LeanCloud application</p>
-<p><img src="/images/lean_cloud_app_key.png" alt></p>
-<p>Once you deploy the change, you will see the new page visitor counter in your articles.</p>
-<p><img src="/images/page_pv.png" alt></p>
-]]></content>
-      <categories>
-        <category>Programming</category>
-        <category>Javascript</category>
-        <category>Hexo</category>
-      </categories>
-      <tags>
-        <tag>Hexo</tag>
-        <tag>JavaScript</tag>
-        <tag>NexT</tag>
       </tags>
   </entry>
   <entry>
