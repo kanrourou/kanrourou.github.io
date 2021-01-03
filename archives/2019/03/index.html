@@ -446,15 +446,15 @@
     }
   }
 
-  fetch('https://app-router.leancloud.cn/2/route?appId=nR9EerU6tFM8aVJ7CYSV64rc-gzGzoHsz')
+  fetch('https://app-router.leancloud.cn/2/route?appId=PKvEM4W15eyM8pCk7qvGlvYF-MdYXbMMI')
     .then(response => response.json())
     .then(({ api_server }) => {
       var Counter = (method, url, data) => {
         return fetch(`https://${api_server}/1.1${url}`, {
           method: method,
           headers: {
-            'X-LC-Id': 'nR9EerU6tFM8aVJ7CYSV64rc-gzGzoHsz',
-            'X-LC-Key': '8ifwRW9SDtKXDeKFmnMpkLWo',
+            'X-LC-Id': 'PKvEM4W15eyM8pCk7qvGlvYF-MdYXbMMI',
+            'X-LC-Key': 'u3RYtOW2Dcu1hAgNEtjsAMip',
             'Content-Type': 'application/json',
           },
           body: JSON.stringify(data)
@@ -503,17 +503,6 @@
   
 
   
-
-<script>
-  function loadCount() {
-    var d = document, s = d.createElement('script');
-    s.src = 'https://hehejun.disqus.com/count.js';
-    s.id = 'dsq-count-scr';
-    (d.head || d.body).appendChild(s);
-  }
-  // defer loading until the whole page loading is completed
-  window.addEventListener('load', loadCount, false);
-</script>
 
 </body>
 </html>
