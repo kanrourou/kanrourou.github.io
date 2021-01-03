@@ -54,7 +54,7 @@
 <meta property="og:site_name" content="码字的呵呵君">
 <meta property="og:description" content="ZooKeeper is a service for coordinating processes of distributed applications, which provides wait-free coordination for Internet-scale systems.">
 <meta property="og:locale" content="default">
-<meta property="og:updated_time" content="2021-01-03T04:16:49.347Z">
+<meta property="og:updated_time" content="2021-01-03T04:18:56.029Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="Paper Reading: ZooKeeper">
 <meta name="twitter:description" content="ZooKeeper is a service for coordinating processes of distributed applications, which provides wait-free coordination for Internet-scale systems.">
@@ -218,7 +218,7 @@
               </span>
               <span class="post-meta-item-text">Posted on</span>
 
-              <time title="Created: 2021-01-02 20:16:49" itemprop="dateCreated datePublished" datetime="2021-01-02T20:16:49-08:00">2021-01-02</time>
+              <time title="Created: 2021-01-02 20:18:56" itemprop="dateCreated datePublished" datetime="2021-01-02T20:18:56-08:00">2021-01-02</time>
             </span>
             <span class="post-meta-item">
               <span class="post-meta-item-icon">
@@ -309,7 +309,7 @@
 <p>Znodes map to abstractions of the client application, typically corresponding to meta-data used for coordination purposes. Although znodes have not been designed for general data storage, ZooKeepers does allow clients to store some information that can be used for meta-data or configuration in a distributed computation. It also has associated meta-data with time stamps and version numbers which allow clients to keep track of its status.</p>
 <p>A client connects to ZooKeeper and initiates a session. ZooKeeper considers a client faulty if it does not receive anything from its session for more than that timeout.</p>
 <h2 id="APIs"><a href="#APIs" class="headerlink" title="APIs"></a>APIs</h2><p>The common used APIs provided by ZooKeeper are:</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">create(path, data, flags), <span class="built_in">where</span> flags enables a client to select the <span class="built_in">type</span> of znode: regular, ephemeral, and <span class="built_in">set</span> the sequential flag, <span class="built_in">which</span> is a monotonicaly increaseing counter appended to its name.</span><br><span class="line">delete(path, version), <span class="built_in">continue</span> when the version matches.</span><br><span class="line">exists(path, watch), the watch flag enables client to <span class="built_in">set</span> a watch on the znode.</span><br><span class="line">getData(path, watch), watch flag works the same way as exists().</span><br><span class="line">setData(path, data, version), <span class="built_in">continue</span> when the version matches.</span><br><span class="line">getChildren(path, watch).</span><br><span class="line">sync(path), flush all the pending updates.</span><br></pre></td></tr></table></figure>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">create(path, data, flags), where flags enables a client to select the type of znode: regular, ephemeral, and set the sequential flag, which is a monotonicaly increaseing counter appended to its name.</span><br><span class="line">delete(path, version), continue when the version matches.</span><br><span class="line">exists(path, watch), the watch flag enables client to set a watch on the znode.</span><br><span class="line">getData(path, watch), watch flag works the same way as exists().</span><br><span class="line">setData(path, data, version), continue when the version matches.</span><br><span class="line">getChildren(path, watch).</span><br><span class="line">sync(path), flush all the pending updates.</span><br></pre></td></tr></table></figure>
 
     </div>
 
