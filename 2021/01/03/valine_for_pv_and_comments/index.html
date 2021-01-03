@@ -46,20 +46,27 @@
   };
 </script>
 
-  <meta name="description" content="Set up local development environment on MacOSInstall Node.jsHexo is based on Node.js which can be installed here. It comes with npm, once the installation is done, run the following commands to make s">
-<meta name="keywords" content="Hexo,Javascript">
+  <meta name="description" content="We have introduced one way before to configure blog PV by using the natrually supported LeanCloud counter in NexT theme. But this is somehow broken for my site, so I explored and switched to Valine wh">
+<meta name="keywords" content="Hexo,JavaScript,NexT">
 <meta property="og:type" content="article">
-<meta property="og:title" content="Create your own blog with Hexo and Github Pages">
-<meta property="og:url" content="http://yoursite.com/2019/03/17/hexo_github_pages_blog/index.html">
+<meta property="og:title" content="Use Valine to set up blog comments and PV">
+<meta property="og:url" content="http://yoursite.com/2021/01/03/valine_for_pv_and_comments/index.html">
 <meta property="og:site_name" content="码字的呵呵君">
-<meta property="og:description" content="Set up local development environment on MacOSInstall Node.jsHexo is based on Node.js which can be installed here. It comes with npm, once the installation is done, run the following commands to make s">
+<meta property="og:description" content="We have introduced one way before to configure blog PV by using the natrually supported LeanCloud counter in NexT theme. But this is somehow broken for my site, so I explored and switched to Valine wh">
 <meta property="og:locale" content="default">
-<meta property="og:updated_time" content="2021-01-03T20:28:49.126Z">
+<meta property="og:image" content="http://yoursite.com/images/leancloud_classes_permission.png">
+<meta property="og:image" content="http://yoursite.com/images/leancloud_security.png">
+<meta property="og:image" content="http://yoursite.com/images/valine_cdn.png">
+<meta property="og:image" content="http://yoursite.com/images/lean_cloud_app_key.png">
+<meta property="og:image" content="http://yoursite.com/images/comments.png">
+<meta property="og:image" content="http://yoursite.com/images/comments_pv_header_view.png">
+<meta property="og:updated_time" content="2021-01-03T22:28:29.153Z">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="Create your own blog with Hexo and Github Pages">
-<meta name="twitter:description" content="Set up local development environment on MacOSInstall Node.jsHexo is based on Node.js which can be installed here. It comes with npm, once the installation is done, run the following commands to make s">
+<meta name="twitter:title" content="Use Valine to set up blog comments and PV">
+<meta name="twitter:description" content="We have introduced one way before to configure blog PV by using the natrually supported LeanCloud counter in NexT theme. But this is somehow broken for my site, so I explored and switched to Valine wh">
+<meta name="twitter:image" content="http://yoursite.com/images/leancloud_classes_permission.png">
 
-<link rel="canonical" href="http://yoursite.com/2019/03/17/hexo_github_pages_blog/">
+<link rel="canonical" href="http://yoursite.com/2021/01/03/valine_for_pv_and_comments/">
 
 
 <script id="page-configurations">
@@ -71,7 +78,7 @@
   };
 </script>
 
-  <title>Create your own blog with Hexo and Github Pages | 码字的呵呵君</title>
+  <title>Use Valine to set up blog comments and PV | 码字的呵呵君</title>
   
     <script async src="https://www.googletagmanager.com/gtag/js?id=UA-133451584-2"></script>
     <script>
@@ -195,7 +202,7 @@
   
   
   <article itemscope itemtype="http://schema.org/Article" class="post-block " lang="default">
-    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2019/03/17/hexo_github_pages_blog/">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2021/01/03/valine_for_pv_and_comments/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="image" content="/images/avatar.gif">
@@ -208,7 +215,7 @@
     </span>
       <header class="post-header">
         <h1 class="post-title" itemprop="name headline">
-          Create your own blog with Hexo and Github Pages
+          Use Valine to set up blog comments and PV
         </h1>
 
         <div class="post-meta">
@@ -217,16 +224,10 @@
                 <i class="fa fa-calendar-o"></i>
               </span>
               <span class="post-meta-item-text">Posted on</span>
+              
 
-              <time title="Created: 2019-03-17 00:00:00" itemprop="dateCreated datePublished" datetime="2019-03-17T00:00:00-07:00">2019-03-17</time>
+              <time title="Created: 2021-01-03 00:00:00 / Modified: 14:28:29" itemprop="dateCreated datePublished" datetime="2021-01-03T00:00:00-08:00">2021-01-03</time>
             </span>
-              <span class="post-meta-item">
-                <span class="post-meta-item-icon">
-                  <i class="fa fa-calendar-check-o"></i>
-                </span>
-                <span class="post-meta-item-text">Edited on</span>
-                <time title="Modified: 2021-01-03 12:28:49" itemprop="dateModified" datetime="2021-01-03T12:28:49-08:00">2021-01-03</time>
-              </span>
             <span class="post-meta-item">
               <span class="post-meta-item-icon">
                 <i class="fa fa-folder-o"></i>
@@ -252,7 +253,7 @@
             </span>
 
           
-            <span id="/2019/03/17/hexo_github_pages_blog/" class="post-meta-item leancloud_visitors" data-flag-title="Create your own blog with Hexo and Github Pages" title="Views">
+            <span id="/2021/01/03/valine_for_pv_and_comments/" class="post-meta-item leancloud_visitors" data-flag-title="Use Valine to set up blog comments and PV" title="Views">
               <span class="post-meta-item-icon">
                 <i class="fa fa-eye"></i>
               </span>
@@ -267,8 +268,8 @@
       </span>
       <span class="post-meta-item-text">Valine: </span>
     
-    <a title="valine" href="/2019/03/17/hexo_github_pages_blog/#comments" itemprop="discussionUrl">
-      <span class="post-comments-count valine-comment-count" data-xid="/2019/03/17/hexo_github_pages_blog/" itemprop="commentCount"></span>
+    <a title="valine" href="/2021/01/03/valine_for_pv_and_comments/#comments" itemprop="discussionUrl">
+      <span class="post-comments-count valine-comment-count" data-xid="/2021/01/03/valine_for_pv_and_comments/" itemprop="commentCount"></span>
     </a>
   </span>
   
@@ -278,7 +279,7 @@
                 <i class="fa fa-file-word-o"></i>
               </span>
                 <span class="post-meta-item-text">Symbols count in article: </span>
-              <span>2.6k</span>
+              <span>2.2k</span>
             </span>
             <span class="post-meta-item" title="Reading time">
               <span class="post-meta-item-icon">
@@ -297,27 +298,24 @@
     <div class="post-body" itemprop="articleBody">
 
       
-        <h2 id="Set-up-local-development-environment-on-MacOS"><a href="#Set-up-local-development-environment-on-MacOS" class="headerlink" title="Set up local development environment on MacOS"></a>Set up local development environment on MacOS</h2><h3 id="Install-Node-js"><a href="#Install-Node-js" class="headerlink" title="Install Node.js"></a>Install Node.js</h3><p>Hexo is based on Node.js which can be installed <a href="https://nodejs.org/en/download/" target="_blank" rel="noopener">here</a>. It comes with npm, once the installation is done, run the following commands to make sure it is installed successfully<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">node -v</span><br><span class="line">npm -v</span><br></pre></td></tr></table></figure></p>
-<a id="more"></a>
-<h3 id="Install-Git"><a href="#Install-Git" class="headerlink" title="Install Git"></a>Install Git</h3><p>Follow the <a href="https://git-scm.com/book/en/v2/Getting-Started-Installing-Git" target="_blank" rel="noopener">steps</a> to install Git on your machine and verify by running<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">git --version</span><br><span class="line">git version 2.17.2 (Apple Git-113)</span><br></pre></td></tr></table></figure></p>
-<h3 id="Install-Hexo"><a href="#Install-Hexo" class="headerlink" title="Install Hexo"></a>Install Hexo</h3><p>Hexo can be installed from npm<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sudo npm install -g hexo</span><br></pre></td></tr></table></figure></p>
-<p>Create your personal blog folder, cd into it. And run the following command to initialze and install all required packages<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">hexo init</span><br><span class="line">sudo npm install</span><br></pre></td></tr></table></figure></p>
-<p>Once it is done, run<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">hexo generate</span><br><span class="line">hexo server</span><br></pre></td></tr></table></figure></p>
-<p><code>hexo generate</code> or <code>hexo g</code>  will generate all static files, and <code>hexo server</code> or <code>hexo s</code> starts a local server and you can navigate to <code>http://localhost:4000</code> in browser to see your blog. Once the local server is started, hexo will watch for file updates automatically, so you don’t need to restart the server, simply refreshing the page and you will see the changes.</p>
-<h2 id="Create-a-Github-Pages-project"><a href="#Create-a-Github-Pages-project" class="headerlink" title="Create a Github Pages project"></a>Create a Github Pages project</h2><p>What is Github Pages? According to the official website:</p>
-<blockquote>
-<p>GitHub Pages is a static site hosting service designed to host your personal, organization, or project pages directly from a GitHub repository</p>
-</blockquote>
-<p>As stated above, GitHub Pages is a static site hosting service, which means it doesn’t support server side programming. But it is good enough for building a personal blog, people may want to add some cool dynamic website features, which won’t be a problem. Hexo and different thirdparty tools can help us with it, we will talk about it later.<br>To use Github Pages, we need to create and configure our github account, we won’t dive deep into this part, there are a lot of related resouces can be easily googled. Once the Github account is set up, create a repository named as <code>&lt;username&gt;.github.io</code>.</p>
-<h2 id="Link-Github-Pages-project-to-your-local-repository"><a href="#Link-Github-Pages-project-to-your-local-repository" class="headerlink" title="Link Github Pages project to your local repository"></a>Link Github Pages project to your local repository</h2><p>This can be easily done by modifying the config file. To do that, cd into you blog folder and open <code>_config.yml</code> with whatever text editor you like, and adding the following deploy configration to the file<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">deploy:</span><br><span class="line">  <span class="built_in">type</span>: git</span><br><span class="line">  repository: https://github.com/&lt;username&gt;/&lt;username&gt;.github.io.git</span><br><span class="line">  branch: master</span><br></pre></td></tr></table></figure></p>
-<p>To deploy on server, we need to install git deployer by<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">npm install hexo-deployer-git --save</span><br></pre></td></tr></table></figure></p>
-<p>then run<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">hexo deploy</span><br></pre></td></tr></table></figure></p>
-<p>or<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">hexo d</span><br></pre></td></tr></table></figure></p>
-<p>to deploy your project. Every time after you make some changes, you can follow the workflow above to view your changes locally then deploy. If you can’t see the changes after depolyment, you can run<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">hexo clean</span><br></pre></td></tr></table></figure></p>
-<p>to clean the cached and generated files.</p>
-<h2 id="Select-a-Theme"><a href="#Select-a-Theme" class="headerlink" title="Select a Theme"></a>Select a Theme</h2><p>Hexo has a variety of themes you can select from the <a href="https://hexo.io/themes/index.html" target="_blank" rel="noopener">offical website</a>. This blog is powered by <a href="https://github.com/theme-next/hexo-theme-next" target="_blank" rel="noopener">NexT</a>. To install it, cd into your blog folder and run<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">git <span class="built_in">clone</span> https://github.com/iissnan/hexo-theme-next themes/next</span><br></pre></td></tr></table></figure></p>
-<p>This will clone the NexT project to your local repository. To enable the new theme, open <code>_config.yml</code>, under <code>theme</code>,  change <code>landscape</code> to <code>next</code> and deploy it.</p>
-<p>The next article will discuss about theme configuration and third party integration tools.</p>
+        <p>We have introduced one <a href="https://kanrourou.github.io/2019/03/18/hexo_next_page_user_views/" target="_blank" rel="noopener">way</a> before to configure blog PV by using the natrually supported LeanCloud counter in NexT theme. But this is somehow broken for my site, so I explored and switched to <a href="https://valine.js.org/" target="_blank" rel="noopener">Valine</a> which supports PV and comments without any backend changes.<br><a id="more"></a></p>
+<h3 id="Set-up-LeanCloud"><a href="#Set-up-LeanCloud" class="headerlink" title="Set up LeanCloud"></a>Set up LeanCloud</h3><p>The LeanCloud set up is pretty similar to what have been explained in the article above, please refer to it for more details. In general, after creating your application, you will need to create <code>Counter</code> and <code>Comment</code> classes under <code>Storage-&gt;Objects</code>, note that the class name must not be changed. And the ACL permission needs to be set to allow all users to read &amp; write.</p>
+<p><img src="/images/leancloud_classes_permission.png" alt></p>
+<p>Navigate to the security page, turn off all services except LeanStorage, and add your blog domain to web secure domains.</p>
+<p><img src="/images/leancloud_security.png" alt></p>
+<h3 id="Update-config-file"><a href="#Update-config-file" class="headerlink" title="Update config file"></a>Update config file</h3><p>Go to this <a href="https://www.jsdelivr.com/package/npm/valine" target="_blank" rel="noopener">page</a> to access Valine CDN files.</p>
+<p><img src="/images/valine_cdn.png" alt></p>
+<p>Copy the script url and modify <code>themes/next/_config.yml</code> as below:<br><figure class="highlight yml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># Valine</span></span><br><span class="line"><span class="comment"># valine: //cdn.jsdelivr.net/npm/valine@1/dist/Valine.min.js</span></span><br><span class="line"><span class="comment"># valine: //cdnjs.cloudflare.com/ajax/libs/valine/1.3.4/Valine.min.js</span></span><br><span class="line"><span class="attr">valine:</span> <span class="attr">https://cdn.jsdelivr.net/npm/valine@1.4.14/dist/Valine.min.js</span></span><br></pre></td></tr></table></figure></p>
+<p>Naviate to app keys page to acquire your <code>appid</code> and <code>appkey</code>.</p>
+<p><img src="/images/lean_cloud_app_key.png" alt></p>
+<p>Then turn on Valine in the config file:<br><figure class="highlight yml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># Valine</span></span><br><span class="line"><span class="comment"># More info available at https://valine.js.org</span></span><br><span class="line"><span class="attr">valine:</span></span><br><span class="line"><span class="attr">  enable:</span> <span class="literal">true</span> </span><br><span class="line"><span class="attr">  appid:</span> <span class="comment">#your id#</span></span><br><span class="line"><span class="attr">  appkey:</span> <span class="comment">#your key#</span></span><br><span class="line"><span class="attr">  notify:</span> <span class="literal">false</span> <span class="comment"># mail notifier, See: https://github.com/xCss/Valine/wiki</span></span><br><span class="line"><span class="attr">  verify:</span> <span class="literal">false</span> <span class="comment"># Verification code</span></span><br><span class="line"><span class="attr">  placeholder:</span> <span class="string">Just</span> <span class="string">go</span> <span class="string">go...</span> <span class="comment"># comment box placeholder</span></span><br><span class="line"><span class="attr">  avatar:</span> <span class="string">mm</span> <span class="comment"># gravatar style</span></span><br><span class="line"><span class="attr">  guest_info:</span> <span class="string">nick,mail,link</span> <span class="comment"># custom comment header</span></span><br><span class="line"><span class="attr">  pageSize:</span> <span class="number">10</span> <span class="comment"># pagination size</span></span><br><span class="line"><span class="attr">  visitor:</span> <span class="literal">true</span> <span class="comment"># leancloud-counter-security is not supported for now. When visitor is set to be true, appid and appkey are recommended to be the same as leancloud_visitors' for counter compatibility. Article reading statistic https://valine.js.org/visitor.html</span></span><br><span class="line"><span class="attr">  comment_count:</span> <span class="literal">true</span> <span class="comment"># if false, comment count will only be displayed in post page, not in home page</span></span><br></pre></td></tr></table></figure></p>
+<p>You can also enable the <code>visitor</code> which will display the number of views of your posts. Notes this conflicts with LeanCloud counter so you need to turn it off in the config file.</p>
+<p>Deploy the changes and you will see the comments and PV:</p>
+<p><img src="/images/comments.png" alt></p>
+<p><img src="/images/comments_pv_header_view.png" alt></p>
+<h3 id="Tips"><a href="#Tips" class="headerlink" title="Tips"></a>Tips</h3><p>The PV counter uses title combing publish date as the key so to avoid updating the article will cause the PV to be reset, you can add the publish date in you article:<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">date: 2021-01-03 15:25:41</span><br></pre></td></tr></table></figure></p>
+<p>And turn of the future in Hexo’s `_config.yml<br><figure class="highlight yml"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="attr">future:</span> <span class="literal">false</span></span><br></pre></td></tr></table></figure></p>
+<p>So the posted date will not be changed after you modified it, and the previous PV count will be kept.</p>
 
     </div>
 
@@ -328,7 +326,8 @@
       <footer class="post-footer">
           <div class="post-tags">
               <a href="/tags/Hexo/" rel="tag"># Hexo</a>
-              <a href="/tags/Javascript/" rel="tag"># Javascript</a>
+              <a href="/tags/JavaScript/" rel="tag"># JavaScript</a>
+              <a href="/tags/NexT/" rel="tag"># NexT</a>
           </div>
 
         
@@ -336,11 +335,11 @@
 
         
     <div class="post-nav">
-      <div class="post-nav-item"></div>
       <div class="post-nav-item">
-    <a href="/2019/03/18/hexo_next_page_user_views/" rel="next" title="Hexo: Adding PV/UV  counters to NexT theme">
-      Hexo: Adding PV/UV  counters to NexT theme <i class="fa fa-chevron-right"></i>
+    <a href="/2021/01/02/paper_reading_zookeeper/" rel="prev" title="Paper Reading: ZooKeeper">
+      <i class="fa fa-chevron-left"></i> Paper Reading: ZooKeeper
     </a></div>
+      <div class="post-nav-item"></div>
     </div>
       </footer>
     
@@ -401,7 +400,7 @@
 
       <!--noindex-->
       <div class="post-toc-wrap sidebar-panel">
-          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#Set-up-local-development-environment-on-MacOS"><span class="nav-number">1.</span> <span class="nav-text">Set up local development environment on MacOS</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#Install-Node-js"><span class="nav-number">1.1.</span> <span class="nav-text">Install Node.js</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Install-Git"><span class="nav-number">1.2.</span> <span class="nav-text">Install Git</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Install-Hexo"><span class="nav-number">1.3.</span> <span class="nav-text">Install Hexo</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Create-a-Github-Pages-project"><span class="nav-number">2.</span> <span class="nav-text">Create a Github Pages project</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Link-Github-Pages-project-to-your-local-repository"><span class="nav-number">3.</span> <span class="nav-text">Link Github Pages project to your local repository</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Select-a-Theme"><span class="nav-number">4.</span> <span class="nav-text">Select a Theme</span></a></li></ol></div>
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#Set-up-LeanCloud"><span class="nav-number">1.</span> <span class="nav-text">Set up LeanCloud</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Update-config-file"><span class="nav-number">2.</span> <span class="nav-text">Update config file</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Tips"><span class="nav-number">3.</span> <span class="nav-text">Tips</span></a></li></ol></div>
       </div>
       <!--/noindex-->
 
