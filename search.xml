@@ -19,7 +19,7 @@
 <p><img src="/images/comments.png" alt></p>
 <p><img src="/images/comments_pv_header_view.png" alt></p>
 <h3 id="Tips"><a href="#Tips" class="headerlink" title="Tips"></a>Tips</h3><p>The PV counter uses title combing publish date as the key. To avoid updating the article will cause the PV to be reset, you can add the publish date in you article:<br><figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">date: 2021-01-03 15:25:41</span><br></pre></td></tr></table></figure></p>
-<p>And turn of the future in Hexo’s `_config.yml<br><figure class="highlight yml"><table><tr><td class="code"><pre><span class="line"><span class="attr">future:</span> <span class="literal">false</span></span><br></pre></td></tr></table></figure></p>
+<p>And turn of the <code>future</code> in Hexo’s <code>_config.yml</code>.<br><figure class="highlight yml"><table><tr><td class="code"><pre><span class="line"><span class="attr">future:</span> <span class="literal">false</span></span><br></pre></td></tr></table></figure></p>
 <p>So the posted date will not be changed after you modified it, and the previous PV count will be kept.</p>
 ]]></content>
       <categories>
