@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <search>
   <entry>
-    <title>[Paper Reading]ZooKeeper</title>
+    <title>Paper Reading: ZooKeeper</title>
     <url>/2021/01/02/paper_reading_zookeeper/</url>
     <content><![CDATA[<p><a href="https://en.wikipedia.org/wiki/Apache_ZooKeeper" target="_blank" rel="noopener">ZooKeeper</a> is a service for coordinating processes of distributed applications, which provides wait-free coordination for Internet-scale systems.<br><a id="more"></a></p>
 <h2 id="Design-Decisions"><a href="#Design-Decisions" class="headerlink" title="Design Decisions"></a>Design Decisions</h2><p>Moved away from implementing specific primitives on the server side, opted for exposing an API that enables application developers to implement their own primitives, which enables new primitives without requiring changes to the service core.</p>
