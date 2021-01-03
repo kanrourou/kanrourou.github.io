@@ -54,7 +54,7 @@
 <meta property="og:site_name" content="码字的呵呵君">
 <meta property="og:description" content="ZooKeeper is a service for coordinating processes of distributed applications, which provides wait-free coordination for Internet-scale systems.">
 <meta property="og:locale" content="default">
-<meta property="og:updated_time" content="2021-01-03T01:49:59.126Z">
+<meta property="og:updated_time" content="2021-01-03T04:16:49.347Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="Paper Reading: ZooKeeper">
 <meta name="twitter:description" content="ZooKeeper is a service for coordinating processes of distributed applications, which provides wait-free coordination for Internet-scale systems.">
@@ -218,7 +218,7 @@
               </span>
               <span class="post-meta-item-text">Posted on</span>
 
-              <time title="Created: 2021-01-02 17:49:59" itemprop="dateCreated datePublished" datetime="2021-01-02T17:49:59-08:00">2021-01-02</time>
+              <time title="Created: 2021-01-02 20:16:49" itemprop="dateCreated datePublished" datetime="2021-01-02T20:16:49-08:00">2021-01-02</time>
             </span>
             <span class="post-meta-item">
               <span class="post-meta-item-icon">
@@ -272,14 +272,14 @@
                 <i class="fa fa-file-word-o"></i>
               </span>
                 <span class="post-meta-item-text">Symbols count in article: </span>
-              <span>1.4k</span>
+              <span>3.4k</span>
             </span>
             <span class="post-meta-item" title="Reading time">
               <span class="post-meta-item-icon">
                 <i class="fa fa-clock-o"></i>
               </span>
                 <span class="post-meta-item-text">Reading time &asymp;</span>
-              <span>1 mins.</span>
+              <span>3 mins.</span>
             </span>
 
         </div>
@@ -300,6 +300,16 @@
 <li>Linearizable writes: all requests that update the state of ZooKeeper are serializable and respect precendence. This is guaranteed by implementing a leader-based atomic broadcast protocol, called Zab.</li>
 </ol>
 <p>Improve read performace by caching data on the client side, for example, the process can cache the identifier fo the current leader instead of probing ZooKeeper every time in needs to know the leader. ZooKeepers uses a watch mechanism, with this mechanism, a client can watch for an update to a given data object and receive a notification upon an update.</p>
+<h2 id="Service-Overview"><a href="#Service-Overview" class="headerlink" title="Service Overview"></a>Service Overview</h2><p>The ZooKeeper provides to its clients the abstraction of a set of data nodes (znodes), organized according to a hierarchical name space, referred by the standard UNIX notation for file system paths. All znodes store data, and all znodes, except for <strong>ephemeral znodes</strong>, can have children. There are two types of znodes that a client can create:</p>
+<ol>
+<li>Regular: Clients manipulate regular znodes by creating and deleting them explicitly.</li>
+<li>Ephemeral: Clients create such znodes, and they either delete them explicitly, or let the system remove them automatically when the session that creates them terminates.</li>
+</ol>
+<p>ZooKeepers implements watches to allow clients to receive timely notification of chanes wihout requiring polling. Watches are one-time triggers associated with a session; they are unregistered once triggered or the session closes. Watches indicate that a change has happened, but do not provide the change. Session events, such as connection loss events, are also sent to watch callbacks so that clients knows that clients know that watch events may be delayed.</p>
+<p>Znodes map to abstractions of the client application, typically corresponding to meta-data used for coordination purposes. Although znodes have not been designed for general data storage, ZooKeepers does allow clients to store some information that can be used for meta-data or configuration in a distributed computation. It also has associated meta-data with time stamps and version numbers which allow clients to keep track of its status.</p>
+<p>A client connects to ZooKeeper and initiates a session. ZooKeeper considers a client faulty if it does not receive anything from its session for more than that timeout.</p>
+<h2 id="APIs"><a href="#APIs" class="headerlink" title="APIs"></a>APIs</h2><p>The common used APIs provided by ZooKeeper are:</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">create(path, data, flags), <span class="built_in">where</span> flags enables a client to select the <span class="built_in">type</span> of znode: regular, ephemeral, and <span class="built_in">set</span> the sequential flag, <span class="built_in">which</span> is a monotonicaly increaseing counter appended to its name.</span><br><span class="line">delete(path, version), <span class="built_in">continue</span> when the version matches.</span><br><span class="line">exists(path, watch), the watch flag enables client to <span class="built_in">set</span> a watch on the znode.</span><br><span class="line">getData(path, watch), watch flag works the same way as exists().</span><br><span class="line">setData(path, data, version), <span class="built_in">continue</span> when the version matches.</span><br><span class="line">getChildren(path, watch).</span><br><span class="line">sync(path), flush all the pending updates.</span><br></pre></td></tr></table></figure>
 
     </div>
 
@@ -390,7 +400,7 @@
 
       <!--noindex-->
       <div class="post-toc-wrap sidebar-panel">
-          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#Design-Decisions"><span class="nav-number">1.</span> <span class="nav-text">Design Decisions</span></a></li></ol></div>
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#Design-Decisions"><span class="nav-number">1.</span> <span class="nav-text">Design Decisions</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Service-Overview"><span class="nav-number">2.</span> <span class="nav-text">Service Overview</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#APIs"><span class="nav-number">3.</span> <span class="nav-text">APIs</span></a></li></ol></div>
       </div>
       <!--/noindex-->
 
@@ -453,12 +463,12 @@
     <span class="post-meta-item-icon">
       <i class="fa fa-area-chart"></i>
     </span>
-    <span title="Symbols count total">9k</span>
+    <span title="Symbols count total">11k</span>
     <span class="post-meta-divider">|</span>
     <span class="post-meta-item-icon">
       <i class="fa fa-coffee"></i>
     </span>
-    <span title="Reading time total">8 mins.</span>
+    <span title="Reading time total">10 mins.</span>
 </div>
 
         
