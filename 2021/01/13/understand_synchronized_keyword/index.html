@@ -54,7 +54,7 @@
 <meta property="og:site_name" content="码字的呵呵君">
 <meta property="og:description" content="synchronized与原子性先来看一个大家很熟悉的例子：">
 <meta property="og:locale" content="default">
-<meta property="og:updated_time" content="2021-01-13T08:35:14.844Z">
+<meta property="og:updated_time" content="2021-01-13T08:37:03.022Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="深入理解synchronized关键字">
 <meta name="twitter:description" content="synchronized与原子性先来看一个大家很熟悉的例子：">
@@ -219,7 +219,7 @@
               <span class="post-meta-item-text">Posted on</span>
               
 
-              <time title="Created: 2021-01-13 00:00:00 / Modified: 00:35:14" itemprop="dateCreated datePublished" datetime="2021-01-13T00:00:00-08:00">2021-01-13</time>
+              <time title="Created: 2021-01-13 00:00:00 / Modified: 00:37:03" itemprop="dateCreated datePublished" datetime="2021-01-13T00:00:00-08:00">2021-01-13</time>
             </span>
             <span class="post-meta-item">
               <span class="post-meta-item-icon">
@@ -323,7 +323,7 @@
 <p>需要注意的是对象的monitor lock的和对选哪个本身的状态并没有太大的关系。获得了对象的monitor lock并不会防止其他线程访问对象，只会防止其他线程获得相同的monitor lock，其他线程仍然可以访问对象没有被<code>synchronized</code> guard的代码。</p>
 <p>具体是使用synchronized method还是synchronized block，这取决与具体的情况，但是一般都需要注意避免在里面放入一些费时的操作，比如昂贵的计算、网络或者I/O请求。</p>
 <h2 id="synchronized与可见性"><a href="#synchronized与可见性" class="headerlink" title="synchronized与可见性"></a>synchronized与可见性</h2><p>还是上面的例子，如果我们改成这样是不是就没问题了呢?</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">IntegerIncrementer</span> </span>&#123;</span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">int</span> counter = <span class="number">0</span>;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">int</span> <span class="title">getCount</span><span class="params">()</span> </span>&#123;</span><br><span class="line">	    <span class="keyword">return</span> counter;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">synchronized</span> <span class="keyword">void</span> <span class="title">increase</span><span class="params">()</span> </span>&#123;</span><br><span class="line">	    counter++;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">IntegerIncrementer</span> </span>&#123;</span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">int</span> counter = <span class="number">0</span>;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">int</span> <span class="title">getCount</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        <span class="keyword">return</span> counter;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">synchronized</span> <span class="keyword">void</span> <span class="title">increase</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        counter++;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 <p>很遗憾，答案是否定的。这里又会涉及到另一个问题，就是可见性的问题。简而言之，就是线程A的操作不一定马上对线程B可见。在JMM(Java Memory Model)的设计中，共享变量储存在主内存当中，每一个线程又会有自己的工作内存，这一块区域只对这个线程可见，线程对共享变量进行操作的时候会先读取到工作内存，修改然后在写回去。那么完全可能出现以下情况：</p>
 <ol>
 <li>线程A从主内存读取counter，在工作内存中加一，写入工作内存的变量。</li>
