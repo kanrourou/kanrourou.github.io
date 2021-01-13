@@ -2,7 +2,7 @@
 <search>
   <entry>
     <title>深入理解synchronized关键字</title>
-    <url>/2021/01/11/understand_synchronized_keyword/</url>
+    <url>/2021/01/13/understand_synchronized_keyword/</url>
     <content><![CDATA[<h2 id="synchronized与原子性"><a href="#synchronized与原子性" class="headerlink" title="synchronized与原子性"></a>synchronized与原子性</h2><p>先来看一个大家很熟悉的例子：<br><a id="more"></a></p>
 <figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">IntegerIncrementer</span> </span>&#123;</span><br><span class="line">    </span><br><span class="line">	<span class="keyword">private</span> <span class="keyword">int</span> count = <span class="number">0</span>;</span><br><span class="line"></span><br><span class="line">	<span class="function"><span class="keyword">public</span> <span class="keyword">int</span> <span class="title">getCount</span><span class="params">()</span> </span>&#123;</span><br><span class="line">		<span class="keyword">return</span> count;</span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line">	<span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">increase</span><span class="params">()</span> </span>&#123;</span><br><span class="line">		count++;</span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 <p>这段很简单的代码，在单线程中不会有任何问题。但是如果在多线程的环境当中，运行结果就很有可能并不是我们所想的情况：</p>
