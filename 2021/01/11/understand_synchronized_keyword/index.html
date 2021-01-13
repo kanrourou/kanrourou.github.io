@@ -1,0 +1,598 @@
+<!DOCTYPE html>
+<html lang="">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 3.9.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/font-awesome.min.css">
+
+
+<script id="hexo-configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    hostname: new URL('http://yoursite.com').hostname,
+    root: '/',
+    scheme: 'Pisces',
+    version: '7.6.0',
+    exturl: false,
+    sidebar: {"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},
+    copycode: {"enable":false,"show_result":false,"style":null},
+    back2top: {"enable":true,"sidebar":false,"scrollpercent":false},
+    bookmark: {"enable":false,"color":"#222","save":"auto"},
+    fancybox: false,
+    mediumzoom: false,
+    lazyload: false,
+    pangu: false,
+    comments: {"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},
+    algolia: {
+      appID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    },
+    localsearch: {"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},
+    path: 'search.xml',
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}}
+  };
+</script>
+
+  <meta name="description" content="synchronized与原子性先来看一个大家很熟悉的例子：">
+<meta name="keywords" content="Java,Concurrency">
+<meta property="og:type" content="article">
+<meta property="og:title" content="深入理解synchronized关键字">
+<meta property="og:url" content="http://yoursite.com/2021/01/11/understand_synchronized_keyword/index.html">
+<meta property="og:site_name" content="码字的呵呵君">
+<meta property="og:description" content="synchronized与原子性先来看一个大家很熟悉的例子：">
+<meta property="og:locale" content="default">
+<meta property="og:updated_time" content="2021-01-13T08:28:43.526Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="深入理解synchronized关键字">
+<meta name="twitter:description" content="synchronized与原子性先来看一个大家很熟悉的例子：">
+
+<link rel="canonical" href="http://yoursite.com/2021/01/11/understand_synchronized_keyword/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome: false,
+    isPost: true
+  };
+</script>
+
+  <title>深入理解synchronized关键字 | 码字的呵呵君</title>
+  
+    <script async src="https://www.googletagmanager.com/gtag/js?id=UA-133451584-2"></script>
+    <script>
+      if (CONFIG.hostname === location.hostname) {
+        window.dataLayer = window.dataLayer || [];
+        function gtag(){dataLayer.push(arguments);}
+        gtag('js', new Date());
+        gtag('config', 'UA-133451584-2');
+      }
+    </script>
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-meta">
+
+    <div>
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">码字的呵呵君</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+        <p class="site-subtitle">漫长的告别</p>
+  </div>
+
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="Toggle navigation bar">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+</div>
+
+
+<nav class="site-nav">
+  
+  <ul id="menu" class="menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-fw fa-home"></i>Home</a>
+
+  </li>
+        <li class="menu-item menu-item-about">
+
+    <a href="/about/" rel="section"><i class="fa fa-fw fa-user"></i>About</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/tags/" rel="section"><i class="fa fa-fw fa-tags"></i>Tags</a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/categories/" rel="section"><i class="fa fa-fw fa-th"></i>Categories</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-fw fa-archive"></i>Archives</a>
+
+  </li>
+  </ul>
+
+</nav>
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content">
+            
+
+  <div class="posts-expand">
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block " lang="default">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2021/01/11/understand_synchronized_keyword/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="hehejun">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="码字的呵呵君">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          深入理解synchronized关键字
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+
+              <time title="Created: 2021-01-11 00:00:00" itemprop="dateCreated datePublished" datetime="2021-01-11T00:00:00-08:00">2021-01-11</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-calendar-check-o"></i>
+                </span>
+                <span class="post-meta-item-text">Edited on</span>
+                <time title="Modified: 2021-01-13 00:28:43" itemprop="dateModified" datetime="2021-01-13T00:28:43-08:00">2021-01-13</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">In</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/Programming/" itemprop="url" rel="index">
+                    <span itemprop="name">Programming</span>
+                  </a>
+                </span>
+                  , 
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/Programming/Java/" itemprop="url" rel="index">
+                    <span itemprop="name">Java</span>
+                  </a>
+                </span>
+                  , 
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/Programming/Java/Concurrency/" itemprop="url" rel="index">
+                    <span itemprop="name">Concurrency</span>
+                  </a>
+                </span>
+            </span>
+
+          
+            <span id="/2021/01/11/understand_synchronized_keyword/" class="post-meta-item leancloud_visitors" data-flag-title="深入理解synchronized关键字" title="Views">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-eye"></i>
+              </span>
+              <span class="post-meta-item-text">Views: </span>
+              <span class="leancloud-visitors-count"></span>
+            </span>
+  
+  <span class="post-meta-item">
+    
+      <span class="post-meta-item-icon">
+        <i class="fa fa-comment-o"></i>
+      </span>
+      <span class="post-meta-item-text">Valine: </span>
+    
+    <a title="valine" href="/2021/01/11/understand_synchronized_keyword/#comments" itemprop="discussionUrl">
+      <span class="post-comments-count valine-comment-count" data-xid="/2021/01/11/understand_synchronized_keyword/" itemprop="commentCount"></span>
+    </a>
+  </span>
+  
+  <br>
+            <span class="post-meta-item" title="Symbols count in article">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-file-word-o"></i>
+              </span>
+                <span class="post-meta-item-text">Symbols count in article: </span>
+              <span>3.4k</span>
+            </span>
+            <span class="post-meta-item" title="Reading time">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-clock-o"></i>
+              </span>
+                <span class="post-meta-item-text">Reading time &asymp;</span>
+              <span>3 mins.</span>
+            </span>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <h2 id="synchronized与原子性"><a href="#synchronized与原子性" class="headerlink" title="synchronized与原子性"></a>synchronized与原子性</h2><p>先来看一个大家很熟悉的例子：<br><a id="more"></a></p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">IntegerIncrementer</span> </span>&#123;</span><br><span class="line">    </span><br><span class="line">	<span class="keyword">private</span> <span class="keyword">int</span> count = <span class="number">0</span>;</span><br><span class="line"></span><br><span class="line">	<span class="function"><span class="keyword">public</span> <span class="keyword">int</span> <span class="title">getCount</span><span class="params">()</span> </span>&#123;</span><br><span class="line">		<span class="keyword">return</span> count;</span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line">	<span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">increase</span><span class="params">()</span> </span>&#123;</span><br><span class="line">		count++;</span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>这段很简单的代码，在单线程中不会有任何问题。但是如果在多线程的环境当中，运行结果就很有可能并不是我们所想的情况：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">Demo</span> <span class="keyword">implements</span> <span class="title">Runnable</span> </span>&#123;</span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">static</span> IntegerIncrementer incrementer = <span class="keyword">new</span> IntergerIncrementer();</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">main</span><span class="params">(String[] args)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">for</span> (<span class="keyword">int</span> i = <span class="number">0</span>; i &lt; <span class="number">1000</span>; i++) &#123;</span><br><span class="line">            Thread thread = <span class="keyword">new</span> Thread(<span class="keyword">new</span> Demo());</span><br><span class="line">            thread.start();</span><br><span class="line">        &#125;</span><br><span class="line">        System.out.println(<span class="string">"result: "</span> + incrementer.getCount());</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">run</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        incrementer.increase();</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>以上代码开了1000个线程，每个线程做的事情很简单，就是让incrementer自增，但是最后的结果却并不一定是1000。这是因为<code>count++</code>并不是一个原子性的操作，所谓原子性，就是指线程在执行这个指令的时候不会被打断，不会发生context switch。一个<code>count++</code>的操作，实际上包含了以下三步：</p>
+<ol>
+<li>读取count的值。</li>
+<li>对count加一。</li>
+<li>将加一后的值赋值给count。</li>
+</ol>
+<p>即使一般而言，1和3的操作在java中都被认为是具有原子性的（<strong>注意long和double在32位架构的CPU下不是原子操作，会分开成两次32位的读或者写</strong>），但是这三种操作组合起来并不具有原子性。比如可能发生以下情况：</p>
+<ol>
+<li>线程A读取了count的值为9，对其加一。</li>
+<li>在线程A赋值之前，线程B也读取了count的值为9，对其加一。</li>
+<li>线程A对count赋值为10。</li>
+<li>线程B对count赋值为10。</li>
+</ol>
+<p>2的情况中，我们并不一定要求在线程A赋值之前B去读count这个情况才可能发生，因为即使线程A写入了，也不一定对B可见，这个我们之后在讨论。</p>
+<p>在以上的情况中，count本应该最后变为11，但是最后的值却为10。很明显，在多线程环境中，我们无法确定程序最后输出的结果是什么，因为其完全取决于线程运行的情况。所以我们希望<code>count++</code>这个操作可以具有原子性，为了达到这个目的，我们可以用<code>synchronized</code>关键字。</p>
+<p><code>synchronized</code>可以用在以下场景：</p>
+<ol>
+<li>静态方法: <code>public static synchronized void method() { ... }</code></li>
+<li>实例方法: <code>public synchronized void method() { ... }</code></li>
+<li>类对象: <code>synchronized (Demo.class) { ... }</code></li>
+<li>实例对象: <code>synchronized (this) { ... }</code></li>
+</ol>
+<p>每一个java的对象都有对应的monitor lock，这个monitor lock会在进入synchronized block的时候被线程自动获取，然后在离开的时候释放。这个锁一旦被某个线程获取，其他线程都无法获取，只能block，等占有的线程释放之后，再尝试获取。值得注意的是，java的monitor lock是可以重复获取的，如果一个线程已经获取了这个锁，那么当它再次请求的时候，这个锁对应的计数器会加一，每一次离开synchronized block都会减一，直到减为0，锁就会释放。举个例子：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">BaseClass</span> </span>&#123;</span><br><span class="line">	<span class="function"><span class="keyword">public</span> <span class="keyword">synchronized</span> <span class="keyword">void</span> <span class="title">do</span><span class="params">()</span> </span>&#123;</span><br><span class="line">		<span class="comment">//Do something...</span></span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">ChildClass</span> <span class="keyword">extends</span> <span class="title">BaseClass</span> </span>&#123;</span><br><span class="line">	<span class="function"><span class="keyword">public</span> <span class="keyword">synchronized</span> <span class="keyword">void</span> <span class="title">do</span><span class="params">()</span> </span>&#123;</span><br><span class="line">		<span class="comment">//Do something...</span></span><br><span class="line">		<span class="keyword">super</span>.<span class="keyword">do</span>();</span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>如果我们直接调用<code>ChildClass</code>的<code>do()</code>方法，那么当前线程会获取<code>ChildClass</code>和<code>BaseClass</code>的monitor lock，那么当其调用<code>super.do()</code>的时候，会尝试再次获取<code>BaseClass</code>的monitor lock，如果不允许重复获得锁的话，这个锁是被当前线程拥有，所以不可能再次获得，那么只会deadlock。</p>
+<p>需要注意的是对象的monitor lock的和对选哪个本身的状态并没有太大的关系。获得了对象的monitor lock并不会防止其他线程访问对象，只会防止其他线程获得相同的monitor lock，其他线程仍然可以访问对象没有被<code>synchronized</code> guard的代码。</p>
+<p>具体是使用synchronized method还是synchronized block，这取决与具体的情况，但是一般都需要注意避免在里面放入一些费时的操作，比如昂贵的计算、网络或者I/O请求。</p>
+<h2 id="synchronized与可见性"><a href="#synchronized与可见性" class="headerlink" title="synchronized与可见性"></a>synchronized与可见性</h2><p>还是上面的例子，如果我们改成这样是不是就没问题了呢?</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">IntegerIncrementer</span> </span>&#123;</span><br><span class="line">	<span class="keyword">private</span> <span class="keyword">int</span> counter = <span class="number">0</span>;</span><br><span class="line"></span><br><span class="line">	<span class="function"><span class="keyword">public</span> <span class="keyword">int</span> <span class="title">getCount</span><span class="params">()</span> </span>&#123;</span><br><span class="line">		<span class="keyword">return</span> counter;</span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line">	<span class="function"><span class="keyword">public</span> <span class="keyword">synchronized</span> <span class="keyword">void</span> <span class="title">increase</span><span class="params">()</span> </span>&#123;</span><br><span class="line">		counter++;</span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>很遗憾，答案是否定的。这里又会涉及到另一个问题，就是可见性的问题。简而言之，就是线程A的操作不一定马上对线程B可见。在JMM(Java Memory Model)的设计中，共享变量储存在主内存当中，每一个线程又会有自己的工作内存，这一块区域只对这个线程可见，线程对共享变量进行操作的时候会先读取到工作内存，修改然后在写回去。那么完全可能出现以下情况：</p>
+<ol>
+<li>线程A从主内存读取counter，在工作内存中加一，写入工作内存的变量。</li>
+<li>线程B从主内存读取counter。</li>
+<li>线程A把counter写入主内存。</li>
+</ol>
+<p>这样一来线程B最后读到的数据是stale data，再一次地，程序的运行结果取决于线程的运行的状况，输出无法预测。</p>
+<p>同样我们可以利用<code>synchrnized</code>来解决这个问题，<code>synchronized</code>可以保证线程在释放锁的时候强制将值刷新到主内存，这样当释放锁的时候，新的值就即使对其他线程可见，保证了对共享变量更改的可见性。</p>
+<p>所以当对共享变量进行操作的时候，如果有线程写入的话，读和写都需要进行加锁。</p>
+<p>当然我们也可以使用<code>volite</code>关键字来达到可见性，我们会在另外的文章中进行讨论。</p>
+<h2 id="synchronized与有序性"><a href="#synchronized与有序性" class="headerlink" title="synchronized与有序性"></a>synchronized与有序性</h2><p>在编程语言中，程序员所写的代码的顺序和最后机器执行的顺序并不一定是一样的，这是因为底层的编译器和处理器，包括JVM会对指令进行优化，从而达到更好的performance。对于一段代码只要在遵从<code>as-if-serial</code>语义的前提下————即无论如何重排序，单线程执行的结果不会改变————对指令进行重排。在JMM中，因为多线程的情况，其会限制一些指令的重排，当然程序员也可以利用一些关键字来防止重排，这里我们不做深入讨论。</p>
+<p>这里有序性指的是，程序是否按照代码的顺序执行，不会被底层的一些处理而重排。</p>
+<p><code>synchronized</code>并无法防止指令的重排，但其在一定程度上提供了有序性：</p>
+<ol>
+<li>所有synchronized block同时只能有一个线程进入，这保证了block之间的有序性。</li>
+<li>其会防止释放monitor lock和在block中写入变量的指令之间的重排，这保证了释放锁的时候，更新的值已经写入了主内存。</li>
+</ol>
+<p>但是对于block中的指令，并没有办法防止重排。因为block中始终是单线程，只要遵从<code>as-if-serial</code>语义，即可重排。</p>
+
+    </div>
+
+    
+    
+    
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/Java/" rel="tag"># Java</a>
+              <a href="/tags/Concurrency/" rel="tag"># Concurrency</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2021/01/03/paper_reading_kafka/" rel="prev" title="Paper Reading: Kafka">
+      <i class="fa fa-chevron-left"></i> Paper Reading: Kafka
+    </a></div>
+      <div class="post-nav-item"></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+  </div>
+
+
+          </div>
+          
+    <div class="comments" id="comments"></div>
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let activeClass = CONFIG.comments.activeClass;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          Table of Contents
+        </li>
+        <li class="sidebar-nav-overview">
+          Overview
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#synchronized与原子性"><span class="nav-number">1.</span> <span class="nav-text">synchronized与原子性</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#synchronized与可见性"><span class="nav-number">2.</span> <span class="nav-text">synchronized与可见性</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#synchronized与有序性"><span class="nav-number">3.</span> <span class="nav-text">synchronized与有序性</span></a></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="hehejun"
+      src="/images/avatar.gif">
+  <p class="site-author-name" itemprop="name">hehejun</p>
+  <div class="site-description" itemprop="description"></div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">7</span>
+          <span class="site-state-item-name">posts</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+          
+        <span class="site-state-item-count">9</span>
+        <span class="site-state-item-name">categories</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+          
+        <span class="site-state-item-count">10</span>
+        <span class="site-state-item-name">tags</span></a>
+      </div>
+  </nav>
+</div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+<div class="copyright">
+  
+  &copy; 2019 – 
+  <span itemprop="copyrightYear">2021</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">hehejun</span>
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item-icon">
+      <i class="fa fa-area-chart"></i>
+    </span>
+    <span title="Symbols count total">25k</span>
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item-icon">
+      <i class="fa fa-coffee"></i>
+    </span>
+    <span title="Reading time total">23 mins.</span>
+</div>
+
+        
+<div class="busuanzi-count">
+  <script async src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+    <span class="post-meta-item" id="busuanzi_container_site_uv" style="display: none;">
+      <span class="post-meta-item-icon">
+        <i class="fa fa-user"></i>
+      </span>
+      <span class="site-uv" title="Total Visitors">
+        <span id="busuanzi_value_site_uv"></span>
+      </span>
+    </span>
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item" id="busuanzi_container_site_pv" style="display: none;">
+      <span class="post-meta-item-icon">
+        <i class="fa fa-eye"></i>
+      </span>
+      <span class="site-pv" title="Total Views">
+        <span id="busuanzi_value_site_pv"></span>
+      </span>
+    </span>
+</div>
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+<script src="/js/utils.js"></script><script src="/js/motion.js"></script>
+<script src="/js/schemes/pisces.js"></script>
+<script src="/js/next-boot.js"></script>
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+
+<script>
+NexT.utils.loadComments(() => {
+  NexT.utils.getScript('https://cdn.jsdelivr.net/npm/valine@1.4.14/dist/Valine.min.js', () => {
+    var GUEST = ['nick', 'mail', 'link'];
+    var guest = 'nick,mail,link';
+    guest = guest.split(',').filter(item => {
+      return GUEST.includes(item);
+    });
+    new Valine({
+      el: '#comments',
+      verify: false,
+      notify: false,
+      appId: 'PKvEM4W15eyM8pCk7qvGlvYF-MdYXbMMI',
+      appKey: 'u3RYtOW2Dcu1hAgNEtjsAMip',
+      placeholder: "Just go go",
+      avatar: 'mm',
+      meta: guest,
+      pageSize: '10' || 10,
+      visitor: true,
+      lang: '' || 'zh-cn',
+      path: location.pathname,
+      recordIP: false,
+      serverURLs: ''
+    });
+  }, window.Valine);
+});
+</script>
+
+</body>
+</html>
