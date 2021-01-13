@@ -99,7 +99,7 @@
 ]]></content>
       <categories>
         <category>System Infrastructure</category>
-        <category>Pipeline</category>
+        <category>MessageQueue</category>
       </categories>
       <tags>
         <tag>Distributed System</tag>
