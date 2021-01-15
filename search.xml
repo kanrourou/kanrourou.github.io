@@ -1,6 +1,37 @@
 <?xml version="1.0" encoding="utf-8"?>
 <search>
   <entry>
+    <title>深入理解volatile关键字</title>
+    <url>/2021/01/15/understand_volatile_keyword/</url>
+    <content><![CDATA[<h2 id="volatile与可见性"><a href="#volatile与可见性" class="headerlink" title="volatile与可见性"></a>volatile与可见性</h2><p>我们还是先来看一个例子，这个例子在<code>synchronized</code>这篇<a href="https://kanrourou.github.io/2021/01/13/understand_synchronized_keyword/" target="_blank" rel="noopener">文章</a>中用过:<br><a id="more"></a></p>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">IntegerIncrementer</span> </span>&#123;</span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">int</span> counter = <span class="number">0</span>;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">int</span> <span class="title">getCount</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        <span class="keyword">return</span> counter;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span>  <span class="keyword">void</span> <span class="title">increase</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        counter++;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>我们之前是用<code>synchronized</code>关键字让现场在修改完变量后强制刷新内存，让修改结果对其他线程可见。其实<code>volatile</code>可以达到同样的效果，即修改后的变量可以保证对其他线程可见。</p>
+<p>具体实现的原理是，对<code>volatile</code>进行的操作最后在汇编语言中会带有<em>Lock</em>前缀，<em>Lock</em>前缀具有以下的作用：</p>
+<ol>
+<li>把当前变量所在CPU缓存行的数据写回内存。</li>
+<li>让其他CPU包含了该地址的缓存行失效，也就是线程下一次读取共享变量必须强制去内存读取。</li>
+</ol>
+<p>注意缓存行是CPU缓存中最小的读写单位，一般一个缓存行中会包含多个共享变量，并且这些变量之间可以没有任何关系。频繁地使缓存失效会降低缓存命中率，从而影响性能。这就是伪共享的问题，伪共享可以通过字节填充来解决，这里不展开讨论。</p>
+<p>总之<code>volatile</code>可以通过这样的机制来保证可见性。</p>
+<h2 id="volatile与有序性"><a href="#volatile与有序性" class="headerlink" title="volatile与有序性"></a>volatile与有序性</h2><p><code>volatile</code>的另一个是可以禁止指令的重排，我们来看这个例子：</p>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">Demo</span> </span>&#123;</span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">boolean</span> ready;</span><br><span class="line">	<span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">int</span> number;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">static</span> <span class="class"><span class="keyword">class</span> <span class="title">ReaderThreader</span> <span class="keyword">extends</span> <span class="title">Thread</span> </span>&#123;</span><br><span class="line">        <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">run</span><span class="params">()</span> </span>&#123;</span><br><span class="line">            <span class="keyword">while</span> (!ready);</span><br><span class="line">            System.out.println(number);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">main</span><span class="params">(String[] args)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">new</span> ReaderThread().start();</span><br><span class="line">		number = <span class="number">42</span>;</span><br><span class="line">		ready = <span class="keyword">true</span>;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>乍看之下，似乎最后打印出来的是42, 但是我们还是在上面那篇文章中介绍过，编译器和处理器会在遵从<code>as-if-serial</code>的语义下对指令进行重排。代码14和15行之前没有任何依赖关系，那么完全可能出现：</p>
+<ol>
+<li>线程A先执行15行，CPU time结束，发生context switch。</li>
+<li>线程B执行<code>run()</code>方法，打印出来的结果是0。</li>
+</ol>
+]]></content>
+      <categories>
+        <category>Programming</category>
+        <category>Java</category>
+        <category>Concurrency</category>
+      </categories>
+      <tags>
+        <tag>Java</tag>
+        <tag>Concurrency</tag>
+      </tags>
+  </entry>
+  <entry>
     <title>深入理解synchronized关键字</title>
     <url>/2021/01/13/understand_synchronized_keyword/</url>
     <content><![CDATA[<h2 id="synchronized与原子性"><a href="#synchronized与原子性" class="headerlink" title="synchronized与原子性"></a>synchronized与原子性</h2><p>先来看一个大家很熟悉的例子：<br><a id="more"></a></p>

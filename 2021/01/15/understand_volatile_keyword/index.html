@@ -46,20 +46,20 @@
   };
 </script>
 
-  <meta name="description" content="Set up local development environment on MacOSInstall Node.jsHexo is based on Node.js which can be installed here. It comes with npm, once the installation is done, run the following commands to make s">
-<meta name="keywords" content="Hexo,JavaScript">
+  <meta name="description" content="volatile与可见性我们还是先来看一个例子，这个例子在synchronized这篇文章中用过:">
+<meta name="keywords" content="Java,Concurrency">
 <meta property="og:type" content="article">
-<meta property="og:title" content="Create your own blog with Hexo and Github Pages">
-<meta property="og:url" content="http://yoursite.com/2019/03/17/hexo_github_pages_blog/index.html">
+<meta property="og:title" content="深入理解volatile关键字">
+<meta property="og:url" content="http://yoursite.com/2021/01/15/understand_volatile_keyword/index.html">
 <meta property="og:site_name" content="码字的呵呵君">
-<meta property="og:description" content="Set up local development environment on MacOSInstall Node.jsHexo is based on Node.js which can be installed here. It comes with npm, once the installation is done, run the following commands to make s">
+<meta property="og:description" content="volatile与可见性我们还是先来看一个例子，这个例子在synchronized这篇文章中用过:">
 <meta property="og:locale" content="default">
-<meta property="og:updated_time" content="2021-01-13T08:51:26.085Z">
+<meta property="og:updated_time" content="2021-01-15T08:20:20.242Z">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="Create your own blog with Hexo and Github Pages">
-<meta name="twitter:description" content="Set up local development environment on MacOSInstall Node.jsHexo is based on Node.js which can be installed here. It comes with npm, once the installation is done, run the following commands to make s">
+<meta name="twitter:title" content="深入理解volatile关键字">
+<meta name="twitter:description" content="volatile与可见性我们还是先来看一个例子，这个例子在synchronized这篇文章中用过:">
 
-<link rel="canonical" href="http://yoursite.com/2019/03/17/hexo_github_pages_blog/">
+<link rel="canonical" href="http://yoursite.com/2021/01/15/understand_volatile_keyword/">
 
 
 <script id="page-configurations">
@@ -71,7 +71,7 @@
   };
 </script>
 
-  <title>Create your own blog with Hexo and Github Pages | 码字的呵呵君</title>
+  <title>深入理解volatile关键字 | 码字的呵呵君</title>
   
     <script async src="https://www.googletagmanager.com/gtag/js?id=UA-133451584-2"></script>
     <script>
@@ -195,7 +195,7 @@
   
   
   <article itemscope itemtype="http://schema.org/Article" class="post-block " lang="default">
-    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2019/03/17/hexo_github_pages_blog/">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2021/01/15/understand_volatile_keyword/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="image" content="/images/avatar.gif">
@@ -208,7 +208,7 @@
     </span>
       <header class="post-header">
         <h1 class="post-title" itemprop="name headline">
-          Create your own blog with Hexo and Github Pages
+          深入理解volatile关键字
         </h1>
 
         <div class="post-meta">
@@ -217,16 +217,10 @@
                 <i class="fa fa-calendar-o"></i>
               </span>
               <span class="post-meta-item-text">Posted on</span>
+              
 
-              <time title="Created: 2019-03-17 00:00:00" itemprop="dateCreated datePublished" datetime="2019-03-17T00:00:00-07:00">2019-03-17</time>
+              <time title="Created: 2021-01-15 00:00:00 / Modified: 00:20:20" itemprop="dateCreated datePublished" datetime="2021-01-15T00:00:00-08:00">2021-01-15</time>
             </span>
-              <span class="post-meta-item">
-                <span class="post-meta-item-icon">
-                  <i class="fa fa-calendar-check-o"></i>
-                </span>
-                <span class="post-meta-item-text">Edited on</span>
-                <time title="Modified: 2021-01-13 00:51:26" itemprop="dateModified" datetime="2021-01-13T00:51:26-08:00">2021-01-13</time>
-              </span>
             <span class="post-meta-item">
               <span class="post-meta-item-icon">
                 <i class="fa fa-folder-o"></i>
@@ -239,20 +233,20 @@
                 </span>
                   , 
                 <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/Programming/JavaScript/" itemprop="url" rel="index">
-                    <span itemprop="name">JavaScript</span>
+                  <a href="/categories/Programming/Java/" itemprop="url" rel="index">
+                    <span itemprop="name">Java</span>
                   </a>
                 </span>
                   , 
                 <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/Programming/JavaScript/Hexo/" itemprop="url" rel="index">
-                    <span itemprop="name">Hexo</span>
+                  <a href="/categories/Programming/Java/Concurrency/" itemprop="url" rel="index">
+                    <span itemprop="name">Concurrency</span>
                   </a>
                 </span>
             </span>
 
           
-            <span id="/2019/03/17/hexo_github_pages_blog/" class="post-meta-item leancloud_visitors" data-flag-title="Create your own blog with Hexo and Github Pages" title="Views">
+            <span id="/2021/01/15/understand_volatile_keyword/" class="post-meta-item leancloud_visitors" data-flag-title="深入理解volatile关键字" title="Views">
               <span class="post-meta-item-icon">
                 <i class="fa fa-eye"></i>
               </span>
@@ -267,8 +261,8 @@
       </span>
       <span class="post-meta-item-text">Valine: </span>
     
-    <a title="valine" href="/2019/03/17/hexo_github_pages_blog/#comments" itemprop="discussionUrl">
-      <span class="post-comments-count valine-comment-count" data-xid="/2019/03/17/hexo_github_pages_blog/" itemprop="commentCount"></span>
+    <a title="valine" href="/2021/01/15/understand_volatile_keyword/#comments" itemprop="discussionUrl">
+      <span class="post-comments-count valine-comment-count" data-xid="/2021/01/15/understand_volatile_keyword/" itemprop="commentCount"></span>
     </a>
   </span>
   
@@ -278,14 +272,14 @@
                 <i class="fa fa-file-word-o"></i>
               </span>
                 <span class="post-meta-item-text">Symbols count in article: </span>
-              <span>2.6k</span>
+              <span>1.1k</span>
             </span>
             <span class="post-meta-item" title="Reading time">
               <span class="post-meta-item-icon">
                 <i class="fa fa-clock-o"></i>
               </span>
                 <span class="post-meta-item-text">Reading time &asymp;</span>
-              <span>2 mins.</span>
+              <span>1 mins.</span>
             </span>
 
         </div>
@@ -297,27 +291,23 @@
     <div class="post-body" itemprop="articleBody">
 
       
-        <h2 id="Set-up-local-development-environment-on-MacOS"><a href="#Set-up-local-development-environment-on-MacOS" class="headerlink" title="Set up local development environment on MacOS"></a>Set up local development environment on MacOS</h2><h3 id="Install-Node-js"><a href="#Install-Node-js" class="headerlink" title="Install Node.js"></a>Install Node.js</h3><p>Hexo is based on Node.js which can be installed <a href="https://nodejs.org/en/download/" target="_blank" rel="noopener">here</a>. It comes with npm, once the installation is done, run the following commands to make sure it is installed successfully<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">node -v</span><br><span class="line">npm -v</span><br></pre></td></tr></table></figure></p>
-<a id="more"></a>
-<h3 id="Install-Git"><a href="#Install-Git" class="headerlink" title="Install Git"></a>Install Git</h3><p>Follow the <a href="https://git-scm.com/book/en/v2/Getting-Started-Installing-Git" target="_blank" rel="noopener">steps</a> to install Git on your machine and verify by running<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">git --version</span><br><span class="line">git version 2.17.2 (Apple Git-113)</span><br></pre></td></tr></table></figure></p>
-<h3 id="Install-Hexo"><a href="#Install-Hexo" class="headerlink" title="Install Hexo"></a>Install Hexo</h3><p>Hexo can be installed from npm<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sudo npm install -g hexo</span><br></pre></td></tr></table></figure></p>
-<p>Create your personal blog folder, cd into it. And run the following command to initialze and install all required packages<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">hexo init</span><br><span class="line">sudo npm install</span><br></pre></td></tr></table></figure></p>
-<p>Once it is done, run<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">hexo generate</span><br><span class="line">hexo server</span><br></pre></td></tr></table></figure></p>
-<p><code>hexo generate</code> or <code>hexo g</code>  will generate all static files, and <code>hexo server</code> or <code>hexo s</code> starts a local server and you can navigate to <code>http://localhost:4000</code> in browser to see your blog. Once the local server is started, hexo will watch for file updates automatically, so you don’t need to restart the server, simply refreshing the page and you will see the changes.</p>
-<h2 id="Create-a-Github-Pages-project"><a href="#Create-a-Github-Pages-project" class="headerlink" title="Create a Github Pages project"></a>Create a Github Pages project</h2><p>What is Github Pages? According to the official website:</p>
-<blockquote>
-<p>GitHub Pages is a static site hosting service designed to host your personal, organization, or project pages directly from a GitHub repository</p>
-</blockquote>
-<p>As stated above, GitHub Pages is a static site hosting service, which means it doesn’t support server side programming. But it is good enough for building a personal blog, people may want to add some cool dynamic website features, which won’t be a problem. Hexo and different thirdparty tools can help us with it, we will talk about it later.<br>To use Github Pages, we need to create and configure our github account, we won’t dive deep into this part, there are a lot of related resouces can be easily googled. Once the Github account is set up, create a repository named as <code>&lt;username&gt;.github.io</code>.</p>
-<h2 id="Link-Github-Pages-project-to-your-local-repository"><a href="#Link-Github-Pages-project-to-your-local-repository" class="headerlink" title="Link Github Pages project to your local repository"></a>Link Github Pages project to your local repository</h2><p>This can be easily done by modifying the config file. To do that, cd into you blog folder and open <code>_config.yml</code> with whatever text editor you like, and adding the following deploy configration to the file<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">deploy:</span><br><span class="line">  <span class="built_in">type</span>: git</span><br><span class="line">  repository: https://github.com/&lt;username&gt;/&lt;username&gt;.github.io.git</span><br><span class="line">  branch: master</span><br></pre></td></tr></table></figure></p>
-<p>To deploy on server, we need to install git deployer by<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">npm install hexo-deployer-git --save</span><br></pre></td></tr></table></figure></p>
-<p>then run<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">hexo deploy</span><br></pre></td></tr></table></figure></p>
-<p>or<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">hexo d</span><br></pre></td></tr></table></figure></p>
-<p>to deploy your project. Every time after you make some changes, you can follow the workflow above to view your changes locally then deploy. If you can’t see the changes after depolyment, you can run<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">hexo clean</span><br></pre></td></tr></table></figure></p>
-<p>to clean the cached and generated files.</p>
-<h2 id="Select-a-Theme"><a href="#Select-a-Theme" class="headerlink" title="Select a Theme"></a>Select a Theme</h2><p>Hexo has a variety of themes you can select from the <a href="https://hexo.io/themes/index.html" target="_blank" rel="noopener">offical website</a>. This blog is powered by <a href="https://github.com/theme-next/hexo-theme-next" target="_blank" rel="noopener">NexT</a>. To install it, cd into your blog folder and run<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">git <span class="built_in">clone</span> https://github.com/iissnan/hexo-theme-next themes/next</span><br></pre></td></tr></table></figure></p>
-<p>This will clone the NexT project to your local repository. To enable the new theme, open <code>_config.yml</code>, under <code>theme</code>,  change <code>landscape</code> to <code>next</code> and deploy it.</p>
-<p>The next article will discuss about theme configuration and third party integration tools.</p>
+        <h2 id="volatile与可见性"><a href="#volatile与可见性" class="headerlink" title="volatile与可见性"></a>volatile与可见性</h2><p>我们还是先来看一个例子，这个例子在<code>synchronized</code>这篇<a href="https://kanrourou.github.io/2021/01/13/understand_synchronized_keyword/" target="_blank" rel="noopener">文章</a>中用过:<br><a id="more"></a></p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">IntegerIncrementer</span> </span>&#123;</span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">int</span> counter = <span class="number">0</span>;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">int</span> <span class="title">getCount</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        <span class="keyword">return</span> counter;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span>  <span class="keyword">void</span> <span class="title">increase</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        counter++;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>我们之前是用<code>synchronized</code>关键字让现场在修改完变量后强制刷新内存，让修改结果对其他线程可见。其实<code>volatile</code>可以达到同样的效果，即修改后的变量可以保证对其他线程可见。</p>
+<p>具体实现的原理是，对<code>volatile</code>进行的操作最后在汇编语言中会带有<em>Lock</em>前缀，<em>Lock</em>前缀具有以下的作用：</p>
+<ol>
+<li>把当前变量所在CPU缓存行的数据写回内存。</li>
+<li>让其他CPU包含了该地址的缓存行失效，也就是线程下一次读取共享变量必须强制去内存读取。</li>
+</ol>
+<p>注意缓存行是CPU缓存中最小的读写单位，一般一个缓存行中会包含多个共享变量，并且这些变量之间可以没有任何关系。频繁地使缓存失效会降低缓存命中率，从而影响性能。这就是伪共享的问题，伪共享可以通过字节填充来解决，这里不展开讨论。</p>
+<p>总之<code>volatile</code>可以通过这样的机制来保证可见性。</p>
+<h2 id="volatile与有序性"><a href="#volatile与有序性" class="headerlink" title="volatile与有序性"></a>volatile与有序性</h2><p><code>volatile</code>的另一个是可以禁止指令的重排，我们来看这个例子：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">Demo</span> </span>&#123;</span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">boolean</span> ready;</span><br><span class="line">	<span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">int</span> number;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">static</span> <span class="class"><span class="keyword">class</span> <span class="title">ReaderThreader</span> <span class="keyword">extends</span> <span class="title">Thread</span> </span>&#123;</span><br><span class="line">        <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">run</span><span class="params">()</span> </span>&#123;</span><br><span class="line">            <span class="keyword">while</span> (!ready);</span><br><span class="line">            System.out.println(number);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">main</span><span class="params">(String[] args)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">new</span> ReaderThread().start();</span><br><span class="line">		number = <span class="number">42</span>;</span><br><span class="line">		ready = <span class="keyword">true</span>;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>乍看之下，似乎最后打印出来的是42, 但是我们还是在上面那篇文章中介绍过，编译器和处理器会在遵从<code>as-if-serial</code>的语义下对指令进行重排。代码14和15行之前没有任何依赖关系，那么完全可能出现：</p>
+<ol>
+<li>线程A先执行15行，CPU time结束，发生context switch。</li>
+<li>线程B执行<code>run()</code>方法，打印出来的结果是0。</li>
+</ol>
 
     </div>
 
@@ -327,8 +317,8 @@
 
       <footer class="post-footer">
           <div class="post-tags">
-              <a href="/tags/Hexo/" rel="tag"># Hexo</a>
-              <a href="/tags/JavaScript/" rel="tag"># JavaScript</a>
+              <a href="/tags/Java/" rel="tag"># Java</a>
+              <a href="/tags/Concurrency/" rel="tag"># Concurrency</a>
           </div>
 
         
@@ -336,11 +326,11 @@
 
         
     <div class="post-nav">
-      <div class="post-nav-item"></div>
       <div class="post-nav-item">
-    <a href="/2019/03/18/hexo_next_page_user_views/" rel="next" title="Hexo: Adding PV/UV  counters to NexT theme">
-      Hexo: Adding PV/UV  counters to NexT theme <i class="fa fa-chevron-right"></i>
+    <a href="/2021/01/13/understand_synchronized_keyword/" rel="prev" title="深入理解synchronized关键字">
+      <i class="fa fa-chevron-left"></i> 深入理解synchronized关键字
     </a></div>
+      <div class="post-nav-item"></div>
     </div>
       </footer>
     
@@ -401,7 +391,7 @@
 
       <!--noindex-->
       <div class="post-toc-wrap sidebar-panel">
-          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#Set-up-local-development-environment-on-MacOS"><span class="nav-number">1.</span> <span class="nav-text">Set up local development environment on MacOS</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#Install-Node-js"><span class="nav-number">1.1.</span> <span class="nav-text">Install Node.js</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Install-Git"><span class="nav-number">1.2.</span> <span class="nav-text">Install Git</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Install-Hexo"><span class="nav-number">1.3.</span> <span class="nav-text">Install Hexo</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Create-a-Github-Pages-project"><span class="nav-number">2.</span> <span class="nav-text">Create a Github Pages project</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Link-Github-Pages-project-to-your-local-repository"><span class="nav-number">3.</span> <span class="nav-text">Link Github Pages project to your local repository</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Select-a-Theme"><span class="nav-number">4.</span> <span class="nav-text">Select a Theme</span></a></li></ol></div>
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#volatile与可见性"><span class="nav-number">1.</span> <span class="nav-text">volatile与可见性</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#volatile与有序性"><span class="nav-number">2.</span> <span class="nav-text">volatile与有序性</span></a></li></ol></div>
       </div>
       <!--/noindex-->
 
