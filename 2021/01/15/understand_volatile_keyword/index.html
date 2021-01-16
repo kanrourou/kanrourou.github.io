@@ -54,7 +54,7 @@
 <meta property="og:site_name" content="码字的呵呵君">
 <meta property="og:description" content="volatile与可见性我们还是先来看一个例子，这个例子在synchronized这篇文章中用过:">
 <meta property="og:locale" content="default">
-<meta property="og:updated_time" content="2021-01-16T04:55:47.689Z">
+<meta property="og:updated_time" content="2021-01-16T04:58:36.957Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="深入理解volatile关键字">
 <meta name="twitter:description" content="volatile与可见性我们还是先来看一个例子，这个例子在synchronized这篇文章中用过:">
@@ -219,7 +219,7 @@
               <span class="post-meta-item-text">Posted on</span>
               
 
-              <time title="Created: 2021-01-15 00:00:00 / Modified: 20:55:47" itemprop="dateCreated datePublished" datetime="2021-01-15T00:00:00-08:00">2021-01-15</time>
+              <time title="Created: 2021-01-15 00:00:00 / Modified: 20:58:36" itemprop="dateCreated datePublished" datetime="2021-01-15T00:00:00-08:00">2021-01-15</time>
             </span>
             <span class="post-meta-item">
               <span class="post-meta-item-icon">
@@ -334,7 +334,7 @@
 <li><code>instance == null</code>的检查要做两次，因为第一次检查完到获取锁中间，可能有其他线程已经完成了实例化从同步块中出来了。</li>
 <li><code>instance</code>需要用<code>volatile</code>修饰。</li>
 </ol>
-<p>这里<code>volatile的作用是防止指令的重排序，因为</code>new`的操作不是原子性的，它会分为三步：</p>
+<p>这里<code>volatile</code>的作用是防止指令的重排序，因为<code>new</code>的操作不是原子性的，它会分为三步：</p>
 <ol>
 <li>分配内存区间。</li>
 <li>调用构造函数初始化实例。</li>
