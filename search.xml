@@ -33,11 +33,11 @@
 <li>线程A先执行15行，发生context switch。</li>
 <li>线程B执行<code>run()</code>方法，读取DB的时候key不存在，或者读到stale data。</li>
 </ol>
-<p>对于情况2，类似地，第6行和第5行的顺序可能重排，第6行的语句可能先被执行，将结果缓存，等到第5行判断为真的时候再赋值，那么可能出现这种情况：</p>
+<p>对于情况2，类似地，第6行和第7行的顺序可能重排，第7行的语句可能先被执行，将结果缓存，等到第6行判断为真的时候再赋值，那么可能出现这种情况：</p>
 <ol>
-<li>线程A执行第6行，有可能读到stale data，缓存结果，发生context switch。</li>
+<li>线程A执行第7行，有可能读到stale data，缓存结果，发生context switch。</li>
 <li>线程B执行<code>main</code>方法，更新key的值。</li>
-<li>线程A执行第5行，判断为真，将缓存的stale data赋值给<code>number</code>。</li>
+<li>线程A执行第6行，判断为真，将缓存的stale data赋值给<code>number</code>。</li>
 </ol>
 <p>因为会出现以上的情况，所以我们需要禁止普通读写和<code>volatile</code>读写的重排序。那么对<code>volatile</code>修饰变量操作重排序的禁止，有一个大家耳熟能详的例子，就是DCL(Double Check Lock):</p>
 <figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">DCLDemo</span> </span>&#123;</span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">volatile</span> DCLDemo instance;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> DCLDemo <span class="title">getInstance</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        <span class="keyword">if</span> (instance == <span class="keyword">null</span>) &#123;</span><br><span class="line">            <span class="keyword">synchronized</span>(DCLDemo.class) &#123;</span><br><span class="line">                <span class="keyword">if</span> (instance == <span class="keyword">null</span>) &#123;</span><br><span class="line">                    instance = <span class="keyword">new</span> DCLDemo();</span><br><span class="line">                &#125;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
