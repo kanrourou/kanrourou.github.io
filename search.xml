@@ -13,13 +13,47 @@
 </ol>
 <p>注意缓存行是CPU缓存中最小的读写单位，一般一个缓存行中会包含多个共享变量，并且这些变量之间可以没有任何关系。频繁地使缓存失效会降低缓存命中率，从而影响性能。这就是伪共享的问题，伪共享可以通过字节填充来解决，这里不展开讨论。</p>
 <p>总之<code>volatile</code>可以通过这样的机制来保证可见性。</p>
-<h2 id="volatile与有序性"><a href="#volatile与有序性" class="headerlink" title="volatile与有序性"></a>volatile与有序性</h2><p><code>volatile</code>的另一个是可以禁止指令的重排，我们来看这个例子：</p>
-<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">Demo</span> </span>&#123;</span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">boolean</span> ready;</span><br><span class="line">	<span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">int</span> number;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">static</span> <span class="class"><span class="keyword">class</span> <span class="title">ReaderThreader</span> <span class="keyword">extends</span> <span class="title">Thread</span> </span>&#123;</span><br><span class="line">        <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">run</span><span class="params">()</span> </span>&#123;</span><br><span class="line">            <span class="keyword">while</span> (!ready);</span><br><span class="line">            System.out.println(number);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">main</span><span class="params">(String[] args)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">new</span> ReaderThread().start();</span><br><span class="line">		number = <span class="number">42</span>;</span><br><span class="line">		ready = <span class="keyword">true</span>;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h2 id="volatile与有序性"><a href="#volatile与有序性" class="headerlink" title="volatile与有序性"></a>volatile与有序性</h2><p><code>volatile</code>的另一个特性是可以禁止指令的重排，我们来看这个例子：</p>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">Demo</span> </span>&#123;</span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">boolean</span> ready;</span><br><span class="line">	<span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">int</span> number;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">static</span> <span class="class"><span class="keyword">class</span> <span class="title">ReaderThreader</span> <span class="keyword">extends</span> <span class="title">Thread</span> </span>&#123;</span><br><span class="line">        <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">run</span><span class="params">()</span> </span>&#123;</span><br><span class="line">            <span class="keyword">while</span> (!ready);</span><br><span class="line">            System.out.println(number);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">main</span><span class="params">(String[] args)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">new</span> ReaderThread().start();</span><br><span class="line">        number = <span class="number">42</span>;</span><br><span class="line">        ready = <span class="keyword">true</span>;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 <p>乍看之下，似乎最后打印出来的是42, 但是我们还是在上面那篇文章中介绍过，编译器和处理器会在遵从<code>as-if-serial</code>的语义下对指令进行重排。代码14和15行之前没有任何依赖关系，那么完全可能出现：</p>
 <ol>
 <li>线程A先执行15行，CPU time结束，发生context switch。</li>
 <li>线程B执行<code>run()</code>方法，打印出来的结果是0。</li>
 </ol>
+<p><code>volatile</code>是通过插入内存屏障来防止重排，这里我们不展开讨论。一般而言，其会禁止下列重排：</p>
+<ol>
+<li>第二个操作是<code>volatile</code>写，第一个操作为普通读写时，禁止重排序。</li>
+<li>第一个操作是<code>volatile</code>读，第二个操作位普通读写时，进制重排序。</li>
+<li>禁止对<code>volatile</code>修饰的变量读写相关操作的重排序。</li>
+</ol>
+<p>那么为什么要禁止普通读写和<code>volatile</code>读写之间的重排序呢？我们还是举上面的例子：</p>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">Demo</span> </span>&#123;</span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">volatile</span> <span class="keyword">boolean</span> ready;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">static</span> <span class="class"><span class="keyword">class</span> <span class="title">ReaderThreader</span> <span class="keyword">extends</span> <span class="title">Thread</span> </span>&#123;</span><br><span class="line">        <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">run</span><span class="params">()</span> </span>&#123;</span><br><span class="line">            <span class="keyword">while</span> (!ready);</span><br><span class="line">            <span class="keyword">int</span> number = readDB(<span class="string">"key"</span>);</span><br><span class="line">            System.out.println(number);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">main</span><span class="params">(String[] args)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">new</span> ReaderThread().start();</span><br><span class="line">        writeDB(<span class="string">"key"</span>, <span class="number">42</span>);</span><br><span class="line">        ready = <span class="keyword">true</span>;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>这里<code>ready</code>已经被<code>volatile</code>修饰，那么假设不禁止情况1下的重排，那么第14和15行由于没有数据依赖，仍然有可能重排，那么可能出现以下情况：</p>
+<ol>
+<li>线程A先执行15行，发生context switch。</li>
+<li>线程B执行<code>run()</code>方法，读取DB的时候key不存在，或者读到stale data。</li>
+</ol>
+<p>对于情况2，类似地，第6行和第5行的顺序可能重排，第6行的语句可能先被执行，将结果缓存，等到第5行判断为真的时候再赋值，那么可能出现这种情况：</p>
+<ol>
+<li>线程A执行第6行，有可能读到stale data，缓存结果，发生context switch。</li>
+<li>线程B执行<code>main</code>方法，更新key的值。</li>
+<li>线程A执行第5行，判断为真，将缓存的stale data赋值给<code>number</code>。</li>
+</ol>
+<p>因为会出现以上的情况，所以我们需要禁止普通读写和<code>volatile</code>读写的重排序。那么对<code>volatile</code>修饰变量操作重排序的禁止，有一个大家耳熟能详的例子，就是DCL(Double Check Lock):</p>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">DCLDemo</span> </span>&#123;</span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">volatile</span> DCLDemo instance;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> DCLDemo <span class="title">getInstance</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        <span class="keyword">if</span> (instance == <span class="keyword">null</span>) &#123;</span><br><span class="line">            <span class="keyword">synchronized</span>(DCLDemo.class) &#123;</span><br><span class="line">                <span class="keyword">if</span> (instance == <span class="keyword">null</span>) &#123;</span><br><span class="line">                    instance = <span class="keyword">new</span> DCLDemo();</span><br><span class="line">                &#125;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>以上是线程安全版的Singleton的实现方法，其中有两个细节：</p>
+<ol>
+<li><code>instance == null</code>的检查要做两次，因为第一次检查完到获取锁中间，可能有其他线程已经完成了实例化从同步块中出来了。</li>
+<li><code>instance</code>需要用<code>volatile</code>修饰。</li>
+</ol>
+<p>这里<code>volatile的作用是防止指令的重排序，因为</code>new`的操作不是原子性的，它会分为三步：</p>
+<ol>
+<li>分配内存区间。</li>
+<li>调用构造函数初始化实例。</li>
+<li>将初始化完毕的实例赋值给引用。</li>
+</ol>
+<p>所以其中2和3是可能重排，那么一旦执行顺序变为1-&gt;3-&gt;2，那么其他线程进来的时候，<code>instance</code>可能并不为<code>null</code>，但是此时publish的实例是没有初始化完成的，就很有可能出错。所以我们必须用<code>volatile</code>修饰<code>instance</code>来防止可能的指令重排。</p>
+<h2 id="volatile与原子性"><a href="#volatile与原子性" class="headerlink" title="volatile与原子性"></a>volatile与原子性</h2><p><code>volatile</code>并不对原子性有任何保证，所以需要原子性的时候，需要和其他保证原子性的关键字搭配使用，比如<code>synchronized</code>。</p>
 ]]></content>
       <categories>
         <category>Programming</category>
