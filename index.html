@@ -190,6 +190,170 @@
   
   
   <article itemscope itemtype="http://schema.org/Article" class="post-block home" lang="default">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2021/01/17/java_memory_model/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="hehejun">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="码字的呵呵君">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          
+            <a href="/2021/01/17/java_memory_model/" class="post-title-link" itemprop="url">The Java Memory Model</a>
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+              
+
+              <time title="Created: 2021-01-17 00:00:00 / Modified: 23:25:14" itemprop="dateCreated datePublished" datetime="2021-01-17T00:00:00-08:00">2021-01-17</time>
+            </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">In</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/Programming/" itemprop="url" rel="index">
+                    <span itemprop="name">Programming</span>
+                  </a>
+                </span>
+                  , 
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/Programming/Java/" itemprop="url" rel="index">
+                    <span itemprop="name">Java</span>
+                  </a>
+                </span>
+                  , 
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/Programming/Java/Concurrency/" itemprop="url" rel="index">
+                    <span itemprop="name">Concurrency</span>
+                  </a>
+                </span>
+            </span>
+
+          
+            <span id="/2021/01/17/java_memory_model/" class="post-meta-item leancloud_visitors" data-flag-title="The Java Memory Model" title="Views">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-eye"></i>
+              </span>
+              <span class="post-meta-item-text">Views: </span>
+              <span class="leancloud-visitors-count"></span>
+            </span>
+  
+  <span class="post-meta-item">
+    
+      <span class="post-meta-item-icon">
+        <i class="fa fa-comment-o"></i>
+      </span>
+      <span class="post-meta-item-text">Valine: </span>
+    
+    <a title="valine" href="/2021/01/17/java_memory_model/#comments" itemprop="discussionUrl">
+      <span class="post-comments-count valine-comment-count" data-xid="/2021/01/17/java_memory_model/" itemprop="commentCount"></span>
+    </a>
+  </span>
+  
+  <br>
+            <span class="post-meta-item" title="Symbols count in article">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-file-word-o"></i>
+              </span>
+                <span class="post-meta-item-text">Symbols count in article: </span>
+              <span>4.3k</span>
+            </span>
+            <span class="post-meta-item" title="Reading time">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-clock-o"></i>
+              </span>
+                <span class="post-meta-item-text">Reading time &asymp;</span>
+              <span>4 mins.</span>
+            </span>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <h2 id="什么是内存模型？我们为什么需要一个内存模型？"><a href="#什么是内存模型？我们为什么需要一个内存模型？" class="headerlink" title="什么是内存模型？我们为什么需要一个内存模型？"></a>什么是内存模型？我们为什么需要一个内存模型？</h2><p>我们之前在详解<a href="https://kanrourou.github.io/2021/01/13/understand_synchronized_keyword/" target="_blank" rel="noopener"><code>synchronized</code></a>、<a href="https://kanrourou.github.io/2021/01/15/understand_volatile_keyword/" target="_blank" rel="noopener"><code>volatie</code></a>和<a href="https://kanrourou.github.io/2021/01/17/understand_final_keyword/" target="_blank" rel="noopener"><code>final</code></a>的文章当中讲过，底层JVM、编译器、处理器执行指令的顺序并不保证和程序员所写的代码的顺序一样。在单线程中，只要遵从<code>as-if-serial</code>语义，就可以进行重排，所以对于程序员来说，底层的实现只是造成了一个程序是按照自己的代码顺序执行的假象。</p>
+<p>在多线程环境中，如果不进行额外的synchronization的操作，像单线程一样的线性执行是没有办法得到保证的。JMM的作用有两方面：</p>
+<ol>
+<li>要给开发者提供一个尽可能简单的，可以预测的多线程开发方式。</li>
+<li>同时又要尽可能减少对底层JVM、硬件的限制，在保证1的前提下，对程序进行优化。</li>
+</ol>
+<p>在一个共享内存的多处理器架构下，每个处理器都会有自己缓存，这些处理器定期的会从主内存里读取数据来更新自己的缓存。而由于硬件上的差异，不同的处理器所提供的缓存一致性是不一样的。这就需要一个内存模型来告诉程序，其可以从内存系统中得到什么保证，并且可以通过插入一下特殊指令，比如内存屏障(memory barriers)，来保证在访问共享变量的时候能够得到一些额外的保证。</p>
+<p>为了让开发者不需要接触到这些底层的不同和实现细节，JMM提供了一系列保证来判断在多线程环境下指令发生的先后顺序。同时，JVM处理了JMM与不同平台内存系统之间的差异性，通过在适当的地方插入内存屏障，来保证JMM对开发者的保证不会变。</p>
+<p>简而言之，JMM定义了在多线程环境下所有操作的一个偏序。所谓偏序，即集合里的任意两个元素不一定能互相比较，这个集合当中，只有一部分元素的先后顺序是可以确定的。而这种保证，就是<em>happens-before</em>规则。</p>
+<h2 id="Happens-Before规则"><a href="#Happens-Before规则" class="headerlink" title="Happens-Before规则"></a>Happens-Before规则</h2><p>Happens-Before规则提供了以下保证，摘抄<em>Java Concurrency in Practice</em>原文如下：</p>
+<ol>
+<li><strong>Program order rule.</strong> Each action in a thread <em>happens-before</em> every action in that thread that comes later in the program order.</li>
+<li><strong>Monitor lock rule.</strong> An unlock on a mointor lock <em>happens-before</em> every subsequent lock on that same monitor lock. This in true for both explicit lock and intrinsic lock.</li>
+<li><strong>Volatile variable rule.</strong> A write to a <code>volatile</code> field <em>happens-before</em> every subsequent read of that same field.</li>
+<li><strong>Thread start rule.</strong> A call to <code>Thread.start</code> on a thread <em>happens-before</em> every action in the started thread.</li>
+<li><strong>Thread termination rule.</strong> Any action in a thread <em>happens-before</em> any other thread detects that thread has terminated, either by successfully return from <code>Thread.join</code> or by <code>Thread.isAlive</code> returning false.</li>
+<li><strong>Interruption rule.</strong> A thread calling <code>interrupt</code> on another thread <em>happens-before</em> the interrupted thread detects the interrupt (either by have <code>InterruptedException thrown</code>, or invoking <code>isInterrupted</code> or <code>interrupted</code>).</li>
+<li><strong>Finalizer rule.</strong> The end of a constructor for an object <em>happens-before</em> the start of the finalizer for that object.</li>
+<li><strong>Transitivity.</strong> If A <em>happens-before</em> B, and B <em>happens-before</em> C, then A <em>happens-before</em> C.</li>
+</ol>
+<p>以上八条规则虽然简单，但在现实中用于判断不同线程之前的先后关系和可见性的时候十分方便。我们用在这篇<a href="https://kanrourou.github.io/2021/01/15/understand_volatile_keyword/" target="_blank" rel="noopener">文章</a>中用过的例子：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">Demo</span> </span>&#123;</span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">volatile</span> <span class="keyword">boolean</span> ready;</span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">int</span> number;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">static</span> <span class="class"><span class="keyword">class</span> <span class="title">ReaderThreader</span> <span class="keyword">extends</span> <span class="title">Thread</span> </span>&#123;</span><br><span class="line">        <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">run</span><span class="params">()</span> </span>&#123;</span><br><span class="line">            <span class="keyword">while</span> (!ready);</span><br><span class="line">            System.out.println(number);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">main</span><span class="params">(String[] args)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">new</span> ReaderThread().start();</span><br><span class="line">        number = <span class="number">42</span>;</span><br><span class="line">        ready = <span class="keyword">true</span>;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>假设线程A先执行了<code>main</code>方法，并且对<code>ready</code>进行写入。之后线程B执行<code>run()</code>方法读取<code>ready</code>的值，此时<code>number</code>的值对线程B可见吗？我们用<em>happens-before</em>规则判断：</p>
+<ol>
+<li>由规则3可知，第15行先与第7行。</li>
+<li>由规则1可知，第7行先与第8行。</li>
+<li>由规则1可知，第14行先与第15行。</li>
+<li>由规则8可知，第14行先与第15行，先于第7行，先于第8行。所以对<code>number</code>赋值42是对线程B可见的。</li>
+</ol>
+<p>除此之外，JMM还对一些class library提供了<em>happens-before</em>保证：</p>
+<ol>
+<li>Placing an item in a thread-safe collection <em>happens-before</em> another thread retrieves that item from the collection.</li>
+<li>Counting down on a <code>CountDownLatch</code> <em>happens-before</em> a thread returns from <code>await</code> on that latch.</li>
+<li>Releasing a permit to a <code>Semaphore</code> <em>happens-before</em> acquiring a permit from that same <code>Samephore</code>.</li>
+<li>Actions taken by the task represented by a <code>Future</code> <em>happens-before</em> another thread successfully returns from <code>Future.get</code>.</li>
+<li>Submittig a <code>Runnable</code> or <code>Callable</code> to an <code>Executor</code> <em>happens-before</em> the task begins execution.</li>
+<li>A thread arriving at a <code>CyclicBarrier</code> or <code>Exchanger</code> <em>happens-before</em> the other threads are released from that same barrier or exchange point. If <code>CyclicBarrier</code> uses a barrier action, arriving at the barrier <em>happens-before</em> the barrier action, which in turn <em>happens-before</em> threads are released from the barrier.</li>
+</ol>
+<h2 id="Safe-Publication-and-Initialization"><a href="#Safe-Publication-and-Initialization" class="headerlink" title="Safe Publication and Initialization"></a>Safe Publication and Initialization</h2><p>我们在详解<code>final</code>这篇<a href="https://kanrourou.github.io/2021/01/17/understand_final_keyword/" target="_blank" rel="noopener">文章</a>中聊过这个问题，有多种方法可以保证safely publish an object。这里我们不细聊这个话题，来看一些例子。</p>
+<p>我们可以通过保证原子性来保证对象被安全初始化：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@ThreadSafe</span></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">SafeInitialization</span> </span>&#123;</span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">static</span> Resource resource;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">synchronized</span> <span class="keyword">static</span> Resource <span class="title">getInstance</span><span class="params">()</span></span>&#123;</span><br><span class="line">        <span class="keyword">if</span> (resource == <span class="keyword">null</span>)</span><br><span class="line">            resource = <span class="keyword">new</span> Resouce();</span><br><span class="line">        <span class="keyword">return</span> resouce;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p><code>synchronized</code>保证了<code>Resource</code>在初始化完成之前都不会被其他线程访问，所以这是线程安全的初始化。</p>
+<p>我们也可以用static initializer来保证安全初始化：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@ThreadSafe</span></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">EagerInitialization</span> </span>&#123;</span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">static</span> Resource resource = <span class="keyword">new</span> Resource();</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> Resource <span class="title">getResource</span><span class="params">()</span> </span>&#123; <span class="keyword">return</span> resource; &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>Static initializer的安全性是JVM提供的保证，因为JVM保证static initializer在对象被其他线程访问之前就会完成。因为JVM在调用static initializer的时候会获取锁，这个所会在其他线程确认这个类被loaded的时候获取，所以可以保证static initializer的写都立马对其他线程可见。所以在不需要其他同步操作的情况下，就可以保证初始化安全性。</p>
+<p>那么在结合上面两个技巧的情况下，我们可以实现不需要额外同步操作的线程安全版本的lazy initialization方法（另一种方法是DCL，我们在这篇<a href="https://kanrourou.github.io/2021/01/15/understand_volatile_keyword/" target="_blank" rel="noopener">文章</a>中讲过）：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@ThreadSafe</span></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">ResourceFactory</span> </span>&#123;</span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">static</span> <span class="class"><span class="keyword">class</span> <span class="title">ResourceHolder</span> </span>&#123;</span><br><span class="line">        <span class="keyword">public</span> <span class="keyword">static</span> Resource resource = <span class="keyword">new</span> Resource();</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> Resource <span class="title">getResouce</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        <span class="keyword">return</span> ResourceHolder.resource;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p><code>ResourceHodler</code>的<code>Resource</code>域是static initialized的，所以其保证初始化的安全性。<code>getResource</code>只有在被第一次调用的时候，才会初始化<code>resource</code>，所以其为lazy initialization。</p>
+
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+        
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block home" lang="default">
     <link itemprop="mainEntityOfPage" href="http://yoursite.com/2021/01/17/understand_final_keyword/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -350,7 +514,7 @@
                   <i class="fa fa-calendar-check-o"></i>
                 </span>
                 <span class="post-meta-item-text">Edited on</span>
-                <time title="Modified: 2021-01-16 20:50:33" itemprop="dateModified" datetime="2021-01-16T20:50:33-08:00">2021-01-16</time>
+                <time title="Modified: 2021-01-17 22:51:21" itemprop="dateModified" datetime="2021-01-17T22:51:21-08:00">2021-01-17</time>
               </span>
             <span class="post-meta-item">
               <span class="post-meta-item-icon">
@@ -1394,7 +1558,7 @@
       <div class="site-state-item site-state-posts">
           <a href="/archives/">
         
-          <span class="site-state-item-count">9</span>
+          <span class="site-state-item-count">10</span>
           <span class="site-state-item-name">posts</span>
         </a>
       </div>
@@ -1441,12 +1605,12 @@
     <span class="post-meta-item-icon">
       <i class="fa fa-area-chart"></i>
     </span>
-    <span title="Symbols count total">34k</span>
+    <span title="Symbols count total">38k</span>
     <span class="post-meta-divider">|</span>
     <span class="post-meta-item-icon">
       <i class="fa fa-coffee"></i>
     </span>
-    <span title="Reading time total">31 mins.</span>
+    <span title="Reading time total">35 mins.</span>
 </div>
 
         
