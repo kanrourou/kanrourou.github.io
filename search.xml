@@ -17,7 +17,7 @@
 <li>run-time才知道变量值的情况。</li>
 </ol>
 <p>比如：</p>
-<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">FinalData</span> </span>&#123;</span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">final</span> <span class="keyword">int</span> number1 = <span class="number">9</span>;</span><br><span class="line">	<span class="keyword">private</span> <span class="keyword">final</span> <span class="keyword">int</span> number2 = rand.nextInt(<span class="number">10</span>);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">FinalData</span> </span>&#123;</span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">final</span> <span class="keyword">int</span> number1 = <span class="number">9</span>;</span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">final</span> <span class="keyword">int</span> number2 = rand.nextInt(<span class="number">10</span>);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 <p>对compile-time就知道常量值的情况，编译器可以把一些计算放在compile-time，这样可以减少一些run-time的overhead。</p>
 <p>当<code>final</code>修饰的是引用的时候，只代表这个引用是常量，也就是被修饰的引用不能重新指向其他的变量，但是引用指向的实例是可以被更改的。Java并不提供关键字来修饰某个引用指向实例本身是不可更改的，但是用户可以自己定义immutable object，一个很好地例子就是java的string类。</p>
 <p>无论<code>final</code>修饰的是成员变量还是本地变量，java都允许两种赋值方式：</p>

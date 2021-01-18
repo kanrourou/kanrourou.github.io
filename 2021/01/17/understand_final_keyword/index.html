@@ -54,7 +54,7 @@
 <meta property="og:site_name" content="码字的呵呵君">
 <meta property="og:description" content="final的基本语义final在java中是非常常用的关键字，其语义和C++中的constant有类似之处，都代表不变的意思，其可以用在以下地方：  修饰变量，成员变量或者本地变量均可。 修饰方法的参数。 修饰方法。 修饰类。">
 <meta property="og:locale" content="default">
-<meta property="og:updated_time" content="2021-01-18T00:23:37.609Z">
+<meta property="og:updated_time" content="2021-01-18T00:25:51.024Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="深入理解final关键字">
 <meta name="twitter:description" content="final的基本语义final在java中是非常常用的关键字，其语义和C++中的constant有类似之处，都代表不变的意思，其可以用在以下地方：  修饰变量，成员变量或者本地变量均可。 修饰方法的参数。 修饰方法。 修饰类。">
@@ -219,7 +219,7 @@
               <span class="post-meta-item-text">Posted on</span>
               
 
-              <time title="Created: 2021-01-17 00:00:00 / Modified: 16:23:37" itemprop="dateCreated datePublished" datetime="2021-01-17T00:00:00-08:00">2021-01-17</time>
+              <time title="Created: 2021-01-17 00:00:00 / Modified: 16:25:51" itemprop="dateCreated datePublished" datetime="2021-01-17T00:00:00-08:00">2021-01-17</time>
             </span>
             <span class="post-meta-item">
               <span class="post-meta-item-icon">
@@ -305,7 +305,7 @@
 <li>run-time才知道变量值的情况。</li>
 </ol>
 <p>比如：</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">FinalData</span> </span>&#123;</span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">final</span> <span class="keyword">int</span> number1 = <span class="number">9</span>;</span><br><span class="line">	<span class="keyword">private</span> <span class="keyword">final</span> <span class="keyword">int</span> number2 = rand.nextInt(<span class="number">10</span>);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">FinalData</span> </span>&#123;</span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">final</span> <span class="keyword">int</span> number1 = <span class="number">9</span>;</span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">final</span> <span class="keyword">int</span> number2 = rand.nextInt(<span class="number">10</span>);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 <p>对compile-time就知道常量值的情况，编译器可以把一些计算放在compile-time，这样可以减少一些run-time的overhead。</p>
 <p>当<code>final</code>修饰的是引用的时候，只代表这个引用是常量，也就是被修饰的引用不能重新指向其他的变量，但是引用指向的实例是可以被更改的。Java并不提供关键字来修饰某个引用指向实例本身是不可更改的，但是用户可以自己定义immutable object，一个很好地例子就是java的string类。</p>
 <p>无论<code>final</code>修饰的是成员变量还是本地变量，java都允许两种赋值方式：</p>
