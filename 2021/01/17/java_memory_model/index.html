@@ -54,7 +54,7 @@
 <meta property="og:site_name" content="码字的呵呵君">
 <meta property="og:description" content="什么是内存模型？我们为什么需要一个内存模型？我们之前在详解synchronized、volatie和final的文章当中讲过，底层JVM、编译器、处理器执行指令的顺序并不保证和程序员所写的代码的顺序一样。在单线程中，只要遵从as-if-serial语义，就可以进行重排，所以对于程序员来说，底层的实现只是造成了一个程序是按照自己的代码顺序执行的假象。">
 <meta property="og:locale" content="default">
-<meta property="og:updated_time" content="2021-01-18T07:28:00.293Z">
+<meta property="og:updated_time" content="2021-01-18T07:34:20.393Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="The Java Memory Model">
 <meta name="twitter:description" content="什么是内存模型？我们为什么需要一个内存模型？我们之前在详解synchronized、volatie和final的文章当中讲过，底层JVM、编译器、处理器执行指令的顺序并不保证和程序员所写的代码的顺序一样。在单线程中，只要遵从as-if-serial语义，就可以进行重排，所以对于程序员来说，底层的实现只是造成了一个程序是按照自己的代码顺序执行的假象。">
@@ -219,7 +219,7 @@
               <span class="post-meta-item-text">Posted on</span>
               
 
-              <time title="Created: 2021-01-17 00:00:00 / Modified: 23:28:00" itemprop="dateCreated datePublished" datetime="2021-01-17T00:00:00-08:00">2021-01-17</time>
+              <time title="Created: 2021-01-17 00:00:00 / Modified: 23:34:20" itemprop="dateCreated datePublished" datetime="2021-01-17T00:00:00-08:00">2021-01-17</time>
             </span>
             <span class="post-meta-item">
               <span class="post-meta-item-icon">
@@ -296,7 +296,7 @@
 <li>要给开发者提供一个尽可能简单的，可以预测的多线程开发方式。</li>
 <li>同时又要尽可能减少对底层JVM、硬件的限制，在保证1的前提下，对程序进行优化。</li>
 </ol>
-<p>在一个共享内存的多处理器架构下，每个处理器都会有自己缓存，这些处理器定期的会从主内存里读取数据来更新自己的缓存。而由于硬件上的差异，不同的处理器所提供的缓存一致性是不一样的。这就需要一个内存模型来告诉程序，其可以从内存系统中得到什么保证，并且可以通过插入一下特殊指令，比如内存屏障(memory barriers)，来保证在访问共享变量的时候能够得到一些额外的保证。</p>
+<p>在一个共享内存的多处理器架构下，每个处理器都会有自己缓存，这些处理器会定期地从主内存里读取数据来更新自己的缓存。而由于硬件上的差异，不同的处理器所提供的缓存一致性是不一样的。这就需要一个内存模型来告诉程序，其可以从内存系统中得到什么保证，并且可以通过插入一下特殊指令，比如内存屏障(memory barriers)，来保证在访问共享变量的时候能够得到一些额外的保证。</p>
 <p>为了让开发者不需要接触到这些底层的不同和实现细节，JMM提供了一系列保证来判断在多线程环境下指令发生的先后顺序。同时，JVM处理了JMM与不同平台内存系统之间的差异性，通过在适当的地方插入内存屏障，来保证JMM对开发者的保证不会变。</p>
 <p>简而言之，JMM定义了在多线程环境下所有操作的一个偏序。所谓偏序，即集合里的任意两个元素不一定能互相比较，这个集合当中，只有一部分元素的先后顺序是可以确定的。而这种保证，就是<em>happens-before</em>规则。</p>
 <h2 id="Happens-Before规则"><a href="#Happens-Before规则" class="headerlink" title="Happens-Before规则"></a>Happens-Before规则</h2><p>Happens-Before规则提供了以下保证，摘抄<em>Java Concurrency in Practice</em>原文如下：</p>
@@ -319,6 +319,7 @@
 <li>由规则1可知，第14行先与第15行。</li>
 <li>由规则8可知，第14行先与第15行，先于第7行，先于第8行。所以对<code>number</code>赋值42是对线程B可见的。</li>
 </ol>
+<p>我们刚刚说过了，JMM定义的顺序只是集合的偏序，也就是任何两个不满足<em>happens-before</em>的操作，其先后顺序是没有任何保障的。</p>
 <p>除此之外，JMM还对一些class library提供了<em>happens-before</em>保证：</p>
 <ol>
 <li>Placing an item in a thread-safe collection <em>happens-before</em> another thread retrieves that item from the collection.</li>
@@ -331,13 +332,13 @@
 <h2 id="Safe-Publication-and-Initialization"><a href="#Safe-Publication-and-Initialization" class="headerlink" title="Safe Publication and Initialization"></a>Safe Publication and Initialization</h2><p>我们在详解<code>final</code>这篇<a href="https://kanrourou.github.io/2021/01/17/understand_final_keyword/" target="_blank" rel="noopener">文章</a>中聊过这个问题，有多种方法可以保证safely publish an object。这里我们不细聊这个话题，来看一些例子。</p>
 <p>我们可以通过保证原子性来保证对象被安全初始化：</p>
 <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@ThreadSafe</span></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">SafeInitialization</span> </span>&#123;</span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">static</span> Resource resource;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">synchronized</span> <span class="keyword">static</span> Resource <span class="title">getInstance</span><span class="params">()</span></span>&#123;</span><br><span class="line">        <span class="keyword">if</span> (resource == <span class="keyword">null</span>)</span><br><span class="line">            resource = <span class="keyword">new</span> Resouce();</span><br><span class="line">        <span class="keyword">return</span> resouce;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<p><code>synchronized</code>保证了<code>Resource</code>在初始化完成之前都不会被其他线程访问，所以这是线程安全的初始化。</p>
+<p><code>synchronized</code>保证了<code>resource</code>在初始化完成之前都不会被其他线程访问，所以这是线程安全的初始化。</p>
 <p>我们也可以用static initializer来保证安全初始化：</p>
 <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@ThreadSafe</span></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">EagerInitialization</span> </span>&#123;</span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">static</span> Resource resource = <span class="keyword">new</span> Resource();</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> Resource <span class="title">getResource</span><span class="params">()</span> </span>&#123; <span class="keyword">return</span> resource; &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 <p>Static initializer的安全性是JVM提供的保证，因为JVM保证static initializer在对象被其他线程访问之前就会完成。因为JVM在调用static initializer的时候会获取锁，这个所会在其他线程确认这个类被loaded的时候获取，所以可以保证static initializer的写都立马对其他线程可见。所以在不需要其他同步操作的情况下，就可以保证初始化安全性。</p>
 <p>那么在结合上面两个技巧的情况下，我们可以实现不需要额外同步操作的线程安全版本的lazy initialization方法（另一种方法是DCL，我们在这篇<a href="https://kanrourou.github.io/2021/01/15/understand_volatile_keyword/" target="_blank" rel="noopener">文章</a>中讲过）：</p>
 <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@ThreadSafe</span></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">ResourceFactory</span> </span>&#123;</span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">static</span> <span class="class"><span class="keyword">class</span> <span class="title">ResourceHolder</span> </span>&#123;</span><br><span class="line">        <span class="keyword">public</span> <span class="keyword">static</span> Resource resource = <span class="keyword">new</span> Resource();</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> Resource <span class="title">getResouce</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        <span class="keyword">return</span> ResourceHolder.resource;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<p><code>ResourceHodler</code>的<code>Resource</code>域是static initialized的，所以其保证初始化的安全性。<code>getResource</code>只有在被第一次调用的时候，才会初始化<code>resource</code>，所以其为lazy initialization。</p>
+<p><code>ResourceHodler</code>的<code>resource</code>域是static initialized的，所以其保证初始化的安全性。<code>getResource</code>只有在被第一次调用的时候，才会初始化<code>resource</code>，所以其为lazy initialization。</p>
 
     </div>
 
