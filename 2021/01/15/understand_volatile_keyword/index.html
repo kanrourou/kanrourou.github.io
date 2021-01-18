@@ -54,7 +54,7 @@
 <meta property="og:site_name" content="码字的呵呵君">
 <meta property="og:description" content="volatile与可见性我们还是先来看一个例子，这个例子在synchronized这篇文章中用过:">
 <meta property="og:locale" content="default">
-<meta property="og:updated_time" content="2021-01-16T04:58:36.957Z">
+<meta property="og:updated_time" content="2021-01-17T04:50:33.842Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="深入理解volatile关键字">
 <meta name="twitter:description" content="volatile与可见性我们还是先来看一个例子，这个例子在synchronized这篇文章中用过:">
@@ -217,10 +217,16 @@
                 <i class="fa fa-calendar-o"></i>
               </span>
               <span class="post-meta-item-text">Posted on</span>
-              
 
-              <time title="Created: 2021-01-15 00:00:00 / Modified: 20:58:36" itemprop="dateCreated datePublished" datetime="2021-01-15T00:00:00-08:00">2021-01-15</time>
+              <time title="Created: 2021-01-15 00:00:00" itemprop="dateCreated datePublished" datetime="2021-01-15T00:00:00-08:00">2021-01-15</time>
             </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-calendar-check-o"></i>
+                </span>
+                <span class="post-meta-item-text">Edited on</span>
+                <time title="Modified: 2021-01-16 20:50:33" itemprop="dateModified" datetime="2021-01-16T20:50:33-08:00">2021-01-16</time>
+              </span>
             <span class="post-meta-item">
               <span class="post-meta-item-icon">
                 <i class="fa fa-folder-o"></i>
@@ -341,7 +347,7 @@
 <li>将初始化完毕的实例赋值给引用。</li>
 </ol>
 <p>所以其中2和3是可能重排，那么一旦执行顺序变为1-&gt;3-&gt;2，那么其他线程进来的时候，<code>instance</code>可能并不为<code>null</code>，但是此时publish的实例是没有初始化完成的，就很有可能出错。所以我们必须用<code>volatile</code>修饰<code>instance</code>来防止可能的指令重排。</p>
-<h2 id="volatile与原子性"><a href="#volatile与原子性" class="headerlink" title="volatile与原子性"></a>volatile与原子性</h2><p><code>volatile</code>并不对原子性有任何保证，所以需要原子性的时候，需要和其他保证原子性的关键字搭配使用，比如<code>synchronized</code>。</p>
+<h2 id="volatile与原子性"><a href="#volatile与原子性" class="headerlink" title="volatile与原子性"></a>volatile与原子性</h2><p><code>volatile</code>并不对原子性有任何保证，所以需要原子性的时候，需要和其他保证原子性的关键字搭配使用，比如<code>synchronized</code>。<br>但是值得一提的是<code>volatile</code>修饰的64位变量(如long，double)，其读写操作在32位JVM中会具有原子性。</p>
 
     </div>
 
@@ -364,7 +370,10 @@
     <a href="/2021/01/13/understand_synchronized_keyword/" rel="prev" title="深入理解synchronized关键字">
       <i class="fa fa-chevron-left"></i> 深入理解synchronized关键字
     </a></div>
-      <div class="post-nav-item"></div>
+      <div class="post-nav-item">
+    <a href="/2021/01/17/understand_final_keyword/" rel="next" title="深入理解final关键字">
+      深入理解final关键字 <i class="fa fa-chevron-right"></i>
+    </a></div>
     </div>
       </footer>
     
@@ -441,7 +450,7 @@
       <div class="site-state-item site-state-posts">
           <a href="/archives/">
         
-          <span class="site-state-item-count">8</span>
+          <span class="site-state-item-count">9</span>
           <span class="site-state-item-name">posts</span>
         </a>
       </div>
@@ -488,12 +497,12 @@
     <span class="post-meta-item-icon">
       <i class="fa fa-area-chart"></i>
     </span>
-    <span title="Symbols count total">28k</span>
+    <span title="Symbols count total">34k</span>
     <span class="post-meta-divider">|</span>
     <span class="post-meta-item-icon">
       <i class="fa fa-coffee"></i>
     </span>
-    <span title="Reading time total">25 mins.</span>
+    <span title="Reading time total">31 mins.</span>
 </div>
 
         

@@ -1,6 +1,147 @@
 <?xml version="1.0" encoding="utf-8"?>
 <search>
   <entry>
+    <title>深入理解final关键字</title>
+    <url>/2021/01/17/understand_final_keyword/</url>
+    <content><![CDATA[<h2 id="final的基本语义"><a href="#final的基本语义" class="headerlink" title="final的基本语义"></a>final的基本语义</h2><p><code>final</code>在java中是非常常用的关键字，其语义和C++中的<code>constant</code>有类似之处，都代表不变的意思，其可以用在以下地方：</p>
+<ol>
+<li>修饰变量，成员变量或者本地变量均可。</li>
+<li>修饰方法的参数。</li>
+<li>修饰方法。</li>
+<li>修饰类。</li>
+</ol>
+<h3 id="final变量"><a href="#final变量" class="headerlink" title="final变量"></a>final变量</h3><p><code>final</code>修饰的primitive常量有两种用法：</p>
+<ol>
+<li>compile-time就知道变量值的情况。</li>
+<li>run-time才知道变量值的情况。</li>
+</ol>
+<p>比如：</p>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">FinalData</span> </span>&#123;</span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">final</span> <span class="keyword">int</span> number1 = <span class="number">9</span>;</span><br><span class="line">	<span class="keyword">private</span> <span class="keyword">final</span> <span class="keyword">int</span> number2 = rand.nextInt(<span class="number">10</span>);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>对compile-time就知道常量值的情况，编译器可以把一些计算放在compile-time，这样可以减少一些run-time的overhead。</p>
+<p>当<code>final</code>修饰的是引用的时候，只代表这个引用是常量，也就是被修饰的引用不能重新指向其他的变量，但是引用指向的实例是可以被更改的。Java并不提供关键字来修饰某个引用指向实例本身是不可更改的，但是用户可以自己定义immutable object，一个很好地例子就是java的string类。</p>
+<p>无论<code>final</code>修饰的是成员变量还是本地变量，java都允许两种赋值方式：</p>
+<ol>
+<li>声明的时候直接赋值。</li>
+<li>声明的时候不赋值，之后在赋值，但是只能赋值一次。</li>
+</ol>
+<p>例子如下：</p>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">FinalDataInitialization</span> </span>&#123;</span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">final</span> <span class="keyword">int</span> number = <span class="number">9</span>;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="title">FinalDataInitialization</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        <span class="comment">// Do something...</span></span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">FinalDataInitialization</span> </span>&#123;</span><br><span class="line">	<span class="keyword">private</span> <span class="keyword">final</span> <span class="keyword">int</span> number;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="title">FinalDataInitialization</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        number = readDB();</span><br><span class="line">		<span class="comment">// Do something...</span></span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">methodA</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        number = <span class="number">9</span>; <span class="comment">// Illegal!!</span></span><br><span class="line">    &#125;</span><br></pre></td></tr></table></figure>
+<h3 id="final参数"><a href="#final参数" class="headerlink" title="final参数"></a>final参数</h3><p><code>final</code>修饰方法参数和修饰变量的语义差不多：</p>
+<ol>
+<li><code>final</code>修饰的primitive变量不允许在方法当中更改。</li>
+<li><code>final</code>修饰的引用不能更改指向，但引用指向的对象本身可以被更改。</li>
+</ol>
+<h3 id="final方法"><a href="#final方法" class="headerlink" title="final方法"></a>final方法</h3><p><code>final</code>修饰方法一般有两个作用：</p>
+<ol>
+<li>声明方法不能被override。</li>
+<li>在早期的java，编译器可以把优化成inline call，这样可以减少调用方法的overhead。在现在的版本中已经不需要。</li>
+</ol>
+<p>值得一提的是，所有<code>private</code>的方法都是implicitly <code>final</code>的，因为其不对子类可见，子类当然没法override，子类强行定义的话只会创建一个新的方法，而不是覆写父类的方法。</p>
+<p>被<code>final</code>修饰的方法依然可以被重载。</p>
+<h3 id="final类"><a href="#final类" class="headerlink" title="final类"></a>final类</h3><p>被<code>final</code>修饰的类无法被继承：</p>
+<ol>
+<li>其成员变量可以自行决定是否要用<code>final</code>修饰。</li>
+<li>所有方法都是implicitly <code>final</code>的，因为无法被继承，自然不会有子类去override。</li>
+</ol>
+<h2 id="final在多线程中的语义"><a href="#final在多线程中的语义" class="headerlink" title="final在多线程中的语义"></a>final在多线程中的语义</h2><h3 id="final与有序性"><a href="#final与有序性" class="headerlink" title="final与有序性"></a>final与有序性</h3><p>JMM对<code>final</code>域的重排规则是：</p>
+<ol>
+<li>禁止把对<code>final</code>域的写重排到当前对象构造函数之外。</li>
+<li>如果<code>final</code>修饰的是引用，那么禁止对<code>final</code>修饰的引用的成员变量的写入和构建的对象被赋值到引用上操作的重排序。</li>
+</ol>
+<p>我们来看下面的例子：</p>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">Data</span> </span>&#123;</span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">int</span> num;</span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">final</span> <span class="keyword">int</span> finalNum;</span><br><span class="line"></span><br><span class="line">	<span class="function"><span class="keyword">public</span> <span class="title">Data</span><span class="params">(<span class="keyword">int</span> num, <span class="keyword">int</span> finalNum)</span> [</span></span><br><span class="line"><span class="function">        <span class="keyword">this</span>.num </span>= num;</span><br><span class="line">        <span class="keyword">this</span>.finalNum = finalNum;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">FinalDemo</span> </span>&#123;</span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">static</span> Data data;</span><br><span class="line">	<span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">final</span> Data finalData;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">write</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        data = <span class="keyword">new</span> Data(<span class="number">1</span>, <span class="number">2</span>);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">read</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        <span class="keyword">if</span> (data != <span class="keyword">null</span>) &#123;</span><br><span class="line">            <span class="keyword">int</span> num = data.num;</span><br><span class="line">		    <span class="keyword">int</span> finalNum = data.finalNum;</span><br><span class="line">        &#125;</span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">writeFinal</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        finalData = <span class="keyword">new</span> Data(<span class="number">3</span>, <span class="number">4</span>);</span><br><span class="line">		finalData.num = <span class="number">5</span>;</span><br><span class="line">    &#125;	</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">readFinal</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        <span class="keyword">if</span> (finalData != <span class="keyword">null</span>) &#123;</span><br><span class="line">            <span class="keyword">int</span> num = finalData.num;</span><br><span class="line">			<span class="keyword">int</span> finalNum = finalData.finalNum;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>我们先看对<code>data</code>的操作，假设线程A执行<code>write()</code>的操作，随后线程B执行<code>read()</code>:</p>
+<ol>
+<li>由于规则1的存在，<code>final</code>域在<code>data</code>引用对线程B可见的时候可以保证已经赋值了。</li>
+<li>所以只要线程B可以看见引用，那么可以保证<code>final</code>域的值对线程B可见。</li>
+<li>对于普通域，对普通域的赋值可能重排到构造函数之外：比如可能先写入default value，之后再赋值。</li>
+<li>所以对于普通域，<code>read()</code>的操作读取的结果并不一定是1。</li>
+</ol>
+<p>对于<code>finalData</code>的操作，我们仍然假设线程A执行<code>writeFinal()</code>，随后线程B执行<code>readFinal()</code>：</p>
+<ol>
+<li>对于规则2的存在，<code>final</code>修饰的引用的成员域，在对引用可见的时候都已经赋值了。</li>
+<li>所以只要线程B可以看见引用，<code>finalData</code>中的<code>num</code>和<code>finalNum</code>的值(3,4)都对线程B可见。</li>
+<li>注意第28行对<code>finalData.num</code>赋值5的操作并无此可见性保证。需要保证这个成员域的可见，可以考虑使用<code>volatile</code>。</li>
+</ol>
+<h3 id="final与可见性"><a href="#final与可见性" class="headerlink" title="final与可见性"></a>final与可见性</h3><p>一般而言，影响可见性的有两点：</p>
+<ol>
+<li>内存和CPU缓存的不一致性。</li>
+<li>底层编译器和处理器对指令的重排。</li>
+</ol>
+<p>对于<code>final</code>修饰的primitive type，由于其不可修改性，所以不存在1的问题，那么<code>final</code>所禁止的重排可以保证引用可见时，其已经被赋值，所以可以保证可见性。</p>
+<p>对于<code>final</code>修饰的引用：</p>
+<ol>
+<li>同样由于<code>final</code>所禁止的重排规则，在引用可见的时候，所有成员变量的值已经可见，所以可以保证<strong>初始化</strong>之后的可见性。</li>
+<li>但是由于其并不禁止对引用指向对象的修改，所以之后的修改操作并不保证可见性。</li>
+</ol>
+<h3 id="final与原子性"><a href="#final与原子性" class="headerlink" title="final与原子性"></a>final与原子性</h3><p><code>final</code>没有任何原子性的保证。</p>
+<h2 id="Immutable-Object与线程安全性"><a href="#Immutable-Object与线程安全性" class="headerlink" title="Immutable Object与线程安全性"></a>Immutable Object与线程安全性</h2><h3 id="构造函数中的this指针逃逸"><a href="#构造函数中的this指针逃逸" class="headerlink" title="构造函数中的this指针逃逸"></a>构造函数中的this指针逃逸</h3><p>在讲Immutale Object之前我们先来谈谈<code>this</code>指针逃逸的问题。</p>
+<p>即使<code>final</code>可以保证修饰域的可见性，但是如果<code>this</code>在构造函数完成之前就对其他线程可见（逃逸）的话，这种情况下仍然会出问题。如下例：</p>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">EscpaeDemo</span> </span>&#123;</span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">final</span> <span class="keyword">int</span> num;</span><br><span class="line">	<span class="keyword">public</span> EscapeDemo escapeDemo;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="title">EscapeDemo</span><span class="params">()</span> </span>&#123;</span><br><span class="line">		num = <span class="number">5</span>;</span><br><span class="line">        escapeDemo = <span class="keyword">this</span>;</span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>由于第6行和第7行可能没有数据依赖，可能重排。那么假设先执行第7行，此时可能出现的情况是:</p>
+<ol>
+<li>escapeDemo引用，也就是this引用已经对其他线程可见，但<code>final</code>域还没有赋值。</li>
+<li>另外一个线程读取escapeDemo引用，进而读取<code>final</code>域，然而此时<code>final</code>域还没有被赋值。</li>
+</ol>
+<p>我们可以看到this指针逃逸带来的问题，就是在对象还没有被完全初始化之前，其就对其他线程可见了，这是一个十分容易导致错误的问题。当然上面的例子十分明显，还有一些不那么明显的例子：</p>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">ThisEscape</span> </span>&#123;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="title">ThisEscape</span><span class="params">(EventSource source)</span> 【</span></span><br><span class="line"><span class="function">        source.<span class="title">registerListener</span><span class="params">(</span></span></span><br><span class="line"><span class="function"><span class="params">            new EventListener()</span> </span>&#123;</span><br><span class="line">                <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">onEvent</span><span class="params">(Event e)</span> </span>&#123;</span><br><span class="line">					doSomething(e);</span><br><span class="line">                &#125;</span><br><span class="line">            &#125;);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>这种情况乍看之下好像没有问题，但是<code>EventListener</code>实例其实包含了一个隐式的<code>this</code>指针，因为其调用了对象的<code>doSomething()</code>方法，这种情况下<code>this</code>指针也是逃逸。如果在对象初始化完成之前，<code>doSomething()</code>方法就被调用，就很有可能出问题。</p>
+<p>上面的代码可以换成下面安全的写法：</p>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">SafeListener</span> </span>&#123;</span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">final</span> EventListener listener;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">private</span> <span class="title">SafeListener</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        listener = <span class="keyword">new</span> EventListener() &#123;</span><br><span class="line">            <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">onEvent</span><span class="params">(Event e)</span> </span>&#123;</span><br><span class="line">                doSomething(e);</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">	<span class="function"><span class="keyword">public</span> <span class="keyword">static</span> SafeListner <span class="title">getInstance</span><span class="params">(EventSource souce)</span> </span>&#123;</span><br><span class="line">        SafeListner safe = <span class="keyword">new</span> SafeListener();</span><br><span class="line">		source.registerListener(safe.lisener);</span><br><span class="line">		<span class="keyword">return</span> safe;</span><br></pre></td></tr></table></figure>
+<p>这样的话，保证了<code>SafeListener</code>在接受到任何的event之前就已经完成了初始化，从而解决了<code>this</code>逃逸的问题。</p>
+<h3 id="Immutable-Objet"><a href="#Immutable-Objet" class="headerlink" title="Immutable Objet"></a>Immutable Objet</h3><p>一个对象是<em>immutable</em>的，如果其满足下面三个条件：</p>
+<ol>
+<li>其状态在初始化完成时候无法更改，换句话说，不会提供可能修改对象状态的方法。</li>
+<li>所有成员域均用<code>final</code>修饰。</li>
+<li>构造过程中<code>this</code>指针不会逃逸。</li>
+</ol>
+<p><strong>Immutable object永远都是线程安全的。</strong></p>
+<p>这个不难理解，因为当其初始化完成的时候，其内部的所有状态都对其他线程可见了；并且它一旦初始化完成，就不能更改，也就是只能被其他线程读，而不能写，自然就不存在race condition。</p>
+<p>比如下面的例子，我们可以只用Immutable Object和<code>volatile</code>，就可以实现线程安全的class：</p>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="meta">@Immutable</span></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">Cache</span> </span>&#123;</span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">final</span> BigInteger key;</span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">final</span> BigInteger value;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="title">Cache</span><span class="params">(BigInteger key, BigInteger value)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">this</span>.key = key;</span><br><span class="line">		<span class="keyword">this</span>.value = value;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> BigInteger <span class="title">getValue</span><span class="params">(BigInteger key)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">if</span> (key == <span class="keyword">null</span> || !<span class="keyword">this</span>.key.equals(key)) &#123;</span><br><span class="line">            <span class="keyword">return</span> <span class="keyword">null</span>;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">else</span> &#123;</span><br><span class="line">            <span class="keyword">return</span> value;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="meta">@ThreadSafe</span></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">ExpensiveService</span> </span>&#123;</span><br><span class="line">    <span class="keyword">private</span> volatie Cache cache = <span class="keyword">new</span> Cache(<span class="keyword">null</span>, <span class="keyword">null</span>);</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">processRequest</span><span class="params">(Request req, Response, resp)</span> </span>&#123;</span><br><span class="line">        BigInteger key = keyFromReq(req);</span><br><span class="line">        BigInteger value = cache.getValue(key);</span><br><span class="line">        <span class="keyword">if</span> (value == <span class="keyword">null</span>) &#123;</span><br><span class="line">            value = expensiveCalculation(key);</span><br><span class="line">            cache = <span class="keyword">new</span> Cache(key, value);</span><br><span class="line">        &#125;</span><br><span class="line">		encodeIntoResponse(resp, value);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>以上代码是线程安全的：</p>
+<ol>
+<li><code>Cache</code> class保证了原子性，因为无论何时<code>key</code>和<code>value</code>都是同步更新的。并且在初始化完成之前是对其他线程不可见的，所以其他线程读取的时候，一定<code>key</code>和<code>value</code>都是同步更新了之后的值。</li>
+<li><code>volatile</code>保证了可见性，也就是<code>cache</code>被更新了之后，引用是立马对其他线程可见的。</li>
+<li>假设有一个线程去更新<code>cache</code>，这个操作并不影响现在所有读取当前<code>cache</code>引用的线程，因为<code>cache</code>是immutable object，其他线程不能更改，只能重新<code>new</code>一个。</li>
+</ol>
+<p>通过以上例子我们可以看出immutable object可以如何帮助我们在不用<code>synchronized</code>的情况下保证线程安全。</p>
+<h3 id="Safe-Publication"><a href="#Safe-Publication" class="headerlink" title="Safe Publication"></a>Safe Publication</h3><p>我们定义publishing一个对象的意思为，让对象在当前的scope之外可见，比如：</p>
+<ol>
+<li>赋值给其他的引用。</li>
+<li>在方法中返回一个引用。</li>
+<li>或者是将当前引用传递给其他的方法。</li>
+</ol>
+<p>而在多线程环境中，对于mutable object，我们很容易不注意就会unsafely publish，比如：</p>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">UnsafePublish</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> Demo demo;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="title">UnsafePublish</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        demo = <span class="keyword">new</span> Demo();</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>我们在这篇<a href="https://kanrourou.github.io/2021/01/15/understand_volatile_keyword/" target="_blank" rel="noopener">文章</a>里讲过，<code>new</code>的操作不是原子性的，所以引用可见的时候，其还没初始化完全，所以就会出现unsafe publish的情况。</p>
+<p>对于mutable object来讲，我们希望可以保证当其引用可见的时候，其内部状态也已经可见了，这样才能保证safe publication，一般来讲有下列方法：</p>
+<ol>
+<li>在static initizlier里初始化要publish的对象。</li>
+<li>用<code>volatile</code>修饰要publish的对象。</li>
+<li>用<code>AtomicReference</code>存要publish的对象。</li>
+<li>用<code>final</code>修饰其引用，并且保证其在初始化的时候不会发生<code>this</code>逃逸。</li>
+<li>用锁来guard每次对publish的引用的读和写。</li>
+</ol>
+<p>解释如下：</p>
+<ol>
+<li>第一点是JVM的保证，static initializer的调用在构造函数之前，可以保证所有初始化的field在引用可见的时候已经可见了。</li>
+<li>这点我们在上面的文章里讲过，<code>volatile</code>禁止重排序从而保证可见性。</li>
+<li>3和5本质上是一样的，通过强制原子操作从而避免race condition。并且本身也有可见性的保证。</li>
+<li>本文已经重点讲过，不再赘述。</li>
+</ol>
+]]></content>
+      <categories>
+        <category>Programming</category>
+        <category>Java</category>
+        <category>Concurrency</category>
+      </categories>
+      <tags>
+        <tag>Java</tag>
+        <tag>Concurrency</tag>
+      </tags>
+  </entry>
+  <entry>
     <title>深入理解volatile关键字</title>
     <url>/2021/01/15/understand_volatile_keyword/</url>
     <content><![CDATA[<h2 id="volatile与可见性"><a href="#volatile与可见性" class="headerlink" title="volatile与可见性"></a>volatile与可见性</h2><p>我们还是先来看一个例子，这个例子在<code>synchronized</code>这篇<a href="https://kanrourou.github.io/2021/01/13/understand_synchronized_keyword/" target="_blank" rel="noopener">文章</a>中用过:<br><a id="more"></a></p>
@@ -53,7 +194,7 @@
 <li>将初始化完毕的实例赋值给引用。</li>
 </ol>
 <p>所以其中2和3是可能重排，那么一旦执行顺序变为1-&gt;3-&gt;2，那么其他线程进来的时候，<code>instance</code>可能并不为<code>null</code>，但是此时publish的实例是没有初始化完成的，就很有可能出错。所以我们必须用<code>volatile</code>修饰<code>instance</code>来防止可能的指令重排。</p>
-<h2 id="volatile与原子性"><a href="#volatile与原子性" class="headerlink" title="volatile与原子性"></a>volatile与原子性</h2><p><code>volatile</code>并不对原子性有任何保证，所以需要原子性的时候，需要和其他保证原子性的关键字搭配使用，比如<code>synchronized</code>。</p>
+<h2 id="volatile与原子性"><a href="#volatile与原子性" class="headerlink" title="volatile与原子性"></a>volatile与原子性</h2><p><code>volatile</code>并不对原子性有任何保证，所以需要原子性的时候，需要和其他保证原子性的关键字搭配使用，比如<code>synchronized</code>。<br>但是值得一提的是<code>volatile</code>修饰的64位变量(如long，double)，其读写操作在32位JVM中会具有原子性。</p>
 ]]></content>
       <categories>
         <category>Programming</category>
