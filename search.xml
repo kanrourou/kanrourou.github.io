@@ -7,7 +7,8 @@
 <ol>
 <li>Identify the variables that form the object’s state.</li>
 <li>Identify the invariants that constrain the state variables.</li>
-<li>Establish a policy for managing concurrent access to the object’s state.</li>
+<li>Establish a policy for managing concurrent access to the object’s state.<a id="more"></a>
+</li>
 </ol>
 <p>An object’s state starts with its fields, no matter they are primitive types or references to other objects. Objects and variables have a state space: the range of possible states they can take on. That is why we want to use <code>final</code> whenever possible since it can make the space state smaller and easier to reason about.</p>
 <p>Operations may have postconditions that identify certain state transitions as invalid. When the next state is derived from the current state, the operation is necessarily a compound action. As the result, an object’s state could be a subset of the fields in the object graph rooted at that object.</p>
