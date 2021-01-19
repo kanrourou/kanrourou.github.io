@@ -1,0 +1,579 @@
+<!DOCTYPE html>
+<html lang="">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 3.9.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/font-awesome.min.css">
+
+
+<script id="hexo-configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    hostname: new URL('http://yoursite.com').hostname,
+    root: '/',
+    scheme: 'Pisces',
+    version: '7.6.0',
+    exturl: false,
+    sidebar: {"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},
+    copycode: {"enable":false,"show_result":false,"style":null},
+    back2top: {"enable":true,"sidebar":false,"scrollpercent":false},
+    bookmark: {"enable":false,"color":"#222","save":"auto"},
+    fancybox: false,
+    mediumzoom: false,
+    lazyload: false,
+    pangu: false,
+    comments: {"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},
+    algolia: {
+      appID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    },
+    localsearch: {"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},
+    path: 'search.xml',
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}}
+  };
+</script>
+
+  <meta name="description" content="Design a thread-safe classThe design process for a thread-safe class should include these three basic elements:  Identify the variables that form the object’s state. Identify the invariants that const">
+<meta name="keywords" content="Java,Concurrency,Book Reading">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Book Reading: Java Concurrency in Practice, Chapter 4">
+<meta property="og:url" content="http://yoursite.com/2021/01/18/book_reading_java_concurrency_4/index.html">
+<meta property="og:site_name" content="码字的呵呵君">
+<meta property="og:description" content="Design a thread-safe classThe design process for a thread-safe class should include these three basic elements:  Identify the variables that form the object’s state. Identify the invariants that const">
+<meta property="og:locale" content="default">
+<meta property="og:updated_time" content="2021-01-19T06:38:47.316Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Book Reading: Java Concurrency in Practice, Chapter 4">
+<meta name="twitter:description" content="Design a thread-safe classThe design process for a thread-safe class should include these three basic elements:  Identify the variables that form the object’s state. Identify the invariants that const">
+
+<link rel="canonical" href="http://yoursite.com/2021/01/18/book_reading_java_concurrency_4/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome: false,
+    isPost: true
+  };
+</script>
+
+  <title>Book Reading: Java Concurrency in Practice, Chapter 4 | 码字的呵呵君</title>
+  
+    <script async src="https://www.googletagmanager.com/gtag/js?id=UA-133451584-2"></script>
+    <script>
+      if (CONFIG.hostname === location.hostname) {
+        window.dataLayer = window.dataLayer || [];
+        function gtag(){dataLayer.push(arguments);}
+        gtag('js', new Date());
+        gtag('config', 'UA-133451584-2');
+      }
+    </script>
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-meta">
+
+    <div>
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">码字的呵呵君</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+        <p class="site-subtitle">漫长的告别</p>
+  </div>
+
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="Toggle navigation bar">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+</div>
+
+
+<nav class="site-nav">
+  
+  <ul id="menu" class="menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-fw fa-home"></i>Home</a>
+
+  </li>
+        <li class="menu-item menu-item-about">
+
+    <a href="/about/" rel="section"><i class="fa fa-fw fa-user"></i>About</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/tags/" rel="section"><i class="fa fa-fw fa-tags"></i>Tags</a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/categories/" rel="section"><i class="fa fa-fw fa-th"></i>Categories</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-fw fa-archive"></i>Archives</a>
+
+  </li>
+  </ul>
+
+</nav>
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content">
+            
+
+  <div class="posts-expand">
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block " lang="default">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2021/01/18/book_reading_java_concurrency_4/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="hehejun">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="码字的呵呵君">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          Book Reading: Java Concurrency in Practice, Chapter 4
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+              
+
+              <time title="Created: 2021-01-18 00:00:00 / Modified: 22:38:47" itemprop="dateCreated datePublished" datetime="2021-01-18T00:00:00-08:00">2021-01-18</time>
+            </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">In</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/Programming/" itemprop="url" rel="index">
+                    <span itemprop="name">Programming</span>
+                  </a>
+                </span>
+                  , 
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/Programming/Java/" itemprop="url" rel="index">
+                    <span itemprop="name">Java</span>
+                  </a>
+                </span>
+                  , 
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/Programming/Java/Concurrency/" itemprop="url" rel="index">
+                    <span itemprop="name">Concurrency</span>
+                  </a>
+                </span>
+            </span>
+
+          
+            <span id="/2021/01/18/book_reading_java_concurrency_4/" class="post-meta-item leancloud_visitors" data-flag-title="Book Reading: Java Concurrency in Practice, Chapter 4" title="Views">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-eye"></i>
+              </span>
+              <span class="post-meta-item-text">Views: </span>
+              <span class="leancloud-visitors-count"></span>
+            </span>
+  
+  <span class="post-meta-item">
+    
+      <span class="post-meta-item-icon">
+        <i class="fa fa-comment-o"></i>
+      </span>
+      <span class="post-meta-item-text">Valine: </span>
+    
+    <a title="valine" href="/2021/01/18/book_reading_java_concurrency_4/#comments" itemprop="discussionUrl">
+      <span class="post-comments-count valine-comment-count" data-xid="/2021/01/18/book_reading_java_concurrency_4/" itemprop="commentCount"></span>
+    </a>
+  </span>
+  
+  <br>
+            <span class="post-meta-item" title="Symbols count in article">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-file-word-o"></i>
+              </span>
+                <span class="post-meta-item-text">Symbols count in article: </span>
+              <span>6.6k</span>
+            </span>
+            <span class="post-meta-item" title="Reading time">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-clock-o"></i>
+              </span>
+                <span class="post-meta-item-text">Reading time &asymp;</span>
+              <span>6 mins.</span>
+            </span>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <h2 id="Design-a-thread-safe-class"><a href="#Design-a-thread-safe-class" class="headerlink" title="Design a thread-safe class"></a>Design a thread-safe class</h2><p>The design process for a thread-safe class should include these three basic elements:</p>
+<ol>
+<li>Identify the variables that form the object’s state.</li>
+<li>Identify the invariants that constrain the state variables.</li>
+<li>Establish a policy for managing concurrent access to the object’s state.</li>
+</ol>
+<p>An object’s state starts with its fields, no matter they are primitive types or references to other objects. Objects and variables have a state space: the range of possible states they can take on. That is why we want to use <code>final</code> whenever possible since it can make the space state smaller and easier to reason about.</p>
+<p>Operations may have postconditions that identify certain state transitions as invalid. When the next state is derived from the current state, the operation is necessarily a compound action. As the result, an object’s state could be a subset of the fields in the object graph rooted at that object.</p>
+<p>Constraints placed on states or state transition by invariants and postconditions create additional synchronization or encapsulation requirements. A class can also have invariants that constrain multiple state variables, which create atomicity requirements: related variables must be fetched or updated in a single atomic operation.</p>
+<p>Class invariants and method postconditons constrain the valid states and state transitions for an object, it is impossible to ensure thread safety without understanding an object’s invariants and postconditions.</p>
+<p>In addition to that, some objects also have method with state-based preconditions, operations with state-based preconditions are called state-denpendent. In a concurrent program, it adds possibility of waiting until the precondition becomes true, and then proceeding with the operation.</p>
+<p>Ownership is another thing needs to be considered when designing thread-safe class, since ownership implies control. Usually the object encapsulates the state it owns and owns the state it encapsulates, but once a mutable object gets published, you no longer have exclusive control, which will result in a “shared ownership”, a typical example is collection classes.</p>
+<h2 id="Instance-confinement"><a href="#Instance-confinement" class="headerlink" title="Instance confinement"></a>Instance confinement</h2><p>If an object is not thread-safe, several techniques can still let it be used safely in a multithreaded program.</p>
+<p>Encapsulating data within an object is one of the methods, which confines access to the data to the object’s method, making it easier to ensure that the data is always accessed with the appropriate lock held.</p>
+<p>Example (Note class <code>Person</code> is not thread safe):</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@ThreadSafe</span></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">PersonSet</span> </span>&#123;</span><br><span class="line">    <span class="meta">@GuardedBy</span>(<span class="string">"this"</span>)</span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">final</span> Set&lt;Person&gt; mySet = <span class="keyword">new</span> HashSet&lt;Person&gt;();</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">synchronized</span> <span class="keyword">void</span> <span class="title">addPerson</span><span class="params">(Person p)</span> </span>&#123;</span><br><span class="line">        mySet.add(p);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">synchronized</span> <span class="keyword">boolean</span> <span class="title">containsPerson</span><span class="params">(Person p)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">return</span> mySet.contains(p);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>It is still possible to violate confinement by pushlishing a supposedly confined object. Confined Objects can also escape by publishing other objects such as iterators or inner class instances that may indirectly publish the confined objects.</p>
+<p>Another technique is to use java monitor pattern. An object following the java monitor pattern encapsulates all its mutable state and guards it with the object’s own instrinsic lock.</p>
+<p>Example (Note any lock can be used as long as it is consistent):</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">PrivateLock</span> </span>&#123;</span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">final</span> Object myLock = <span class="keyword">new</span> Object();</span><br><span class="line">    <span class="meta">@GuardedBy</span>(<span class="string">"myLock"</span>) Widget widget;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">void</span> <span class="title">someMethod</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        <span class="keyword">synchronized</span>(myLock) &#123;</span><br><span class="line">            <span class="comment">// Acess widget</span></span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>There are advantages to using a private lock object instead of an object’s intrinsic lock. Making the lock object private encapsulates the lock so that clent code cannot acquire it.</p>
+<h2 id="Delegating-thread-safety"><a href="#Delegating-thread-safety" class="headerlink" title="Delegating thread safety"></a>Delegating thread safety</h2><p>Sometimes if you are using a thread-safe object, it is possible to make you class thread-safe without extra synchronization actions. We can also delegate thread safety to more than one underlying state variables as long as those underlying state variables are independent.</p>
+<p>For example, the code below delegates thread safety to underlying <code>CopyOnWriteArrayList</code>, which is thread safe:</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">VisualComponent</span> </span>&#123;</span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">final</span> List&lt;KeyListener&gt; keyListeners = <span class="keyword">new</span> CopyOnWriteArrayList&lt;KeyListner&gt;();</span><br><span class="line">	<span class="keyword">private</span> <span class="keyword">final</span> List&lt;MouseListner&gt; mouseListners = <span class="keyword">new</span> CopyOnWriteArrayList&lt;MouseListener&gt;();</span><br><span class="line"></span><br><span class="line">	<span class="comment">// Add Listeners...</span></span><br><span class="line"></span><br><span class="line">	<span class="comment">// Remove Listeners...</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>Note there is not relationship between the set of mouse listners and key listeners, they are independent and that is why <code>VisualComponent</code> can delegate its thread safety obligations to two underlying thread-safe lists.</p>
+<p>Most composite classes may have invariants that relate their component state variables. If a class has compound actions, delegation alone is again not a suitable approach for thread safety, and class must provide its own locking to ensure that compound actions are atomic.</p>
+<p>If a state variable is thread-safe, does not participate in any invariants that constrain its value, and has no prohibited state transitions for any of its operation, then it can safely be published.</p>
+<h2 id="Building-with-existing-thread-safe-classes"><a href="#Building-with-existing-thread-safe-classes" class="headerlink" title="Building with existing thread-safe classes"></a>Building with existing thread-safe classes</h2><p>The java class library contains many useful “building block” classes. Reusing existing classes is often preferable to creating new ones.</p>
+<p>The safest way to add a new atomic operation is to modify the original class to support the desired operation, but this is not always possible because you may not have access to the source code or may not be free to modify it.</p>
+<p>Another approach is to extend the class, assuming it was designed for extension. But extension is more fragile than adding code directly to a class, because the implementation of the synchronization policy is now distributed over multiple separately maintained source files. If the underlying class were to change its synchronization policy by choosing a differnt lock to guard its state variables, the subclass would subtly and silently break:</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@ThreadSafe</span></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">BetterVector</span>&lt;<span class="title">E</span>&gt; <span class="keyword">extends</span> <span class="title">Vector</span>&lt;<span class="title">E</span>&gt; </span>&#123;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">synchronized</span> <span class="keyword">boolean</span> <span class="title">putIfAbsent</span><span class="params">(E x)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">boolean</span> absent = !contains(x);</span><br><span class="line">        <span class="keyword">if</span> (absent)</span><br><span class="line">            add(x);</span><br><span class="line">        <span class="keyword">return</span> absent;</span><br><span class="line">   &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>A third strategy is to extend the functionality of the class without extending the class itself by placing extension code in a “helper” class. To make this approach work, we have to use the same lock that the <code>List</code> uses by using client-side locking.</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@ThreadSafe</span></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">ListHelper</span>&lt;<span class="title">E</span>&gt; </span>&#123;</span><br><span class="line">    <span class="keyword">public</span> List&lt;E&gt; list = Collections.synchronizedList(<span class="keyword">new</span> ArrayList&lt;E&gt;());</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">boolean</span> <span class="title">putIfAbsent</span><span class="params">(E x)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">synchronized</span>(list) &#123;</span><br><span class="line">            <span class="keyword">boolean</span> absent = !list.contains(x);</span><br><span class="line">            <span class="keyword">if</span> (absent)</span><br><span class="line">                list.add(x);</span><br><span class="line">            <span class="keyword">return</span> absent;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>Everytime we use this approach, we must make sure we know what lock the library class uses, otherwise we may put locking code into classes that are totally unrelated.</p>
+<p>There is a less fragile alternative for adding an atomic operation to an existing class, composition:</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@ThreadSafe</span></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">ImprovedList</span>&lt;<span class="title">T</span>&gt; <span class="keyword">implements</span> <span class="title">List</span>&lt;<span class="title">T</span>&gt; </span>&#123;</span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">final</span> List&lt;T&gt; list;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="title">ImprovedList</span><span class="params">(List&lt;T&gt; list)</span> </span>&#123; <span class="keyword">this</span>.list = list; &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">synchronized</span> <span class="keyword">boolean</span> <span class="title">putIfAbsent</span><span class="params">(T x)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">boolean</span> contains = list.contains(x);</span><br><span class="line">        <span class="keyword">if</span> (contains)</span><br><span class="line">            list.add(x);</span><br><span class="line">        <span class="keyword">return</span> !contains;</span><br><span class="line">   &#125;</span><br><span class="line">   </span><br><span class="line">   <span class="function"><span class="keyword">public</span> <span class="keyword">synchronized</span> <span class="keyword">void</span> <span class="title">clear</span><span class="params">()</span> </span>&#123; list.clear(); &#125;</span><br><span class="line"></span><br><span class="line">   <span class="comment">// ...similar delegate methods</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>In effect, we used the java monitor pattern to encapsulate an existing <code>List</code>, and this is guaranteed to provide thread safety so long as our class holds the only reference to the underlying <code>List</code>.</p>
+
+    </div>
+
+    
+    
+    
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/Java/" rel="tag"># Java</a>
+              <a href="/tags/Concurrency/" rel="tag"># Concurrency</a>
+              <a href="/tags/Book-Reading/" rel="tag"># Book Reading</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2021/01/17/understand_final_keyword/" rel="prev" title="深入理解final关键字">
+      <i class="fa fa-chevron-left"></i> 深入理解final关键字
+    </a></div>
+      <div class="post-nav-item"></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+  </div>
+
+
+          </div>
+          
+    <div class="comments" id="comments"></div>
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let activeClass = CONFIG.comments.activeClass;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          Table of Contents
+        </li>
+        <li class="sidebar-nav-overview">
+          Overview
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#Design-a-thread-safe-class"><span class="nav-number">1.</span> <span class="nav-text">Design a thread-safe class</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Instance-confinement"><span class="nav-number">2.</span> <span class="nav-text">Instance confinement</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Delegating-thread-safety"><span class="nav-number">3.</span> <span class="nav-text">Delegating thread safety</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Building-with-existing-thread-safe-classes"><span class="nav-number">4.</span> <span class="nav-text">Building with existing thread-safe classes</span></a></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="hehejun"
+      src="/images/avatar.gif">
+  <p class="site-author-name" itemprop="name">hehejun</p>
+  <div class="site-description" itemprop="description"></div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">11</span>
+          <span class="site-state-item-name">posts</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+          
+        <span class="site-state-item-count">9</span>
+        <span class="site-state-item-name">categories</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+          
+        <span class="site-state-item-count">10</span>
+        <span class="site-state-item-name">tags</span></a>
+      </div>
+  </nav>
+</div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+<div class="copyright">
+  
+  &copy; 2019 – 
+  <span itemprop="copyrightYear">2021</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">hehejun</span>
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item-icon">
+      <i class="fa fa-area-chart"></i>
+    </span>
+    <span title="Symbols count total">45k</span>
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item-icon">
+      <i class="fa fa-coffee"></i>
+    </span>
+    <span title="Reading time total">41 mins.</span>
+</div>
+
+        
+<div class="busuanzi-count">
+  <script async src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+    <span class="post-meta-item" id="busuanzi_container_site_uv" style="display: none;">
+      <span class="post-meta-item-icon">
+        <i class="fa fa-user"></i>
+      </span>
+      <span class="site-uv" title="Total Visitors">
+        <span id="busuanzi_value_site_uv"></span>
+      </span>
+    </span>
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item" id="busuanzi_container_site_pv" style="display: none;">
+      <span class="post-meta-item-icon">
+        <i class="fa fa-eye"></i>
+      </span>
+      <span class="site-pv" title="Total Views">
+        <span id="busuanzi_value_site_pv"></span>
+      </span>
+    </span>
+</div>
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+<script src="/js/utils.js"></script><script src="/js/motion.js"></script>
+<script src="/js/schemes/pisces.js"></script>
+<script src="/js/next-boot.js"></script>
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+
+<script>
+NexT.utils.loadComments(() => {
+  NexT.utils.getScript('https://cdn.jsdelivr.net/npm/valine@1.4.14/dist/Valine.min.js', () => {
+    var GUEST = ['nick', 'mail', 'link'];
+    var guest = 'nick,mail,link';
+    guest = guest.split(',').filter(item => {
+      return GUEST.includes(item);
+    });
+    new Valine({
+      el: '#comments',
+      verify: false,
+      notify: false,
+      appId: 'PKvEM4W15eyM8pCk7qvGlvYF-MdYXbMMI',
+      appKey: 'u3RYtOW2Dcu1hAgNEtjsAMip',
+      placeholder: "Just go go",
+      avatar: 'mm',
+      meta: guest,
+      pageSize: '10' || 10,
+      visitor: true,
+      lang: '' || 'zh-cn',
+      path: location.pathname,
+      recordIP: false,
+      serverURLs: ''
+    });
+  }, window.Valine);
+});
+</script>
+
+</body>
+</html>
