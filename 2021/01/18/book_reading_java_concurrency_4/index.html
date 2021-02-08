@@ -54,7 +54,7 @@
 <meta property="og:site_name" content="码字的呵呵君">
 <meta property="og:description" content="Design a thread-safe classThe design process for a thread-safe class should include these three basic elements:  Identify the variables that form the object’s state. Identify the invariants that const">
 <meta property="og:locale" content="default">
-<meta property="og:updated_time" content="2021-01-19T06:45:12.609Z">
+<meta property="og:updated_time" content="2021-01-19T06:48:50.019Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="Book Reading: Java Concurrency in Practice, Chapter 4">
 <meta name="twitter:description" content="Design a thread-safe classThe design process for a thread-safe class should include these three basic elements:  Identify the variables that form the object’s state. Identify the invariants that const">
@@ -219,7 +219,7 @@
               <span class="post-meta-item-text">Posted on</span>
               
 
-              <time title="Created: 2021-01-18 00:00:00 / Modified: 22:45:12" itemprop="dateCreated datePublished" datetime="2021-01-18T00:00:00-08:00">2021-01-18</time>
+              <time title="Created: 2021-01-18 00:00:00 / Modified: 22:48:50" itemprop="dateCreated datePublished" datetime="2021-01-18T00:00:00-08:00">2021-01-18</time>
             </span>
             <span class="post-meta-item">
               <span class="post-meta-item-icon">
@@ -321,7 +321,7 @@
 <p>If a state variable is thread-safe, does not participate in any invariants that constrain its value, and has no prohibited state transitions for any of its operation, then it can safely be published.</p>
 <h2 id="Building-with-existing-thread-safe-classes"><a href="#Building-with-existing-thread-safe-classes" class="headerlink" title="Building with existing thread-safe classes"></a>Building with existing thread-safe classes</h2><p>The java class library contains many useful “building block” classes. Reusing existing classes is often preferable to creating new ones.</p>
 <p>The safest way to add a new atomic operation is to modify the original class to support the desired operation, but this is not always possible because you may not have access to the source code or may not be free to modify it.</p>
-<p>Another approach is to extend the class, assuming it was designed for extension. But extension is more fragile than adding code directly to a class, because the implementation of the synchronization policy is now distributed over multiple separately maintained source files. If the underlying class were to change its synchronization policy by choosing a differnt lock to guard its state variables, the subclass would subtly and silently break:</p>
+<p>Another approach is to extend the class, assuming it was designed for extension. But extension is more fragile than adding code directly to a class, because the implementation of the synchronization policy is now distributed over multiple separately maintained source files. If the underlying class were to change its synchronization policy by choosing a different lock to guard its state variables, the subclass would subtly and silently break:</p>
 <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@ThreadSafe</span></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">BetterVector</span>&lt;<span class="title">E</span>&gt; <span class="keyword">extends</span> <span class="title">Vector</span>&lt;<span class="title">E</span>&gt; </span>&#123;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">synchronized</span> <span class="keyword">boolean</span> <span class="title">putIfAbsent</span><span class="params">(E x)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">boolean</span> absent = !contains(x);</span><br><span class="line">        <span class="keyword">if</span> (absent)</span><br><span class="line">            add(x);</span><br><span class="line">        <span class="keyword">return</span> absent;</span><br><span class="line">   &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 <p>A third strategy is to extend the functionality of the class without extending the class itself by placing extension code in a “helper” class. To make this approach work, we have to use the same lock that the <code>List</code> uses by using client-side locking.</p>
 <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@ThreadSafe</span></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">ListHelper</span>&lt;<span class="title">E</span>&gt; </span>&#123;</span><br><span class="line">    <span class="keyword">public</span> List&lt;E&gt; list = Collections.synchronizedList(<span class="keyword">new</span> ArrayList&lt;E&gt;());</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">boolean</span> <span class="title">putIfAbsent</span><span class="params">(E x)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">synchronized</span>(list) &#123;</span><br><span class="line">            <span class="keyword">boolean</span> absent = !list.contains(x);</span><br><span class="line">            <span class="keyword">if</span> (absent)</span><br><span class="line">                list.add(x);</span><br><span class="line">            <span class="keyword">return</span> absent;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
@@ -352,7 +352,10 @@
     <a href="/2021/01/17/understand_final_keyword/" rel="prev" title="深入理解final关键字">
       <i class="fa fa-chevron-left"></i> 深入理解final关键字
     </a></div>
-      <div class="post-nav-item"></div>
+      <div class="post-nav-item">
+    <a href="/2021/02/07/book_reading_java_concurrency_13/" rel="next" title="Book Reading: Java Concurrency in Practice, Chapter 13">
+      Book Reading: Java Concurrency in Practice, Chapter 13 <i class="fa fa-chevron-right"></i>
+    </a></div>
     </div>
       </footer>
     
@@ -429,7 +432,7 @@
       <div class="site-state-item site-state-posts">
           <a href="/archives/">
         
-          <span class="site-state-item-count">11</span>
+          <span class="site-state-item-count">12</span>
           <span class="site-state-item-name">posts</span>
         </a>
       </div>
@@ -476,12 +479,12 @@
     <span class="post-meta-item-icon">
       <i class="fa fa-area-chart"></i>
     </span>
-    <span title="Symbols count total">45k</span>
+    <span title="Symbols count total">53k</span>
     <span class="post-meta-divider">|</span>
     <span class="post-meta-item-icon">
       <i class="fa fa-coffee"></i>
     </span>
-    <span title="Reading time total">41 mins.</span>
+    <span title="Reading time total">48 mins.</span>
 </div>
 
         
