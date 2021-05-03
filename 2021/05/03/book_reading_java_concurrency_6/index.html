@@ -1,0 +1,603 @@
+<!DOCTYPE html>
+<html lang="">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 3.9.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/font-awesome.min.css">
+
+
+<script id="hexo-configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    hostname: new URL('http://yoursite.com').hostname,
+    root: '/',
+    scheme: 'Pisces',
+    version: '7.6.0',
+    exturl: false,
+    sidebar: {"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},
+    copycode: {"enable":false,"show_result":false,"style":null},
+    back2top: {"enable":true,"sidebar":false,"scrollpercent":false},
+    bookmark: {"enable":false,"color":"#222","save":"auto"},
+    fancybox: false,
+    mediumzoom: false,
+    lazyload: false,
+    pangu: false,
+    comments: {"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},
+    algolia: {
+      appID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    },
+    localsearch: {"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},
+    path: 'search.xml',
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}}
+  };
+</script>
+
+  <meta name="description" content="Executing tasks in threadsThe first step in organizing a program around task execution is identifying sensible task boundaries. Ideally, tasks are independent activities: work that doesn’t depend on t">
+<meta name="keywords" content="Java,Concurrency,Book Reading">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Book Reading: Java Concurrency in Practice, Chapter 6">
+<meta property="og:url" content="http://yoursite.com/2021/05/03/book_reading_java_concurrency_6/index.html">
+<meta property="og:site_name" content="码字的呵呵君">
+<meta property="og:description" content="Executing tasks in threadsThe first step in organizing a program around task execution is identifying sensible task boundaries. Ideally, tasks are independent activities: work that doesn’t depend on t">
+<meta property="og:locale" content="default">
+<meta property="og:updated_time" content="2021-05-03T07:08:24.535Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Book Reading: Java Concurrency in Practice, Chapter 6">
+<meta name="twitter:description" content="Executing tasks in threadsThe first step in organizing a program around task execution is identifying sensible task boundaries. Ideally, tasks are independent activities: work that doesn’t depend on t">
+
+<link rel="canonical" href="http://yoursite.com/2021/05/03/book_reading_java_concurrency_6/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome: false,
+    isPost: true
+  };
+</script>
+
+  <title>Book Reading: Java Concurrency in Practice, Chapter 6 | 码字的呵呵君</title>
+  
+    <script async src="https://www.googletagmanager.com/gtag/js?id=UA-133451584-2"></script>
+    <script>
+      if (CONFIG.hostname === location.hostname) {
+        window.dataLayer = window.dataLayer || [];
+        function gtag(){dataLayer.push(arguments);}
+        gtag('js', new Date());
+        gtag('config', 'UA-133451584-2');
+      }
+    </script>
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-meta">
+
+    <div>
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">码字的呵呵君</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+        <p class="site-subtitle">漫长的告别</p>
+  </div>
+
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="Toggle navigation bar">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+</div>
+
+
+<nav class="site-nav">
+  
+  <ul id="menu" class="menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-fw fa-home"></i>Home</a>
+
+  </li>
+        <li class="menu-item menu-item-about">
+
+    <a href="/about/" rel="section"><i class="fa fa-fw fa-user"></i>About</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/tags/" rel="section"><i class="fa fa-fw fa-tags"></i>Tags</a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/categories/" rel="section"><i class="fa fa-fw fa-th"></i>Categories</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-fw fa-archive"></i>Archives</a>
+
+  </li>
+  </ul>
+
+</nav>
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content">
+            
+
+  <div class="posts-expand">
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block " lang="default">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2021/05/03/book_reading_java_concurrency_6/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="hehejun">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="码字的呵呵君">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          Book Reading: Java Concurrency in Practice, Chapter 6
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+              
+
+              <time title="Created: 2021-05-03 00:00:00 / Modified: 00:08:24" itemprop="dateCreated datePublished" datetime="2021-05-03T00:00:00-07:00">2021-05-03</time>
+            </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">In</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/Programming/" itemprop="url" rel="index">
+                    <span itemprop="name">Programming</span>
+                  </a>
+                </span>
+                  , 
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/Programming/Java/" itemprop="url" rel="index">
+                    <span itemprop="name">Java</span>
+                  </a>
+                </span>
+                  , 
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/Programming/Java/Concurrency/" itemprop="url" rel="index">
+                    <span itemprop="name">Concurrency</span>
+                  </a>
+                </span>
+            </span>
+
+          
+            <span id="/2021/05/03/book_reading_java_concurrency_6/" class="post-meta-item leancloud_visitors" data-flag-title="Book Reading: Java Concurrency in Practice, Chapter 6" title="Views">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-eye"></i>
+              </span>
+              <span class="post-meta-item-text">Views: </span>
+              <span class="leancloud-visitors-count"></span>
+            </span>
+  
+  <span class="post-meta-item">
+    
+      <span class="post-meta-item-icon">
+        <i class="fa fa-comment-o"></i>
+      </span>
+      <span class="post-meta-item-text">Valine: </span>
+    
+    <a title="valine" href="/2021/05/03/book_reading_java_concurrency_6/#comments" itemprop="discussionUrl">
+      <span class="post-comments-count valine-comment-count" data-xid="/2021/05/03/book_reading_java_concurrency_6/" itemprop="commentCount"></span>
+    </a>
+  </span>
+  
+  <br>
+            <span class="post-meta-item" title="Symbols count in article">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-file-word-o"></i>
+              </span>
+                <span class="post-meta-item-text">Symbols count in article: </span>
+              <span>14k</span>
+            </span>
+            <span class="post-meta-item" title="Reading time">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-clock-o"></i>
+              </span>
+                <span class="post-meta-item-text">Reading time &asymp;</span>
+              <span>12 mins.</span>
+            </span>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <h2 id="Executing-tasks-in-threads"><a href="#Executing-tasks-in-threads" class="headerlink" title="Executing tasks in threads"></a>Executing tasks in threads</h2><p>The first step in organizing a program around task execution is identifying sensible <em>task boundaries</em>. Ideally, tasks are <em>independent</em> activities: work that doesn’t depend on the state, result, or side effects of other tasks. Independence facilitates concurrency, as independent tasks can be executed in parallel if there are adequate processing resources.<br><a id="more"></a><br>Server applications should exhibit both <em>good throughput</em> and <em>good responsiveness</em> under normal load. Further, applications should exhibit <em>graceful degradation</em> as they become overload, rather than simply falling over under heavy load. Choosing good task boundaries, coupled with a sensible <em>task execution policy</em>, can help achieve these goals.</p>
+<p>Most server applications offer a natrual choice of task boundary, individual client requests. Using individual requests as task boundaries usually offers both independence and approriate task sizing.</p>
+<p>There are number of possible policies for scheduling tasks within an application, some of which explit the potential for concurrency better than others. The simplest is to execute tasks sequentially in a single thread. But processing a web request involves a mixed of computation and I/O. The server must perform socket I/O to read the request and write the response, which can block due to network congestion or connectivity problems. It may also perform file I/O or make database requests, which can also block. In a single-threaded server, blocking not only delays completing the current request, but prevents pending requests from being processed at all.</p>
+<p>A more responsive approach is to create a new thread for servicing each request, in this way, for each connection, the main loop creates a new thread to process the request instead of processing it within the main thread. This has some main consequences:</p>
+<ul>
+<li><p>Task processing is offloaded from the main thread, enabling the main loop to resume waiting for the next incoming connection more quickly. This enables new connections to be accepted before previous requests complete, improving responsiveness.</p>
+</li>
+<li><p>Tasks can be processed in parallel, enabling multiple requests to be serviced simultaneously. This may improve throughput if there are multiple processors, or if tasks need to block for any reason such as I/O completion, lock acquisition, or resource availability.</p>
+</li>
+</ul>
+<p>For production use, however, the thread-per-task approach has some practical drawbacks, especially when a large number of threads may be created:</p>
+<p><strong>Thread lifecycle overhead.</strong> Thread creation and teardown are not free. The actual overhead varies across platform, but thread creation takes time, introducing latency into request processing, and requires some processing activity by the JVM and OS, If requests are frequent and lightweight, as in most server applications, creating a new thread for each request can consume significant computing resources.</p>
+<p><strong>Resource consumption.</strong> Active threads consume system resources, especially memory. When there are more runnable threads than available processors, threads sit idle. Having many idel threads can tie up a lot of memory, putting pressure on the garbage collector, and having many threads competing for the CPUs can impose other performance cost as well.</p>
+<p><strong>Stability.</strong> There is a limit on how many threads can be created. The limit varies by platform and is affected by factors including JVM invocation parameters, the requestd stack size in the <code>Thread</code> constructor, and limits on threads placed by the underlying operation system.</p>
+<p>Up to a certain point, more threads can improve throughput, but beyond that point creating more threads just slows down your application, and creating one thread too many can cause your entire application to crash horribly.</p>
+<h2 id="The-Executor-framework"><a href="#The-Executor-framework" class="headerlink" title="The Executor framework"></a>The <code>Executor</code> framework</h2><p>In <a href="https://kanrourou.github.io/2021/04/30/book_reading_java_concurrency_5/" target="_blank" rel="noopener">Chapter 5</a>, we saw how to use <em>bounded queues</em> to prevent an overloaded appplication from running out of memory. <em>Thread pools</em> offer the same benefit for thread mangedment, and <code>java.util.concurrent</code> provides a flexible thread pool implementation as part of the <code>Executor</code> framework.</p>
+<p><code>Executor</code> provides a standard means of decoupling <em>task submission</em> from <em>task exectution</em>. It is based on the producer-consumer pattern, where activities that submit tasks are the producers and the threads that execute tasks are the consumers. Using a <code>Executor</code> is <em>usually the easiest path to implementing a producer-consumer design in your application</em>.</p>
+<p>The value of decoupling submission from execution is that it lets you easiliy specify, and subsequently change without great difficulty the <em>execution policy</em> for a given class of tasks. An execution policy specifies the “what, where, when, and how” of task exectution, including:</p>
+<ul>
+<li>In what thread will tasks be executed?</li>
+<li>In what order should tasks be executed (FIFO, LIFO, priority order)?</li>
+<li>How many tasks may execute concurrently?</li>
+<li>How many tasks may be queued pending execution?</li>
+<li>If a task has to be rejected because the system is overloaded, which task should be selected as the victim, and how should the application be notified?</li>
+<li>What actions should be taken before or after executing a task?</li>
+</ul>
+<p>Execution policies are a resource management tool, and the optimal policy depends on the available computing resources and your quality-of-service requiremnts. Separating the specification of execution policy from task submission makes it practical to select an execution policy at depolyment time that is matched to the available hardware.</p>
+<p>A thread pool, as its name suggests, manages a homogeneous pool of worker threads. A thread pool is tightly bound to a <em>work queue</em> holding tasks waiting to be executed.</p>
+<p>Executing tasks in pool threads has a number of advantages over the thread-per-approach, Reusing an existing thread instead of creating a new one amortizes thread creation and teardown costs over multiple requests. As an added bonus, since the worker thread often already exists at the time the request arrives, the latency associated with thread creation does not delay task execution, thus improve responsiveness. By properly tuning the size of the thread pool, you can have enough threads to keep the processors busy while not having so many that your application runs out of memory or thrashes due to competition among threads for resources.</p>
+<p>The class library provides a flexible thread pool implementation along with some useful predefined configurations:</p>
+<p><strong>newFixedThreadPool.</strong> A fixed-size thread pool creates threads as tasks are submitted, up to the maximum pool size, and then attempts to keep the pol size constant.</p>
+<p><strong>newCachedThreadPool.</strong> A cached thread pool has more flexibility to reap idle threads when the current size of the pool exceeds the demand for processing, and to add new threads when demand increases, but places no bounds on the size of the pool.</p>
+<p><strong>newSingleThreadExecutor.</strong> A single-threaded executor creates a single worker thread to process tasks, replacing it if it dies unexpectedly. Tasks are guaranteed to be processed sequentially according to the order imposed by the task queue (FIFO, LIFO, priority order).</p>
+<p><strong>newScheduledThreadPool.</strong> A fixed-size thread pool that supports delayed and periodic task execution, similar to <code>Timer</code>.</p>
+<p>Since the JVM can’t exit until all the (nondaemon) threads have terminated, failling to shut down an <code>Executor</code> could prevent the JVM from exiting. In shutting down an application, there is a spectrum from graceful shutdown to abrupt shutdown, and various points in between. Since <code>Executors</code> provide a service to applications, they should be able to able to shut down as well, both gracefully and abruptly, and feed back information to the application about the status of tasks that were affected by the shutdown.</p>
+<p>To address the issue of execution service lifecycle, the <code>ExecutorService</code> interface extends <code>Executor</code>, adding a number of methods for lifecycle management:</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">interface</span> <span class="title">ExecutorService</span> <span class="keyword">extends</span> <span class="title">Executor</span> </span>&#123;</span><br><span class="line">    <span class="function"><span class="keyword">void</span> <span class="title">shutdown</span><span class="params">()</span></span>;</span><br><span class="line">    <span class="function">List&lt;Runnable&gt; <span class="title">shutdownNow</span><span class="params">()</span></span>;</span><br><span class="line">    <span class="function"><span class="keyword">boolean</span> <span class="title">isShutdown</span><span class="params">()</span></span>;</span><br><span class="line">    <span class="function"><span class="keyword">boolean</span> <span class="title">isTerminated</span><span class="params">()</span></span>;</span><br><span class="line">    <span class="function"><span class="keyword">boolean</span> <span class="title">awaitTermination</span><span class="params">(<span class="keyword">long</span> timeout, TimeUnit unit)</span> <span class="keyword">throws</span> InterruptedException</span>;</span><br><span class="line">    <span class="comment">// ...</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>The lifecycle implited by <code>ExecutorService</code> has three states–<em>running, shutting down,</em> and <em>terminated</em>. The <code>shutdown</code> method initiates a graceful shutdown: no new tasks are accepted but previously submitted tasks are allowed to complete–including those that have not begun execution. The <code>shutdownNow</code> method initiates an abrupt shutdown: it attempts to cancel outstanding tasks and does not start any tasks that are queued but not begun. Once all tasks have completed, the <code>ExecutorService</code> transitions to the <em>terminated</em> state. You can wait for an <code>ExecutorService</code> to reach the terminated state with <code>awaitTermination</code>, or poll for whether it has yet terminated with <code>isTerminated</code>.</p>
+<p>The <code>Timer</code> facility manages the execution of deferred and periodic tasks. However, <code>Timer</code> has some drawbacks, and <code>ScheduledThreadPoolExecutor</code> should be thought of as its replacement.</p>
+<p>A <code>Timer</code> creates only a single thread for executing timer tasks. If a timer task takes too long to run, the timing accuracy of other <code>TimerTasks</code> can suffer. Another problem with <code>Timer</code> is that it behaves poorly if a <code>TimerTask</code> throws an unchecked exception. The <code>Timer</code> thread doesn’t catch the exception, so an unchecked exception thrown from a <code>TimerTask</code> terminates the timer thread. <code>Timer</code> also doesn’t resurrect the thread in this situation; instead, it erroneously assumes the entire <code>Timer</code> was cancelled. In this case, <code>TimerTasks</code> that are already scheduled but not yet executed are never run, and new tasks cannot be scheduled.</p>
+<p>If you need to build your own scheduling service, you may still be able to take advantage of the library by using a <code>DelayQueue</code>, a <code>BlockingQueue</code> implementation that provides the scheduling functionality of <code>ScheduledThreadPoolExecutor</code>. A <code>DelayQueue</code> manages a collection of <code>Delayed</code> objects. A <code>Delayed</code> has a delay time associate with it: <code>DelayQueue</code> lets you take an element only if its delay has expired. Objects are returned from a <code>DelayQueue</code> ordered by the time associated with their delay.</p>
+<h2 id="Finding-exploitable-parallelism"><a href="#Finding-exploitable-parallelism" class="headerlink" title="Finding exploitable parallelism"></a>Finding exploitable parallelism</h2><p>In most server application, there is an obvious task boundary: a single client request. But sometimes good task boundaries are not quite so obvious. In this ection we develop several versions of a component that admit varying degree of concurrency. Our sample component is the page-rendering portion of a browser application, which takes a page of HTML and renders it into an image buffer.</p>
+<p>The simplest approach is to process the HTML document sequentially, but is likely to annoy the user, who may have to wait a long time before all the text is rendered.</p>
+<p>A less annoying but still sequential approach involves rendering the text elements first, leaving rectangular placeholders for the images, and after completing the initial pass on the document, going back and downloading the images and drawing them into the associated placeholder.</p>
+<p>Downloading an image mostly involves waiting for I/O to complete, and during this time the CPU does little work. So the sequential approach may under-utilize the CPU, and also makes the user wait longer than necessary to see the finished page. We can achieve better utilization and responsiveness by breaking the problem into independent tasks that can execute concurrently.</p>
+<p>The <code>Executor</code> framework uses <code>Runnable</code> as its basic task representation. <code>Runnable</code> is a fairly limiting abstraction, and has following differences <code>Callable</code>:</p>
+<ul>
+<li><code>Callable</code> can return a value but <code>Runnable</code> can’t.</li>
+<li>‘Callable’ can throw checked exception so the caller method can catch and handle; while the <code>Runnable</code> can’t throw and all exceptions need to be handled in <code>run</code> method.</li>
+<li><code>Executor.execute</code> method only takes <code>Runnable</code> and <code>Executor.submit</code> takes both <code>Runnable</code> and <code>Callable</code>, a <code>Future</code> is returned by calling <code>submit</code>, but the <code>Runnable</code> one won’t contain any value.</li>
+</ul>
+<p>The lifecycle of a task executed by an <code>Executor</code> has four phases: <em>created, submitted, started,</em> and <em>completed</em>. Since tasks can take a long time to run, we also want to be able to cancel a task. In the <code>Executor</code> framework, tasks that have been submitted but not yet started can always be cancelled, and tasks that have started can sometimes be cancelled if they are responsive to interruption.</p>
+<p>There are several ways to create a <code>Future</code> to describe a task. The <code>submit</code> methods in <code>ExecutorService</code> all return a <code>Future</code>, so that you can submit a <code>Runnable</code> or a <code>Callable</code> to an executor and get back a <code>Future</code> that can be used to retrieve the result or cancel the task. </p>
+<p>Submitting a <code>Runnable</code> or <code>Callable</code> to an <code>Executor</code> consititutes a safe publicatoin of the <code>Runnable</code> or <code>Callable</code> from the submitting thread to the thread that will eventually execute the task. Similarly, setting the result value for a <code>Future</code> consititues a safe publication of the result from the thread in which it was computed to any thread that retrieves it via <code>get</code>.</p>
+<p>As a first step towards making the page renderer more concurrent, let’s divide it into two tasks, one that renders the text and one that downloads all the images. So we can create a <code>Callable</code> to download all the images, and submit it to an <code>ExecutorService</code>. This returns a <code>Future</code> describing the task’s execution; when the main task gets to the point where it needs the images, iw waits for the result by calling <code>Future.get</code>. This allows the text to be rendered concurrently with downloading the image data. But there is no need for user to wait for all the images to be downloaded; they would probably prefer to see individual images drawn as they become available.</p>
+<p>Parallelizing sequential heterogeneous tasks can significant improving performance, however, assigning a different type of task to each worker does not scale well. Without finding finer-grained parallelism among similar tasks, this approach will yield diminishing returns. A further problem with dividing heterogeneous tasks among multiple workers is that the tasks may have disparate sizes. Thus, trying to increase concurrency by paralleizing heterogeneous activities can be a lot of work, and there is a limit to how much additional concurrency you can get out of it.</p>
+<p>If you have a batch of computations to submit to an <code>Executor</code> and you want to retrieve their results as the become available, you could retain the <code>Future</code> associated with each task and repeatedly poll for completion by calling <code>get</code> with a timeout of zero. This is possible, but tedious. Fortunately there is a better way: a <em>completion service</em>.</p>
+<p><code>CompletionService</code> combines the functionality of an <code>Executor</code> and a <code>BlockingQueue</code>, You can submit <code>Callable</code> tasks to it for execution and use the queue like methods <code>take</code> and <code>poll</code> to retrieve completed results, packaged as <code>Futures</code>, as they become available. Bascially, individual can think of <code>Executor</code> as something like input queue + thread pool and <code>CompletionService</code> as input queue + thread pool + output queue.</p>
+<p>And we can use <code>CompletionService</code> to shorter total runtime and improve responsiveness for the page render. We can create a separate task for downloading each image and execute them in a thread pool, turning the sequential download into a parallel one: this reduces the amount of time to download all the images. And by fetching results from the <code>CompletionService</code> and rendering each image as soon as it is available, we can give the user a more dynamic and responsive user interface.</p>
+<p>Sometimes, if an activity does not complete within a certain amount of time, the results is no longer needed and the activity can be abandoned. The timed version of <code>Future.get</code> supports this requirement: it returns as soon as the result is ready, but throws <code>TimeoutException</code> if the result is not ready within the timeout period.</p>
+<p>When timed tasks run out of time, we may want to stop them so the do not waste computing resources by continuing to compute a result that will not be used. Again, <code>Future</code> can help; if a timed <code>get</code> completes with a <code>TimedoutException</code>, you can cancel the task through the <code>Future</code>. If the task is written to be cancellable, it can be terminated early so as not to consume excessive resources.</p>
+
+    </div>
+
+    
+    
+    
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/Java/" rel="tag"># Java</a>
+              <a href="/tags/Concurrency/" rel="tag"># Concurrency</a>
+              <a href="/tags/Book-Reading/" rel="tag"># Book Reading</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2021/04/30/book_reading_java_concurrency_5/" rel="prev" title="Book Reading: Java Concurrency in Practice, Chapter 5">
+      <i class="fa fa-chevron-left"></i> Book Reading: Java Concurrency in Practice, Chapter 5
+    </a></div>
+      <div class="post-nav-item"></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+  </div>
+
+
+          </div>
+          
+    <div class="comments" id="comments"></div>
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let activeClass = CONFIG.comments.activeClass;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          Table of Contents
+        </li>
+        <li class="sidebar-nav-overview">
+          Overview
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#Executing-tasks-in-threads"><span class="nav-number">1.</span> <span class="nav-text">Executing tasks in threads</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#The-Executor-framework"><span class="nav-number">2.</span> <span class="nav-text">The Executor framework</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Finding-exploitable-parallelism"><span class="nav-number">3.</span> <span class="nav-text">Finding exploitable parallelism</span></a></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="hehejun"
+      src="/images/avatar.gif">
+  <p class="site-author-name" itemprop="name">hehejun</p>
+  <div class="site-description" itemprop="description"></div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">14</span>
+          <span class="site-state-item-name">posts</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+          
+        <span class="site-state-item-count">9</span>
+        <span class="site-state-item-name">categories</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+          
+        <span class="site-state-item-count">10</span>
+        <span class="site-state-item-name">tags</span></a>
+      </div>
+  </nav>
+</div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+<div class="copyright">
+  
+  &copy; 2019 – 
+  <span itemprop="copyrightYear">2021</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">hehejun</span>
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item-icon">
+      <i class="fa fa-area-chart"></i>
+    </span>
+    <span title="Symbols count total">81k</span>
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item-icon">
+      <i class="fa fa-coffee"></i>
+    </span>
+    <span title="Reading time total">1:14</span>
+</div>
+
+        
+<div class="busuanzi-count">
+  <script async src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+    <span class="post-meta-item" id="busuanzi_container_site_uv" style="display: none;">
+      <span class="post-meta-item-icon">
+        <i class="fa fa-user"></i>
+      </span>
+      <span class="site-uv" title="Total Visitors">
+        <span id="busuanzi_value_site_uv"></span>
+      </span>
+    </span>
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item" id="busuanzi_container_site_pv" style="display: none;">
+      <span class="post-meta-item-icon">
+        <i class="fa fa-eye"></i>
+      </span>
+      <span class="site-pv" title="Total Views">
+        <span id="busuanzi_value_site_pv"></span>
+      </span>
+    </span>
+</div>
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+<script src="/js/utils.js"></script><script src="/js/motion.js"></script>
+<script src="/js/schemes/pisces.js"></script>
+<script src="/js/next-boot.js"></script>
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+
+<script>
+NexT.utils.loadComments(() => {
+  NexT.utils.getScript('https://cdn.jsdelivr.net/npm/valine@1.4.14/dist/Valine.min.js', () => {
+    var GUEST = ['nick', 'mail', 'link'];
+    var guest = 'nick,mail,link';
+    guest = guest.split(',').filter(item => {
+      return GUEST.includes(item);
+    });
+    new Valine({
+      el: '#comments',
+      verify: false,
+      notify: false,
+      appId: 'PKvEM4W15eyM8pCk7qvGlvYF-MdYXbMMI',
+      appKey: 'u3RYtOW2Dcu1hAgNEtjsAMip',
+      placeholder: "Just go go",
+      avatar: 'mm',
+      meta: guest,
+      pageSize: '10' || 10,
+      visitor: true,
+      lang: '' || 'zh-cn',
+      path: location.pathname,
+      recordIP: false,
+      serverURLs: ''
+    });
+  }, window.Valine);
+});
+</script>
+
+</body>
+</html>
