@@ -51,7 +51,7 @@
 <p>The <code>Executor</code> framework uses <code>Runnable</code> as its basic task representation. <code>Runnable</code> is a fairly limiting abstraction, and has following differences <code>Callable</code>:</p>
 <ul>
 <li><code>Callable</code> can return a value but <code>Runnable</code> can’t.</li>
-<li>‘Callable’ can throw checked exception so the caller method can catch and handle; while the <code>Runnable</code> can’t throw and all exceptions need to be handled in <code>run</code> method.</li>
+<li><code>Callable</code> can throw checked exception so the caller method can catch and handle; while the <code>Runnable</code> can’t throw and all exceptions need to be handled in <code>run</code> method.</li>
 <li><code>Executor.execute</code> method only takes <code>Runnable</code> and <code>Executor.submit</code> takes both <code>Runnable</code> and <code>Callable</code>, a <code>Future</code> is returned by calling <code>submit</code>, but the <code>Runnable</code> one won’t contain any value.</li>
 </ul>
 <p>The lifecycle of a task executed by an <code>Executor</code> has four phases: <em>created, submitted, started,</em> and <em>completed</em>. Since tasks can take a long time to run, we also want to be able to cancel a task. In the <code>Executor</code> framework, tasks that have been submitted but not yet started can always be cancelled, and tasks that have started can sometimes be cancelled if they are responsive to interruption.</p>

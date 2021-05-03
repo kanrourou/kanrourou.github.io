@@ -54,7 +54,7 @@
 <meta property="og:site_name" content="码字的呵呵君">
 <meta property="og:description" content="Executing tasks in threadsThe first step in organizing a program around task execution is identifying sensible task boundaries. Ideally, tasks are independent activities: work that doesn’t depend on t">
 <meta property="og:locale" content="default">
-<meta property="og:updated_time" content="2021-05-03T07:08:24.535Z">
+<meta property="og:updated_time" content="2021-05-03T07:12:15.354Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="Book Reading: Java Concurrency in Practice, Chapter 6">
 <meta name="twitter:description" content="Executing tasks in threadsThe first step in organizing a program around task execution is identifying sensible task boundaries. Ideally, tasks are independent activities: work that doesn’t depend on t">
@@ -219,7 +219,7 @@
               <span class="post-meta-item-text">Posted on</span>
               
 
-              <time title="Created: 2021-05-03 00:00:00 / Modified: 00:08:24" itemprop="dateCreated datePublished" datetime="2021-05-03T00:00:00-07:00">2021-05-03</time>
+              <time title="Created: 2021-05-03 00:00:00 / Modified: 00:12:15" itemprop="dateCreated datePublished" datetime="2021-05-03T00:00:00-07:00">2021-05-03</time>
             </span>
             <span class="post-meta-item">
               <span class="post-meta-item-icon">
@@ -339,7 +339,7 @@
 <p>The <code>Executor</code> framework uses <code>Runnable</code> as its basic task representation. <code>Runnable</code> is a fairly limiting abstraction, and has following differences <code>Callable</code>:</p>
 <ul>
 <li><code>Callable</code> can return a value but <code>Runnable</code> can’t.</li>
-<li>‘Callable’ can throw checked exception so the caller method can catch and handle; while the <code>Runnable</code> can’t throw and all exceptions need to be handled in <code>run</code> method.</li>
+<li><code>Callable</code> can throw checked exception so the caller method can catch and handle; while the <code>Runnable</code> can’t throw and all exceptions need to be handled in <code>run</code> method.</li>
 <li><code>Executor.execute</code> method only takes <code>Runnable</code> and <code>Executor.submit</code> takes both <code>Runnable</code> and <code>Callable</code>, a <code>Future</code> is returned by calling <code>submit</code>, but the <code>Runnable</code> one won’t contain any value.</li>
 </ul>
 <p>The lifecycle of a task executed by an <code>Executor</code> has four phases: <em>created, submitted, started,</em> and <em>completed</em>. Since tasks can take a long time to run, we also want to be able to cancel a task. In the <code>Executor</code> framework, tasks that have been submitted but not yet started can always be cancelled, and tasks that have started can sometimes be cancelled if they are responsive to interruption.</p>
