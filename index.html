@@ -215,7 +215,7 @@
               <span class="post-meta-item-text">Posted on</span>
               
 
-              <time title="Created: 2021-05-11 00:00:00 / Modified: 14:15:51" itemprop="dateCreated datePublished" datetime="2021-05-11T00:00:00-07:00">2021-05-11</time>
+              <time title="Created: 2021-05-11 00:00:00 / Modified: 15:02:52" itemprop="dateCreated datePublished" datetime="2021-05-11T00:00:00-07:00">2021-05-11</time>
             </span>
             <span class="post-meta-item">
               <span class="post-meta-item-icon">
@@ -262,7 +262,7 @@
                 <i class="fa fa-file-word-o"></i>
               </span>
                 <span class="post-meta-item-text">Symbols count in article: </span>
-              <span>90</span>
+              <span>865</span>
             </span>
             <span class="post-meta-item" title="Reading time">
               <span class="post-meta-item-icon">
@@ -283,7 +283,18 @@
       
           <h2 id="整数的表示"><a href="#整数的表示" class="headerlink" title="整数的表示"></a>整数的表示</h2><h3 id="无符号数与有符号数"><a href="#无符号数与有符号数" class="headerlink" title="无符号数与有符号数"></a>无符号数与有符号数</h3><p>无符号数的表示非常直接，因为没有符号，k位的二进制就表示0 ~ 2<sup>k</sup> - 1范围内的整数。对于 [x<sub>k - 1</sub>, x<sub>k - 2</sub>, …, x<sub>0</sub>]，其表示的值为：</p>
 <p><img src="/images/csapp_2_integer_0.png" alt></p>
-<p>有符号的数的区别是</p>
+<p>有符号因为存在负数的原因，其是用补码表示的。具体来说，其最高有效位的权重是负的，同样对于[x<sub>k - 1</sub>, x<sub>k - 2</sub>, …, x<sub>0</sub>]来说，其表示的值为:</p>
+<p><img src="/images/csapp_2_integer_1.png" alt></p>
+<p>对于k位的二进制，其表示的有符号数的范围是-2<sup>k - 1</sup> ~ 2<sup>k - 1</sup> - 1。这个范围是非对称的，这个非对称性的来源是0。对于补码来说，所有最高位为1的表示负数，所有最高位为0的表示非负数，因为0也被包含在最高位为0的所有二进制当中，所以有了这种左右区间的不对称性。</p>
+<h3 id="为什么用补码表示有符号数"><a href="#为什么用补码表示有符号数" class="headerlink" title="为什么用补码表示有符号数"></a>为什么用补码表示有符号数</h3><p>首先补码只是有符号数的一种编码方式，当然如果你愿意的话也可以尝试开发有符号数的其他编码方式。补码被广泛地应用主要是因为其能提供很多好处：</p>
+<ol>
+<li>简化了了整数减法和负数加法的运算，在底层都可以用二进制的加法实现。这点之后会讲。</li>
+<li>统一了有符号数和无符号数的运算在二进制层面的实现，使得两种数的四则运算<em>几乎</em>可以使用同一套规则。（唯一的例外是除法，之后会讲。）</li>
+</ol>
+<p>另外我们知道非负数的补码就是其二进制表示，而负数的补码是其二进制正数的反码（除符号位逐位取反）加一。诚然对于一个负数，我们可以用上面的公式推导出其补码，但为什么和其对应正数的二进制有这样的关系呢？我们将在下面讲解。</p>
+<p>值得一提的是，C语言的标准并没有规定有符号数要用补码实现，但事实上，几乎所有机器都是这么做的。Java语言则在标准中严格规定了有符号数必须用补码实现，当然Java中也并没有无符号数，也就是说Java中所有的整数都是用补码表示的。</p>
+<p>有符号和无符号数之间的转换遵循一个标准：二进制的表示不变，解码的方式改变。比如对于32位全为1的二进制数，其对应的无符号十进制数为2<sup>32<sup> - 1 = 4294967295，有符号数的十进制为-1。</sup></sup></p>
+<p>另外，在C语言当中，如果对有符号数和无符号数做某种运算操作（加法、减法等），有符号数会被隐式转换为无符号数，这样很容易造成一些bug。例如<code>-1 &lt; 0U</code>会被判定为<code>false</code>.</p>
 
       
     </div>
@@ -1561,7 +1572,7 @@
     <span class="post-meta-item-icon">
       <i class="fa fa-area-chart"></i>
     </span>
-    <span title="Symbols count total">81k</span>
+    <span title="Symbols count total">82k</span>
     <span class="post-meta-divider">|</span>
     <span class="post-meta-item-icon">
       <i class="fa fa-coffee"></i>
