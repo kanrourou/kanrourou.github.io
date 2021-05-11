@@ -1,6 +1,21 @@
 <?xml version="1.0" encoding="utf-8"?>
 <search>
   <entry>
+    <title>Book Reading: CSAPP, Chapter 2, 整数的表示和运算</title>
+    <url>/2021/05/11/book_reading_csapp_2_integer/</url>
+    <content><![CDATA[<h2 id="整数的表示"><a href="#整数的表示" class="headerlink" title="整数的表示"></a>整数的表示</h2><h3 id="无符号数"><a href="#无符号数" class="headerlink" title="无符号数"></a>无符号数</h3><p>无符号数的表示非常直接，因为没有符号，k位的二进制就表示0 - 2<sup>k</sup> - 1范围内的整数。</p>
+]]></content>
+      <categories>
+        <category>Computer System</category>
+        <category>Computing</category>
+      </categories>
+      <tags>
+        <tag>Computer System</tag>
+        <tag>Book Reading</tag>
+        <tag>CSAPP</tag>
+      </tags>
+  </entry>
+  <entry>
     <title>Book Reading: Java Concurrency in Practice, Chapter 6</title>
     <url>/2021/05/03/book_reading_java_concurrency_6/</url>
     <content><![CDATA[<h2 id="Executing-tasks-in-threads"><a href="#Executing-tasks-in-threads" class="headerlink" title="Executing tasks in threads"></a>Executing tasks in threads</h2><p>The first step in organizing a program around task execution is identifying sensible <em>task boundaries</em>. Ideally, tasks are <em>independent</em> activities: work that doesn’t depend on the state, result, or side effects of other tasks. Independence facilitates concurrency, as independent tasks can be executed in parallel if there are adequate processing resources.<br><a id="more"></a><br>Server applications should exhibit both <em>good throughput</em> and <em>good responsiveness</em> under normal load. Further, applications should exhibit <em>graceful degradation</em> as they become overload, rather than simply falling over under heavy load. Choosing good task boundaries, coupled with a sensible <em>task execution policy</em>, can help achieve these goals.</p>
@@ -71,9 +86,9 @@
         <category>Concurrency</category>
       </categories>
       <tags>
+        <tag>Book Reading</tag>
         <tag>Java</tag>
         <tag>Concurrency</tag>
-        <tag>Book Reading</tag>
       </tags>
   </entry>
   <entry>
@@ -128,9 +143,9 @@
         <category>Concurrency</category>
       </categories>
       <tags>
+        <tag>Book Reading</tag>
         <tag>Java</tag>
         <tag>Concurrency</tag>
-        <tag>Book Reading</tag>
       </tags>
   </entry>
   <entry>
@@ -190,9 +205,9 @@
         <category>Concurrency</category>
       </categories>
       <tags>
+        <tag>Book Reading</tag>
         <tag>Java</tag>
         <tag>Concurrency</tag>
-        <tag>Book Reading</tag>
       </tags>
   </entry>
   <entry>
@@ -243,9 +258,9 @@
         <category>Concurrency</category>
       </categories>
       <tags>
+        <tag>Book Reading</tag>
         <tag>Java</tag>
         <tag>Concurrency</tag>
-        <tag>Book Reading</tag>
       </tags>
   </entry>
   <entry>

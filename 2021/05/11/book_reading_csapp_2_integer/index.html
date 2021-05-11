@@ -46,15 +46,20 @@
   };
 </script>
 
-  <meta property="og:type" content="website">
-<meta property="og:title" content="码字的呵呵君">
-<meta property="og:url" content="http://yoursite.com/archives/page/2/index.html">
+  <meta name="description" content="整数的表示无符号数无符号数的表示非常直接，因为没有符号，k位的二进制就表示0 - 2k - 1范围内的整数。">
+<meta name="keywords" content="Computer System,Book Reading,CSAPP">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Book Reading: CSAPP, Chapter 2, 整数的表示和运算">
+<meta property="og:url" content="http://yoursite.com/2021/05/11/book_reading_csapp_2_integer/index.html">
 <meta property="og:site_name" content="码字的呵呵君">
+<meta property="og:description" content="整数的表示无符号数无符号数的表示非常直接，因为没有符号，k位的二进制就表示0 - 2k - 1范围内的整数。">
 <meta property="og:locale" content="default">
+<meta property="og:updated_time" content="2021-05-11T21:06:08.408Z">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="码字的呵呵君">
+<meta name="twitter:title" content="Book Reading: CSAPP, Chapter 2, 整数的表示和运算">
+<meta name="twitter:description" content="整数的表示无符号数无符号数的表示非常直接，因为没有符号，k位的二进制就表示0 - 2k - 1范围内的整数。">
 
-<link rel="canonical" href="http://yoursite.com/archives/page/2/">
+<link rel="canonical" href="http://yoursite.com/2021/05/11/book_reading_csapp_2_integer/">
 
 
 <script id="page-configurations">
@@ -62,11 +67,11 @@
   CONFIG.page = {
     sidebar: "",
     isHome: false,
-    isPost: false
+    isPost: true
   };
 </script>
 
-  <title>Archive | 码字的呵呵君</title>
+  <title>Book Reading: CSAPP, Chapter 2, 整数的表示和运算 | 码字的呵呵君</title>
   
     <script async src="https://www.googletagmanager.com/gtag/js?id=UA-133451584-2"></script>
     <script>
@@ -185,139 +190,140 @@
           <div class="content">
             
 
+  <div class="posts-expand">
+      
   
   
+  <article itemscope itemtype="http://schema.org/Article" class="post-block " lang="default">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2021/05/11/book_reading_csapp_2_integer/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="hehejun">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="码字的呵呵君">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          Book Reading: CSAPP, Chapter 2, 整数的表示和运算
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+              
+
+              <time title="Created: 2021-05-11 00:00:00 / Modified: 14:06:08" itemprop="dateCreated datePublished" datetime="2021-05-11T00:00:00-07:00">2021-05-11</time>
+            </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">In</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/Computer-System/" itemprop="url" rel="index">
+                    <span itemprop="name">Computer System</span>
+                  </a>
+                </span>
+                  , 
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/Computer-System/Computing/" itemprop="url" rel="index">
+                    <span itemprop="name">Computing</span>
+                  </a>
+                </span>
+            </span>
+
+          
+            <span id="/2021/05/11/book_reading_csapp_2_integer/" class="post-meta-item leancloud_visitors" data-flag-title="Book Reading: CSAPP, Chapter 2, 整数的表示和运算" title="Views">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-eye"></i>
+              </span>
+              <span class="post-meta-item-text">Views: </span>
+              <span class="leancloud-visitors-count"></span>
+            </span>
   
-  <div class="post-block">
-    <div class="posts-collapse">
-      <div class="collection-title">
-        <span class="collection-header">Um..! 15 posts in total. Keep on posting.</span>
-      </div>
+  <span class="post-meta-item">
+    
+      <span class="post-meta-item-icon">
+        <i class="fa fa-comment-o"></i>
+      </span>
+      <span class="post-meta-item-text">Valine: </span>
+    
+    <a title="valine" href="/2021/05/11/book_reading_csapp_2_integer/#comments" itemprop="discussionUrl">
+      <span class="post-comments-count valine-comment-count" data-xid="/2021/05/11/book_reading_csapp_2_integer/" itemprop="commentCount"></span>
+    </a>
+  </span>
+  
+  <br>
+            <span class="post-meta-item" title="Symbols count in article">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-file-word-o"></i>
+              </span>
+                <span class="post-meta-item-text">Symbols count in article: </span>
+              <span>50</span>
+            </span>
+            <span class="post-meta-item" title="Reading time">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-clock-o"></i>
+              </span>
+                <span class="post-meta-item-text">Reading time &asymp;</span>
+              <span>1 mins.</span>
+            </span>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
 
       
-    <div class="collection-year">
-      <h1 class="collection-header">2021</h1>
-    </div>
-
-  <article itemscope itemtype="http://schema.org/Article">
-    <header class="post-header">
-
-      <div class="post-meta">
-        <time itemprop="dateCreated"
-              datetime="2021-01-03T00:00:00-08:00"
-              content="2021-01-03">
-          01-03
-        </time>
-      </div>
-
-      <h2 class="post-title">
-          <a class="post-title-link" href="/2021/01/03/valine_for_pv_and_comments/" itemprop="url">
-            <span itemprop="name">Use Valine to set up blog comments and PV</span>
-          </a>
-      </h2>
-
-    </header>
-  </article>
-
-  <article itemscope itemtype="http://schema.org/Article">
-    <header class="post-header">
-
-      <div class="post-meta">
-        <time itemprop="dateCreated"
-              datetime="2021-01-02T00:00:00-08:00"
-              content="2021-01-02">
-          01-02
-        </time>
-      </div>
-
-      <h2 class="post-title">
-          <a class="post-title-link" href="/2021/01/02/paper_reading_zookeeper/" itemprop="url">
-            <span itemprop="name">Paper Reading: ZooKeeper</span>
-          </a>
-      </h2>
-
-    </header>
-  </article>
-    <div class="collection-year">
-      <h1 class="collection-header">2019</h1>
-    </div>
-
-  <article itemscope itemtype="http://schema.org/Article">
-    <header class="post-header">
-
-      <div class="post-meta">
-        <time itemprop="dateCreated"
-              datetime="2019-12-08T00:00:00-08:00"
-              content="2019-12-08">
-          12-08
-        </time>
-      </div>
-
-      <h2 class="post-title">
-          <a class="post-title-link" href="/2019/12/08/run_with_the_wind/" itemprop="url">
-            <span itemprop="name">于是开始奔跑</span>
-          </a>
-      </h2>
-
-    </header>
-  </article>
-
-  <article itemscope itemtype="http://schema.org/Article">
-    <header class="post-header">
-
-      <div class="post-meta">
-        <time itemprop="dateCreated"
-              datetime="2019-03-18T00:00:00-07:00"
-              content="2019-03-18">
-          03-18
-        </time>
-      </div>
-
-      <h2 class="post-title">
-          <a class="post-title-link" href="/2019/03/18/hexo_next_page_user_views/" itemprop="url">
-            <span itemprop="name">Hexo: Adding PV/UV  counters to NexT theme</span>
-          </a>
-      </h2>
-
-    </header>
-  </article>
-
-  <article itemscope itemtype="http://schema.org/Article">
-    <header class="post-header">
-
-      <div class="post-meta">
-        <time itemprop="dateCreated"
-              datetime="2019-03-17T00:00:00-07:00"
-              content="2019-03-17">
-          03-17
-        </time>
-      </div>
-
-      <h2 class="post-title">
-          <a class="post-title-link" href="/2019/03/17/hexo_github_pages_blog/" itemprop="url">
-            <span itemprop="name">Create your own blog with Hexo and Github Pages</span>
-          </a>
-      </h2>
-
-    </header>
-  </article>
-
+        <h2 id="整数的表示"><a href="#整数的表示" class="headerlink" title="整数的表示"></a>整数的表示</h2><h3 id="无符号数"><a href="#无符号数" class="headerlink" title="无符号数"></a>无符号数</h3><p>无符号数的表示非常直接，因为没有符号，k位的二进制就表示0 - 2<sup>k</sup> - 1范围内的整数。</p>
 
     </div>
+
+    
+    
+    
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/Computer-System/" rel="tag"># Computer System</a>
+              <a href="/tags/Book-Reading/" rel="tag"># Book Reading</a>
+              <a href="/tags/CSAPP/" rel="tag"># CSAPP</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2021/05/03/book_reading_java_concurrency_6/" rel="prev" title="Book Reading: Java Concurrency in Practice, Chapter 6">
+      <i class="fa fa-chevron-left"></i> Book Reading: Java Concurrency in Practice, Chapter 6
+    </a></div>
+      <div class="post-nav-item"></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
   </div>
-  
-  
-  
-
-  
-  <nav class="pagination">
-    <a class="extend prev" rel="prev" href="/archives/"><i class="fa fa-angle-left" aria-label="Previous page"></i></a><a class="page-number" href="/archives/">1</a><span class="page-number current">2</span>
-  </nav>
-
 
 
           </div>
           
+    <div class="comments" id="comments"></div>
 
 <script>
   window.addEventListener('tabs:register', () => {
@@ -364,6 +370,7 @@
 
       <!--noindex-->
       <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#整数的表示"><span class="nav-number">1.</span> <span class="nav-text">整数的表示</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#无符号数"><span class="nav-number">1.1.</span> <span class="nav-text">无符号数</span></a></li></ol></li></ol></div>
       </div>
       <!--/noindex-->
 
