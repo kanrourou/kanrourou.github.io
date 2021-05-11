@@ -3,7 +3,9 @@
   <entry>
     <title>Book Reading: CSAPP, Chapter 2, 整数的表示和运算</title>
     <url>/2021/05/11/book_reading_csapp_2_integer/</url>
-    <content><![CDATA[<h2 id="整数的表示"><a href="#整数的表示" class="headerlink" title="整数的表示"></a>整数的表示</h2><h3 id="无符号数"><a href="#无符号数" class="headerlink" title="无符号数"></a>无符号数</h3><p>无符号数的表示非常直接，因为没有符号，k位的二进制就表示0 - 2<sup>k</sup> - 1范围内的整数。</p>
+    <content><![CDATA[<h2 id="整数的表示"><a href="#整数的表示" class="headerlink" title="整数的表示"></a>整数的表示</h2><h3 id="无符号数与有符号数"><a href="#无符号数与有符号数" class="headerlink" title="无符号数与有符号数"></a>无符号数与有符号数</h3><p>无符号数的表示非常直接，因为没有符号，k位的二进制就表示0 ~ 2<sup>k</sup> - 1范围内的整数。对于 [x<sub>k - 1</sub>, x<sub>k - 2</sub>, …, x<sub>0</sub>]，其表示的值为：</p>
+<p><img src="/images/csapp_2_integer_0.png" alt></p>
+<p>有符号的数的区别是</p>
 ]]></content>
       <categories>
         <category>Computer System</category>
