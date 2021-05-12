@@ -34,14 +34,14 @@
 <li>对于无符号数，截断后的值y = x mod 2<sup>k</sup>。</li>
 <li>对于有符号数， 由于舍弃高位可能会导致符号改变，y = convertToSignedNum(x mod 2<sup>k</sup>)。</li>
 </ol>
-<h2 id="整数的运算"><a href="#整数的运算" class="headerlink" title="整数的运算"></a>整数的运算</h2><h3 id="加法和减法"><a href="#加法和减法" class="headerlink" title="加法和减法"></a>加法和减法</h3><p>无符号数加法没有什么特别，唯一需要注意的是溢出的情况，这种情况会按字长截断，也就是取模。所以字长为k位的两个无符号数x，y，其和<code>x + y = (x + y) mod 2&lt;sup&gt;k&lt;/sup&gt;</code>。</p>
+<h2 id="整数的运算"><a href="#整数的运算" class="headerlink" title="整数的运算"></a>整数的运算</h2><h3 id="加法和减法"><a href="#加法和减法" class="headerlink" title="加法和减法"></a>加法和减法</h3><p>无符号数加法没有什么特别，唯一需要注意的是溢出的情况，这种情况会按字长截断，也就是取模。所以字长为k位的两个无符号数x，y，其和x + y = (x + y) mod 2<sup>k</sup>。</p>
 <p>有符号数是用补码表示的，非负数的加法和无符号数是类似的。但是涉及负数的话就不太一样了，因为负数的加法本质上就是减法，这个时候补码的好处就出现了。</p>
 <p>首先对于字长固定的类型，在溢出位被截断的情况下，其模是固定的，假设为M。对于负数来讲<code>-x mod M = (M - x) mod M</code>，这个很好理解，对于一个时钟，向前拨十个刻度和向后拨十个刻度最后的结果是一样的，都是指向10。我们把M - x定义为x的补数，我们可以看到，-x和M - X对于M来讲是同余的。</p>
 <p>因为这个性质，在我们做整数的减法时，可以转化为其补数的加法。例如对于两个字长固定的正整数x，y来说，<code>(x - y) mod M = (x + M - y) mod M</code>，因为补数加法同余的性质，我们截断（取余）溢出位之后，这两个结果在二进制层面上的表示是一样的。例如：</p>
 <figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">x         15  0000 1111</span><br><span class="line">y         125 0111 1101</span><br><span class="line">M - y     3   0000 0011</span><br><span class="line">x + M - y 18  0001 0010</span><br></pre></td></tr></table></figure>
-<p>加上符号位之后<code>18 - 2&lt;sup&gt;7&lt;/sup&gt; = 12 - 128 = -110 （1001 0010）</code>，正是对应减法的计算结果。如果我们直接把符号位带入<code>M - y</code>的话，对应的二进制就是<code>1000 0011</code>，是不是正好是-125的补码？同理：</p>
+<p>加上符号位之后18 - 2<sup>7</sup> = 12 - 128 = -110 （1001 0010，正是对应减法的计算结果。如果我们直接把符号位带入<code>M - y</code>的话，对应的二进制就是<code>1000 0011</code>，是不是正好是-125的补码？同理：</p>
 <figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">x         125 0111 1101</span><br><span class="line">y         15  0000 1111</span><br><span class="line">M - y     113 0111 0001</span><br><span class="line">x + M - y 238 1110 1110</span><br></pre></td></tr></table></figure>
-<p>由于最高位为符号位，溢出被截断，所以<code>238 - 2&lt;sup&gt;7&lt;/sup&gt; = 238 - 128 = 110 (0110 1110)</code>，也是对应减法的计算结果。同理如果直接把符号位带入<code>M - y</code>，对应的二进制就是<code>1111 0001</code>，也是-15对应的补码。</p>
+<p>由于最高位为符号位，溢出被截断，所以238 - 2<sup>7</sup> = 238 - 128 = 110 (0110 1110)，也是对应减法的计算结果。同理如果直接把符号位带入<code>M - y</code>，对应的二进制就是<code>1111 0001</code>，也是-15对应的补码。</p>
 <p>我们可以看出来，直接把符号位带入的话，其二进制就是对应负数的补码，并且，符号位可以参与运算，不需要进行符号位的截断操作：</p>
 <figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">x     15   0000 1111</span><br><span class="line">-y    -125 1000 0011</span><br><span class="line">x - y -110 1001 0010</span><br><span class="line"></span><br><span class="line">x     125 0111 1101</span><br><span class="line">-y    -15 1111 0001</span><br><span class="line">x - y 110 0110 1110</span><br></pre></td></tr></table></figure>
 <p>所以整数的减法可以在二进制层面用补码的加法实现，这样本质上整数的加法和减法，在二进制层面都变成了加法。这也就是为什么我们要用补码来表示符号数的原因。</p>
@@ -49,20 +49,26 @@
 <p>无符号数的减法也是类似的，那么显而易见地，在考虑溢出的情况下，k位无符号数和有符号数的加减法结果分别为（T<sub>k</sub>代表只截取最低k位，TC(x)表示x的补码）：</p>
 <ul>
 <li>无符号数<ul>
-<li><code>x + y = T&lt;sub&gt;k&lt;/sub&gt;(x + y)</code></li>
-<li><code>x - y = T&lt;sub&gt;k&lt;/sub&gt;(x + TC(Expanding(-y)))</code></li>
+<li>x + y = T<sub>k</sub>(x + y)</li>
+<li>x - y = T<sub>k</sub>(x + TC(Expanding(-y)))</li>
 </ul>
 </li>
 <li>有符号数<br>  x ± y = T<sub>k</sub>(TC(x) + TC(±y))</li>
 </ul>
+<h3 id="检测溢出"><a href="#检测溢出" class="headerlink" title="检测溢出"></a>检测溢出</h3><p>对于无符号数x, y和其和s来说，当且仅当s &lt; x（此时y &lt; x也必为真），计算发生了溢出。<br>对于有符号数x，y和其和s来说：</p>
+<ul>
+<li>当且仅当x &gt; 0, y &gt; 0并且s &lt;= 0，计算发生正向溢出。</li>
+<li>当且仅当x &lt; 0, y &lt; 0并且s &gt;= 0，计算发生负向溢出。</li>
+</ul>
+<p>证明不难，这里略过。</p>
 ]]></content>
       <categories>
         <category>Computer System</category>
         <category>Computing</category>
       </categories>
       <tags>
-        <tag>Computer System</tag>
         <tag>Book Reading</tag>
+        <tag>Computer System</tag>
         <tag>CSAPP</tag>
       </tags>
   </entry>
@@ -137,9 +143,9 @@
         <category>Concurrency</category>
       </categories>
       <tags>
-        <tag>Book Reading</tag>
         <tag>Java</tag>
         <tag>Concurrency</tag>
+        <tag>Book Reading</tag>
       </tags>
   </entry>
   <entry>
@@ -194,9 +200,9 @@
         <category>Concurrency</category>
       </categories>
       <tags>
-        <tag>Book Reading</tag>
         <tag>Java</tag>
         <tag>Concurrency</tag>
+        <tag>Book Reading</tag>
       </tags>
   </entry>
   <entry>
@@ -256,9 +262,9 @@
         <category>Concurrency</category>
       </categories>
       <tags>
-        <tag>Book Reading</tag>
         <tag>Java</tag>
         <tag>Concurrency</tag>
+        <tag>Book Reading</tag>
       </tags>
   </entry>
   <entry>
@@ -309,9 +315,9 @@
         <category>Concurrency</category>
       </categories>
       <tags>
-        <tag>Book Reading</tag>
         <tag>Java</tag>
         <tag>Concurrency</tag>
+        <tag>Book Reading</tag>
       </tags>
   </entry>
   <entry>
@@ -649,6 +655,39 @@
       </tags>
   </entry>
   <entry>
+    <title>Use Valine to set up blog comments and PV</title>
+    <url>/2021/01/03/valine_for_pv_and_comments/</url>
+    <content><![CDATA[<p>We have introduced one <a href="https://kanrourou.github.io/2019/03/18/hexo_next_page_user_views/" target="_blank" rel="noopener">way</a> before to configure blog PV by using the natrually supported LeanCloud counter in NexT theme. But this is somehow broken for my site, so I explored and switched to <a href="https://valine.js.org/" target="_blank" rel="noopener">Valine</a> which supports PV and comments without any backend changes.<br><a id="more"></a></p>
+<h3 id="Set-up-LeanCloud"><a href="#Set-up-LeanCloud" class="headerlink" title="Set up LeanCloud"></a>Set up LeanCloud</h3><p>The LeanCloud set up is pretty similar to what have been explained in the article above, please refer to it for more details. In general, after creating your application, you will need to create <code>Counter</code> and <code>Comment</code> classes under <code>Storage-&gt;Objects</code>, note that the class name must not be changed. And the ACL permission needs to be set to allow all users to read &amp; write.</p>
+<p><img src="/images/leancloud_classes_permission.png" alt></p>
+<p>Navigate to the security page, turn off all services except LeanStorage, and add your blog domain to web secure domains.</p>
+<p><img src="/images/leancloud_security.png" alt></p>
+<h3 id="Update-config-file"><a href="#Update-config-file" class="headerlink" title="Update config file"></a>Update config file</h3><p>Go to this <a href="https://www.jsdelivr.com/package/npm/valine" target="_blank" rel="noopener">page</a> to access Valine CDN files.</p>
+<p><img src="/images/valine_cdn.png" alt></p>
+<p>Copy the script url and modify <code>themes/next/_config.yml</code> as below:<br><figure class="highlight yml"><table><tr><td class="code"><pre><span class="line"><span class="comment"># Valine</span></span><br><span class="line"><span class="comment"># valine: //cdn.jsdelivr.net/npm/valine@1/dist/Valine.min.js</span></span><br><span class="line"><span class="comment"># valine: //cdnjs.cloudflare.com/ajax/libs/valine/1.3.4/Valine.min.js</span></span><br><span class="line"><span class="attr">valine:</span> <span class="attr">https://cdn.jsdelivr.net/npm/valine@1.4.14/dist/Valine.min.js</span></span><br></pre></td></tr></table></figure></p>
+<p>Navigate to app keys page to acquire your <code>appid</code> and <code>appkey</code>.</p>
+<p><img src="/images/lean_cloud_app_key.png" alt></p>
+<p>Then turn on Valine in the config file:<br><figure class="highlight yml"><table><tr><td class="code"><pre><span class="line"><span class="comment"># Valine</span></span><br><span class="line"><span class="comment"># More info available at https://valine.js.org</span></span><br><span class="line"><span class="attr">valine:</span></span><br><span class="line"><span class="attr">  enable:</span> <span class="literal">true</span> </span><br><span class="line"><span class="attr">  appid:</span> <span class="comment">#your id#</span></span><br><span class="line"><span class="attr">  appkey:</span> <span class="comment">#your key#</span></span><br><span class="line"><span class="attr">  notify:</span> <span class="literal">false</span> <span class="comment"># mail notifier, See: https://github.com/xCss/Valine/wiki</span></span><br><span class="line"><span class="attr">  verify:</span> <span class="literal">false</span> <span class="comment"># Verification code</span></span><br><span class="line"><span class="attr">  placeholder:</span> <span class="string">Just</span> <span class="string">go</span> <span class="string">go...</span> <span class="comment"># comment box placeholder</span></span><br><span class="line"><span class="attr">  avatar:</span> <span class="string">mm</span> <span class="comment"># gravatar style</span></span><br><span class="line"><span class="attr">  guest_info:</span> <span class="string">nick,mail,link</span> <span class="comment"># custom comment header</span></span><br><span class="line"><span class="attr">  pageSize:</span> <span class="number">10</span> <span class="comment"># pagination size</span></span><br><span class="line"><span class="attr">  visitor:</span> <span class="literal">true</span> <span class="comment"># leancloud-counter-security is not supported for now. When visitor is set to be true, appid and appkey are recommended to be the same as leancloud_visitors' for counter compatibility. Article reading statistic https://valine.js.org/visitor.html</span></span><br><span class="line"><span class="attr">  comment_count:</span> <span class="literal">true</span> <span class="comment"># if false, comment count will only be displayed in post page, not in home page</span></span><br></pre></td></tr></table></figure></p>
+<p>You can also enable the <code>visitor</code> which will display the number of views of your posts. Notes this conflicts with LeanCloud counter so you need to turn it off in the config file.</p>
+<p>Deploy the changes and you will see the comments and PV:</p>
+<p><img src="/images/comments.png" alt></p>
+<p><img src="/images/comments_pv_header_view.png" alt></p>
+<h3 id="Tips"><a href="#Tips" class="headerlink" title="Tips"></a>Tips</h3><p>The PV counter uses title combing publish date as the key. To avoid that updating the article will cause the PV to be reset, you can add the publish date in you article:<br><figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">date: 2021-01-03 15:25:41</span><br></pre></td></tr></table></figure></p>
+<p>And turn off the <code>future</code> in Hexo’s <code>_config.yml</code>.<br><figure class="highlight yml"><table><tr><td class="code"><pre><span class="line"><span class="attr">future:</span> <span class="literal">false</span></span><br></pre></td></tr></table></figure></p>
+<p>So the posted date will not be changed after you modified it, and the previous PV count will be kept.</p>
+]]></content>
+      <categories>
+        <category>Programming</category>
+        <category>JavaScript</category>
+        <category>Hexo</category>
+      </categories>
+      <tags>
+        <tag>Hexo</tag>
+        <tag>JavaScript</tag>
+        <tag>NexT</tag>
+      </tags>
+  </entry>
+  <entry>
     <title>Paper Reading: Kafka</title>
     <url>/2021/01/03/paper_reading_kafka/</url>
     <content><![CDATA[<p><a href="http://notes.stephenholiday.com/Kafka.pdf" target="_blank" rel="noopener">Kafka</a> is a distributed messaging system that developed for collecting and delivering high volumes of log data with low latency.<br><a id="more"></a></p>
@@ -688,39 +727,6 @@
         <tag>Distributed System</tag>
         <tag>Infrastructure</tag>
         <tag>Paper Reading</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>Use Valine to set up blog comments and PV</title>
-    <url>/2021/01/03/valine_for_pv_and_comments/</url>
-    <content><![CDATA[<p>We have introduced one <a href="https://kanrourou.github.io/2019/03/18/hexo_next_page_user_views/" target="_blank" rel="noopener">way</a> before to configure blog PV by using the natrually supported LeanCloud counter in NexT theme. But this is somehow broken for my site, so I explored and switched to <a href="https://valine.js.org/" target="_blank" rel="noopener">Valine</a> which supports PV and comments without any backend changes.<br><a id="more"></a></p>
-<h3 id="Set-up-LeanCloud"><a href="#Set-up-LeanCloud" class="headerlink" title="Set up LeanCloud"></a>Set up LeanCloud</h3><p>The LeanCloud set up is pretty similar to what have been explained in the article above, please refer to it for more details. In general, after creating your application, you will need to create <code>Counter</code> and <code>Comment</code> classes under <code>Storage-&gt;Objects</code>, note that the class name must not be changed. And the ACL permission needs to be set to allow all users to read &amp; write.</p>
-<p><img src="/images/leancloud_classes_permission.png" alt></p>
-<p>Navigate to the security page, turn off all services except LeanStorage, and add your blog domain to web secure domains.</p>
-<p><img src="/images/leancloud_security.png" alt></p>
-<h3 id="Update-config-file"><a href="#Update-config-file" class="headerlink" title="Update config file"></a>Update config file</h3><p>Go to this <a href="https://www.jsdelivr.com/package/npm/valine" target="_blank" rel="noopener">page</a> to access Valine CDN files.</p>
-<p><img src="/images/valine_cdn.png" alt></p>
-<p>Copy the script url and modify <code>themes/next/_config.yml</code> as below:<br><figure class="highlight yml"><table><tr><td class="code"><pre><span class="line"><span class="comment"># Valine</span></span><br><span class="line"><span class="comment"># valine: //cdn.jsdelivr.net/npm/valine@1/dist/Valine.min.js</span></span><br><span class="line"><span class="comment"># valine: //cdnjs.cloudflare.com/ajax/libs/valine/1.3.4/Valine.min.js</span></span><br><span class="line"><span class="attr">valine:</span> <span class="attr">https://cdn.jsdelivr.net/npm/valine@1.4.14/dist/Valine.min.js</span></span><br></pre></td></tr></table></figure></p>
-<p>Navigate to app keys page to acquire your <code>appid</code> and <code>appkey</code>.</p>
-<p><img src="/images/lean_cloud_app_key.png" alt></p>
-<p>Then turn on Valine in the config file:<br><figure class="highlight yml"><table><tr><td class="code"><pre><span class="line"><span class="comment"># Valine</span></span><br><span class="line"><span class="comment"># More info available at https://valine.js.org</span></span><br><span class="line"><span class="attr">valine:</span></span><br><span class="line"><span class="attr">  enable:</span> <span class="literal">true</span> </span><br><span class="line"><span class="attr">  appid:</span> <span class="comment">#your id#</span></span><br><span class="line"><span class="attr">  appkey:</span> <span class="comment">#your key#</span></span><br><span class="line"><span class="attr">  notify:</span> <span class="literal">false</span> <span class="comment"># mail notifier, See: https://github.com/xCss/Valine/wiki</span></span><br><span class="line"><span class="attr">  verify:</span> <span class="literal">false</span> <span class="comment"># Verification code</span></span><br><span class="line"><span class="attr">  placeholder:</span> <span class="string">Just</span> <span class="string">go</span> <span class="string">go...</span> <span class="comment"># comment box placeholder</span></span><br><span class="line"><span class="attr">  avatar:</span> <span class="string">mm</span> <span class="comment"># gravatar style</span></span><br><span class="line"><span class="attr">  guest_info:</span> <span class="string">nick,mail,link</span> <span class="comment"># custom comment header</span></span><br><span class="line"><span class="attr">  pageSize:</span> <span class="number">10</span> <span class="comment"># pagination size</span></span><br><span class="line"><span class="attr">  visitor:</span> <span class="literal">true</span> <span class="comment"># leancloud-counter-security is not supported for now. When visitor is set to be true, appid and appkey are recommended to be the same as leancloud_visitors' for counter compatibility. Article reading statistic https://valine.js.org/visitor.html</span></span><br><span class="line"><span class="attr">  comment_count:</span> <span class="literal">true</span> <span class="comment"># if false, comment count will only be displayed in post page, not in home page</span></span><br></pre></td></tr></table></figure></p>
-<p>You can also enable the <code>visitor</code> which will display the number of views of your posts. Notes this conflicts with LeanCloud counter so you need to turn it off in the config file.</p>
-<p>Deploy the changes and you will see the comments and PV:</p>
-<p><img src="/images/comments.png" alt></p>
-<p><img src="/images/comments_pv_header_view.png" alt></p>
-<h3 id="Tips"><a href="#Tips" class="headerlink" title="Tips"></a>Tips</h3><p>The PV counter uses title combing publish date as the key. To avoid that updating the article will cause the PV to be reset, you can add the publish date in you article:<br><figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">date: 2021-01-03 15:25:41</span><br></pre></td></tr></table></figure></p>
-<p>And turn off the <code>future</code> in Hexo’s <code>_config.yml</code>.<br><figure class="highlight yml"><table><tr><td class="code"><pre><span class="line"><span class="attr">future:</span> <span class="literal">false</span></span><br></pre></td></tr></table></figure></p>
-<p>So the posted date will not be changed after you modified it, and the previous PV count will be kept.</p>
-]]></content>
-      <categories>
-        <category>Programming</category>
-        <category>JavaScript</category>
-        <category>Hexo</category>
-      </categories>
-      <tags>
-        <tag>Hexo</tag>
-        <tag>JavaScript</tag>
-        <tag>NexT</tag>
       </tags>
   </entry>
   <entry>

@@ -47,7 +47,7 @@
 </script>
 
   <meta name="description" content="整数的表示无符号数与有符号数无符号数的表示非常直接，因为没有符号，k位的二进制就表示0 ~ 2k - 1范围内的整数。对于 [xk - 1, xk - 2, …, x0]，其表示的值为：">
-<meta name="keywords" content="Computer System,Book Reading,CSAPP">
+<meta name="keywords" content="Book Reading,Computer System,CSAPP">
 <meta property="og:type" content="article">
 <meta property="og:title" content="Book Reading: CSAPP, Chapter 2, 整数的表示和运算">
 <meta property="og:url" content="http://yoursite.com/2021/05/11/book_reading_csapp_2_integer/index.html">
@@ -56,7 +56,7 @@
 <meta property="og:locale" content="default">
 <meta property="og:image" content="http://yoursite.com/images/csapp_2_integer_0.png">
 <meta property="og:image" content="http://yoursite.com/images/csapp_2_integer_1.png">
-<meta property="og:updated_time" content="2021-05-12T07:09:08.825Z">
+<meta property="og:updated_time" content="2021-05-12T07:17:27.307Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="Book Reading: CSAPP, Chapter 2, 整数的表示和运算">
 <meta name="twitter:description" content="整数的表示无符号数与有符号数无符号数的表示非常直接，因为没有符号，k位的二进制就表示0 ~ 2k - 1范围内的整数。对于 [xk - 1, xk - 2, …, x0]，其表示的值为：">
@@ -228,7 +228,7 @@
                   <i class="fa fa-calendar-check-o"></i>
                 </span>
                 <span class="post-meta-item-text">Edited on</span>
-                <time title="Modified: 2021-05-12 00:09:08" itemprop="dateModified" datetime="2021-05-12T00:09:08-07:00">2021-05-12</time>
+                <time title="Modified: 2021-05-12 00:17:27" itemprop="dateModified" datetime="2021-05-12T00:17:27-07:00">2021-05-12</time>
               </span>
             <span class="post-meta-item">
               <span class="post-meta-item-icon">
@@ -325,14 +325,14 @@
 <li>对于无符号数，截断后的值y = x mod 2<sup>k</sup>。</li>
 <li>对于有符号数， 由于舍弃高位可能会导致符号改变，y = convertToSignedNum(x mod 2<sup>k</sup>)。</li>
 </ol>
-<h2 id="整数的运算"><a href="#整数的运算" class="headerlink" title="整数的运算"></a>整数的运算</h2><h3 id="加法和减法"><a href="#加法和减法" class="headerlink" title="加法和减法"></a>加法和减法</h3><p>无符号数加法没有什么特别，唯一需要注意的是溢出的情况，这种情况会按字长截断，也就是取模。所以字长为k位的两个无符号数x，y，其和<code>x + y = (x + y) mod 2&lt;sup&gt;k&lt;/sup&gt;</code>。</p>
+<h2 id="整数的运算"><a href="#整数的运算" class="headerlink" title="整数的运算"></a>整数的运算</h2><h3 id="加法和减法"><a href="#加法和减法" class="headerlink" title="加法和减法"></a>加法和减法</h3><p>无符号数加法没有什么特别，唯一需要注意的是溢出的情况，这种情况会按字长截断，也就是取模。所以字长为k位的两个无符号数x，y，其和x + y = (x + y) mod 2<sup>k</sup>。</p>
 <p>有符号数是用补码表示的，非负数的加法和无符号数是类似的。但是涉及负数的话就不太一样了，因为负数的加法本质上就是减法，这个时候补码的好处就出现了。</p>
 <p>首先对于字长固定的类型，在溢出位被截断的情况下，其模是固定的，假设为M。对于负数来讲<code>-x mod M = (M - x) mod M</code>，这个很好理解，对于一个时钟，向前拨十个刻度和向后拨十个刻度最后的结果是一样的，都是指向10。我们把M - x定义为x的补数，我们可以看到，-x和M - X对于M来讲是同余的。</p>
 <p>因为这个性质，在我们做整数的减法时，可以转化为其补数的加法。例如对于两个字长固定的正整数x，y来说，<code>(x - y) mod M = (x + M - y) mod M</code>，因为补数加法同余的性质，我们截断（取余）溢出位之后，这两个结果在二进制层面上的表示是一样的。例如：</p>
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">x         15  0000 1111</span><br><span class="line">y         125 0111 1101</span><br><span class="line">M - y     3   0000 0011</span><br><span class="line">x + M - y 18  0001 0010</span><br></pre></td></tr></table></figure>
-<p>加上符号位之后<code>18 - 2&lt;sup&gt;7&lt;/sup&gt; = 12 - 128 = -110 （1001 0010）</code>，正是对应减法的计算结果。如果我们直接把符号位带入<code>M - y</code>的话，对应的二进制就是<code>1000 0011</code>，是不是正好是-125的补码？同理：</p>
+<p>加上符号位之后18 - 2<sup>7</sup> = 12 - 128 = -110 （1001 0010，正是对应减法的计算结果。如果我们直接把符号位带入<code>M - y</code>的话，对应的二进制就是<code>1000 0011</code>，是不是正好是-125的补码？同理：</p>
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">x         125 0111 1101</span><br><span class="line">y         15  0000 1111</span><br><span class="line">M - y     113 0111 0001</span><br><span class="line">x + M - y 238 1110 1110</span><br></pre></td></tr></table></figure>
-<p>由于最高位为符号位，溢出被截断，所以<code>238 - 2&lt;sup&gt;7&lt;/sup&gt; = 238 - 128 = 110 (0110 1110)</code>，也是对应减法的计算结果。同理如果直接把符号位带入<code>M - y</code>，对应的二进制就是<code>1111 0001</code>，也是-15对应的补码。</p>
+<p>由于最高位为符号位，溢出被截断，所以238 - 2<sup>7</sup> = 238 - 128 = 110 (0110 1110)，也是对应减法的计算结果。同理如果直接把符号位带入<code>M - y</code>，对应的二进制就是<code>1111 0001</code>，也是-15对应的补码。</p>
 <p>我们可以看出来，直接把符号位带入的话，其二进制就是对应负数的补码，并且，符号位可以参与运算，不需要进行符号位的截断操作：</p>
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">x     15   0000 1111</span><br><span class="line">-y    -125 1000 0011</span><br><span class="line">x - y -110 1001 0010</span><br><span class="line"></span><br><span class="line">x     125 0111 1101</span><br><span class="line">-y    -15 1111 0001</span><br><span class="line">x - y 110 0110 1110</span><br></pre></td></tr></table></figure>
 <p>所以整数的减法可以在二进制层面用补码的加法实现，这样本质上整数的加法和减法，在二进制层面都变成了加法。这也就是为什么我们要用补码来表示符号数的原因。</p>
@@ -340,12 +340,18 @@
 <p>无符号数的减法也是类似的，那么显而易见地，在考虑溢出的情况下，k位无符号数和有符号数的加减法结果分别为（T<sub>k</sub>代表只截取最低k位，TC(x)表示x的补码）：</p>
 <ul>
 <li>无符号数<ul>
-<li><code>x + y = T&lt;sub&gt;k&lt;/sub&gt;(x + y)</code></li>
-<li><code>x - y = T&lt;sub&gt;k&lt;/sub&gt;(x + TC(Expanding(-y)))</code></li>
+<li>x + y = T<sub>k</sub>(x + y)</li>
+<li>x - y = T<sub>k</sub>(x + TC(Expanding(-y)))</li>
 </ul>
 </li>
 <li>有符号数<br>  x ± y = T<sub>k</sub>(TC(x) + TC(±y))</li>
 </ul>
+<h3 id="检测溢出"><a href="#检测溢出" class="headerlink" title="检测溢出"></a>检测溢出</h3><p>对于无符号数x, y和其和s来说，当且仅当s &lt; x（此时y &lt; x也必为真），计算发生了溢出。<br>对于有符号数x，y和其和s来说：</p>
+<ul>
+<li>当且仅当x &gt; 0, y &gt; 0并且s &lt;= 0，计算发生正向溢出。</li>
+<li>当且仅当x &lt; 0, y &lt; 0并且s &gt;= 0，计算发生负向溢出。</li>
+</ul>
+<p>证明不难，这里略过。</p>
 
     </div>
 
@@ -355,8 +361,8 @@
 
       <footer class="post-footer">
           <div class="post-tags">
-              <a href="/tags/Computer-System/" rel="tag"># Computer System</a>
               <a href="/tags/Book-Reading/" rel="tag"># Book Reading</a>
+              <a href="/tags/Computer-System/" rel="tag"># Computer System</a>
               <a href="/tags/CSAPP/" rel="tag"># CSAPP</a>
           </div>
 
@@ -430,7 +436,7 @@
 
       <!--noindex-->
       <div class="post-toc-wrap sidebar-panel">
-          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#整数的表示"><span class="nav-number">1.</span> <span class="nav-text">整数的表示</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#无符号数与有符号数"><span class="nav-number">1.1.</span> <span class="nav-text">无符号数与有符号数</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#为什么用补码表示有符号数"><span class="nav-number">1.2.</span> <span class="nav-text">为什么用补码表示有符号数</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#无符号数和有符号数的转换"><span class="nav-number">1.3.</span> <span class="nav-text">无符号数和有符号数的转换</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#位数的扩展与截断"><span class="nav-number">1.4.</span> <span class="nav-text">位数的扩展与截断</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#整数的运算"><span class="nav-number">2.</span> <span class="nav-text">整数的运算</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#加法和减法"><span class="nav-number">2.1.</span> <span class="nav-text">加法和减法</span></a></li></ol></li></ol></div>
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#整数的表示"><span class="nav-number">1.</span> <span class="nav-text">整数的表示</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#无符号数与有符号数"><span class="nav-number">1.1.</span> <span class="nav-text">无符号数与有符号数</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#为什么用补码表示有符号数"><span class="nav-number">1.2.</span> <span class="nav-text">为什么用补码表示有符号数</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#无符号数和有符号数的转换"><span class="nav-number">1.3.</span> <span class="nav-text">无符号数和有符号数的转换</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#位数的扩展与截断"><span class="nav-number">1.4.</span> <span class="nav-text">位数的扩展与截断</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#整数的运算"><span class="nav-number">2.</span> <span class="nav-text">整数的运算</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#加法和减法"><span class="nav-number">2.1.</span> <span class="nav-text">加法和减法</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#检测溢出"><span class="nav-number">2.2.</span> <span class="nav-text">检测溢出</span></a></li></ol></li></ol></div>
       </div>
       <!--/noindex-->
 
