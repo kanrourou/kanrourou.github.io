@@ -37,7 +37,7 @@
 <h2 id="整数的运算"><a href="#整数的运算" class="headerlink" title="整数的运算"></a>整数的运算</h2><h3 id="加法和减法"><a href="#加法和减法" class="headerlink" title="加法和减法"></a>加法和减法</h3><p>无符号数加法没有什么特别，唯一需要注意的是溢出的情况，这种情况会按字长截断，也就是取模。所以字长为k位的两个无符号数x，y，其和x + y = (x + y) mod 2<sup>k</sup>。</p>
 <p>有符号数是用补码表示的，非负数的加法和无符号数是类似的。但是涉及负数的话就不太一样了，因为负数的加法本质上就是减法，这个时候补码的好处就出现了。</p>
 <p>首先对于字长固定的类型，在溢出位被截断的情况下，其模是固定的，假设为M。对于负数来讲<code>-x mod M = (M - x) mod M</code>，这个很好理解，对于一个时钟，向前拨十个刻度和向后拨十个刻度最后的结果是一样的，都是指向10。我们把M - x定义为x的补数，我们可以看到，-x和M - X对于M来讲是同余的。</p>
-<p>因为这个性质，在我们做整数的减法时，可以转化为其补数的加法。例如对于两个字长固定的正整数x，y来说，<code>(x - y) mod M = (x + M - y) mod M</code>，因为补数加法同余的性质，我们截断（取余）溢出位之后，这两个结果在二进制层面上的表示是一样的。例如：</p>
+<p>因为这个性质，在我们做整数的减法时，可以转化为其补数的加法。例如对于两个字长固定的正整数x，y来说，<code>(x - y) mod M = (x + M - y) mod M</code>，因为补数加法同余的性质，我们截断（取余）溢出位之后，这两个结果在二进制非符号位上的表示是一样的。例如：</p>
 <figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">x         15  0000 1111</span><br><span class="line">y         125 0111 1101</span><br><span class="line">M - y     3   0000 0011</span><br><span class="line">x + M - y 18  0001 0010</span><br></pre></td></tr></table></figure>
 <p>加上符号位之后18 - 2<sup>7</sup> = 12 - 128 = -110 （1001 0010，正是对应减法的计算结果。如果我们直接把符号位带入<code>M - y</code>的话，对应的二进制就是<code>1000 0011</code>，是不是正好是-125的补码？同理：</p>
 <figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">x         125 0111 1101</span><br><span class="line">y         15  0000 1111</span><br><span class="line">M - y     113 0111 0001</span><br><span class="line">x + M - y 238 1110 1110</span><br></pre></td></tr></table></figure>
