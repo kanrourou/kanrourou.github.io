@@ -56,7 +56,7 @@
 <meta property="og:locale" content="default">
 <meta property="og:image" content="http://yoursite.com/images/csapp_2_integer_0.png">
 <meta property="og:image" content="http://yoursite.com/images/csapp_2_integer_1.png">
-<meta property="og:updated_time" content="2021-05-12T10:19:39.732Z">
+<meta property="og:updated_time" content="2021-05-12T10:21:39.299Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="Book Reading: CSAPP, Chapter 2, 整数的表示和运算">
 <meta name="twitter:description" content="整数的表示无符号数与有符号数无符号数的表示非常直接，因为没有符号，k位的二进制就表示0 ~ 2k - 1范围内的整数。对于 [xk - 1, xk - 2, …, x0]，其表示的值为：">
@@ -222,7 +222,7 @@
               <span class="post-meta-item-text">Posted on</span>
               
 
-              <time title="Created: 2021-05-12 00:00:00 / Modified: 03:19:39" itemprop="dateCreated datePublished" datetime="2021-05-12T00:00:00-07:00">2021-05-12</time>
+              <time title="Created: 2021-05-12 00:00:00 / Modified: 03:21:39" itemprop="dateCreated datePublished" datetime="2021-05-12T00:00:00-07:00">2021-05-12</time>
             </span>
             <span class="post-meta-item">
               <span class="post-meta-item-icon">
@@ -349,7 +349,7 @@
 <h3 id="乘法"><a href="#乘法" class="headerlink" title="乘法"></a>乘法</h3><p>乘法本质上还是加法，无符号数和有符号数的乘法在底层的运算逻辑还是一样的。对于k位的数，其乘法结果可能需要2k位才能表示，所以对于x和y来说，我们一般将其扩展到2k位，进行乘法运算，之后再截断。假设k为3：</p>
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line">unsinged:</span><br><span class="line"></span><br><span class="line">x 5 101</span><br><span class="line">y 3 011</span><br><span class="line"></span><br><span class="line">x * y = 000 101 * 000 011 = 001 111 = 15</span><br><span class="line">Truncated x * y = 111 = 7</span><br><span class="line"></span><br><span class="line">signed:</span><br><span class="line"></span><br><span class="line">x -3 101</span><br><span class="line">y 3  011</span><br><span class="line"></span><br><span class="line">x * y = 111 101 * 000 011 = 110 111 = -9</span><br><span class="line">Truncated x * y = 111 = -1</span><br></pre></td></tr></table></figure>
 <p>因为整数乘法的运算更加耗时，一般会耗费10个或者更多的时钟周期，而相对的整数的加减法，位操作等只需要一个时钟周期。编译器会对变量乘以一个常量的计算进行优化，思路是转化为位操作和加法，这样处理之后生成的机器码，就只需要进行位操作和加法，时间比做乘法要快很多。</p>
-<p>首先我们看乘以2的幂，这个大家都知道可以用位操作左移来实现。不管对于有符号是还是无符号数，x2<sup>k</sup>都可以等价为<code>x &lt;&lt; k</code>。那么对于任意常数C，因为其必定可以转化为2的幂的和，所以最后相乘的结果必定可以写出多个对x进行位操作左移的和。例如x <em> 14 = x </em> (2<sup>3</sup> + 2<sup>2</sup> +2<sup>1</sup>)，那么其可以表示为<code>(x &lt;&lt; 3) + (x &lt;&lt; 2) + (x &lt;&lt; 1)</code>。</p>
+<p>首先我们看乘以2的幂，这个大家都知道可以用位操作左移来实现。不管对于有符号是还是无符号数，x * 2<sup>k</sup>都可以等价为<code>x &lt;&lt; k</code>。那么对于任意常数C，因为其必定可以转化为2的幂的和，所以最后相乘的结果必定可以写出多个对x进行位操作左移的和。例如x * 14 = x * (2<sup>3</sup> + 2<sup>2</sup> +2<sup>1</sup>)，那么其可以表示为<code>(x &lt;&lt; 3) + (x &lt;&lt; 2) + (x &lt;&lt; 1)</code>。</p>
 <p>同理14 = 2<sup>4</sup> - 2<sup>1</sup>，x * 14也可以表示为<code>(x &lt;&lt; 4) - (x &lt;&lt; 1)</code>。</p>
 <p>所以对于x乘以任意常数C，其可以表示为一系列的1和0（括号里的全为0或者1）：</p>
 <p><code>[(0...0)(1...1)(0...0)...(111)]</code></p>
