@@ -88,7 +88,7 @@
 <li>当x正好能被2<sup>k</sup>整除，这后面加上的2<sup>k</sup> - 1在除以2<sup>k</sup>的时候会被舍去，所以结果为x / 2<sup>k</sup> = ⌈x / 2<sup>k</sup>⌉。</li>
 <li>当x不能被2<sup>k</sup>整除时，x离⌈x / 2<sup>k</sup>⌉ * 2<sup>k</sup>的最大的差值就为2<sup>k</sup> - 1，所以加上之后再除就可以得到⌈x / 2<sup>k</sup>⌉。</li>
 </ol>
-<p>所以对于有符号数x除以2的幂的结果可以表示为：</p>
+<p>所以对于有符号数x除以2的k次幂的结果可以表示为：</p>
 <p><code>(x &lt; 0? x + (1 &lt;&lt; k) - 1 : x) &gt;&gt; k</code></p>
 ]]></content>
       <categories>
