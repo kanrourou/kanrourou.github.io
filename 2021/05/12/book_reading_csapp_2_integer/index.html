@@ -56,7 +56,7 @@
 <meta property="og:locale" content="default">
 <meta property="og:image" content="http://yoursite.com/images/csapp_2_integer_0.png">
 <meta property="og:image" content="http://yoursite.com/images/csapp_2_integer_1.png">
-<meta property="og:updated_time" content="2021-05-12T10:25:21.140Z">
+<meta property="og:updated_time" content="2021-05-12T10:28:57.975Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="Book Reading: CSAPP, Chapter 2, 整数的表示和运算">
 <meta name="twitter:description" content="整数的表示无符号数与有符号数无符号数的表示非常直接，因为没有符号，k位的二进制就表示0 ~ 2k - 1范围内的整数。对于 [xk - 1, xk - 2, …, x0]，其表示的值为：">
@@ -222,7 +222,7 @@
               <span class="post-meta-item-text">Posted on</span>
               
 
-              <time title="Created: 2021-05-12 00:00:00 / Modified: 03:25:21" itemprop="dateCreated datePublished" datetime="2021-05-12T00:00:00-07:00">2021-05-12</time>
+              <time title="Created: 2021-05-12 00:00:00 / Modified: 03:28:57" itemprop="dateCreated datePublished" datetime="2021-05-12T00:00:00-07:00">2021-05-12</time>
             </span>
             <span class="post-meta-item">
               <span class="post-meta-item-icon">
@@ -364,7 +364,7 @@
 <p>那么这里有两种右移供我们选择，分别对应无符号数和有符号数的除法：</p>
 <ol>
 <li>逻辑右移：在最高位补1，这种用在无符号数的除法。</li>
-<li>算数右移：在做高位补符号位，这种用在有符号数的除法。</li>
+<li>算数右移：在最高位补符号位，这种用在有符号数的除法。</li>
 </ol>
 <p>无论对于有符号数还是无符号数<code>x &gt;&gt; k</code>的结果都为⌊x / 2<sup>k</sup>⌋，所以对于结果为负的情况，我们要进行特殊处理:</p>
 <p>当x &lt; 0时，对于k &gt;= 0, <code>(x + (1 &lt;&lt; k) - 1) &gt;&gt; k</code>的结果为⌈x / 2<sup>k</sup>⌉。</p>
