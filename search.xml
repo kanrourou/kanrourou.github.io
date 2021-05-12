@@ -3,7 +3,7 @@
   <entry>
     <title>Book Reading: CSAPP, Chapter 2, 整数的表示和运算</title>
     <url>/2021/05/11/book_reading_csapp_2_integer/</url>
-    <content><![CDATA[<h2 id="整数的表示"><a href="#整数的表示" class="headerlink" title="整数的表示"></a>整数的表示</h2><h3 id="无符号数与有符号数"><a href="#无符号数与有符号数" class="headerlink" title="无符号数与有符号数"></a>无符号数与有符号数</h3><p>无符号数的表示非常直接，因为没有符号，k位的二进制就表示0 ~ 2<sup>k</sup> - 1范围内的整数。对于 [x<sub>k - 1</sub>, x<sub>k - 2</sub>, …, x<sub>0</sub>]，其表示的值为：</p>
+    <content><![CDATA[<h2 id="整数的表示"><a href="#整数的表示" class="headerlink" title="整数的表示"></a>整数的表示</h2><h3 id="无符号数与有符号数"><a href="#无符号数与有符号数" class="headerlink" title="无符号数与有符号数"></a>无符号数与有符号数</h3><p>无符号数的表示非常直接，因为没有符号，k位的二进制就表示0 ~ 2<sup>k</sup> - 1范围内的整数。对于 [x<sub>k - 1</sub>, x<sub>k - 2</sub>, …, x<sub>0</sub>]，其表示的值为：<br><a id="more"></a></p>
 <p><img src="/images/csapp_2_integer_0.png" alt></p>
 <p>有符号因为存在负数的原因，其是用补码表示的。具体来说，其最高有效位的权重是负的，同样对于[x<sub>k - 1</sub>, x<sub>k - 2</sub>, …, x<sub>0</sub>]来说，其表示的值为:</p>
 <p><img src="/images/csapp_2_integer_1.png" alt></p>
@@ -13,7 +13,7 @@
 <li>简化了了整数减法和负数加法的运算，在底层都可以用二进制的加法实现。这点之后会讲。</li>
 <li>统一了有符号数和无符号数的运算在二进制层面的实现，使得两种数的四则运算<strong>几乎</strong>可以使用同一套规则。（唯一的例外是除法，之后会讲。）</li>
 </ol>
-<p>另外我们知道非负数的补码就是其二进制表示，而负数的补码是其二进制正数的反码（除符号位逐位取反）加一。诚然对于一个负数，我们可以用上面的公式推导出其补码，但为什么和其对应正数的二进制有这样的关系呢？我们将在下面讲解。</p>
+<p>另外我们知道非负数的补码就是其二进制表示，而负数的补码是其反码（除符号位逐位取反）加一。诚然对于一个负数，我们可以用上面的公式推导出其补码，但为什么补码和其原码有这样的关系呢？我们将在下面讲解。</p>
 <p>值得一提的是，C语言的标准并没有规定有符号数要用补码实现，但事实上，几乎所有机器都是这么做的。Java语言则在标准中严格规定了有符号数必须用补码实现，当然Java中也并没有无符号数，也就是说Java中所有的整数都是用补码表示的。</p>
 <h3 id="无符号数和有符号数的转换"><a href="#无符号数和有符号数的转换" class="headerlink" title="无符号数和有符号数的转换"></a>无符号数和有符号数的转换</h3><p>位数相同的有符号和无符号数之间的转换遵循一个标准：二进制的表示不变，解码的方式改变。比如对于32位全为1的二进制数，其对应的无符号十进制数为2<sup>32</sup> - 1 = 4294967295，有符号数的十进制为-1。</p>
 <p>另外，在C语言当中，如果对有符号数和无符号数做某种运算操作（加法、减法等），有符号数会被隐式转换为无符号数，这样很容易造成一些bug。例如<code>-1 &lt; 0U</code>会被判定为<code>false</code>.</p>
@@ -22,6 +22,7 @@
 <ol>
 <li>因为是负数，原来的k位补码，最高位肯定是1。假设剩下的k - 1位的和为C，那么其表示的十进制为-2<sup>k - 1</sup> + C。</li>
 <li>当加了n位前导0时，从第0位到第k - 2位的和仍然是C。从第k - 1位到第n + k - 1位的和为-2<sup>n + k - 1</sup> + 2<sup>n + k - 2</sup> + … + 2<sup>k - 1</sup> = -2<sup>k - 1</sup>，那么加起来表示的数仍然为-2<sup>k - 1</sup> + C。</li>
+<li>符号位可以参与运算，同样下面会讲。</li>
 </ol>
 <p>我们讨论了在相同字长下，有符号数和无符号数之间的转化；以及，对应的无符号数和有符号数，在不同字长下的转化。那么如果同时进行了无符号数和有符号数，以及字长的转化，结果会是怎么样呢？我们考虑如下程序：</p>
 <figure class="highlight c"><table><tr><td class="code"><pre><span class="line"><span class="keyword">short</span> sx = <span class="number">-12345</span>; <span class="comment">/* cf c7 */</span></span><br><span class="line"><span class="keyword">unsigned</span> uy = sx;</span><br><span class="line"></span><br><span class="line"><span class="built_in">printf</span>(<span class="string">"uy = %u"</span>, uy);</span><br></pre></td></tr></table></figure>
@@ -30,9 +31,30 @@
 <p>在32位系统下，<code>short</code>为16位，<code>unsigned</code>为32位。看到最后的输出结果，我们可以看出来是先对<code>short</code>做了位数的扩展，之后进行了相同字长下有符号数到无符号数的转换。</p>
 <p>我们可以看到，位数的扩展，在不同的数据类型中间会用到；位数的截断，同理也可以在整数的类型转换中用到，此外处理运算的溢出的时候也会用到。对于截断操作而言，其本质上就是在做模运算。假设从n位截断到k位（n &gt; k）：</p>
 <ol>
-<li>对于无符号数，截断后的值x<sup>‘</sup> = x mod 2<sup>k</sup>。</li>
-<li>对于有符号数， 由于舍弃高位可能会导致符号改变，x<sup>‘</sup> = convertToSignedNum(x mod 2<sup>k</sup>)。</li>
+<li>对于无符号数，截断后的值y = x mod 2<sup>k</sup>。</li>
+<li>对于有符号数， 由于舍弃高位可能会导致符号改变，y = convertToSignedNum(x mod 2<sup>k</sup>)。</li>
 </ol>
+<h2 id="整数的运算"><a href="#整数的运算" class="headerlink" title="整数的运算"></a>整数的运算</h2><h3 id="加法和减法"><a href="#加法和减法" class="headerlink" title="加法和减法"></a>加法和减法</h3><p>无符号数加法没有什么特别，唯一需要注意的是溢出的情况，这种情况会按字长截断，也就是取模。所以字长为k位的两个无符号数x，y，其和<code>x + y = (x + y) mod 2&lt;sup&gt;k&lt;/sup&gt;</code>。</p>
+<p>有符号数是用补码表示的，非负数的加法和无符号数是类似的。但是涉及负数的话就不太一样了，因为负数的加法本质上就是减法，这个时候补码的好处就出现了。</p>
+<p>首先对于字长固定的类型，在溢出位被截断的情况下，其模是固定的，假设为M。对于负数来讲<code>-x mod M = (M - x) mod M</code>，这个很好理解，对于一个时钟，向前拨十个刻度和向后拨十个刻度最后的结果是一样的，都是指向10。我们把M - x定义为x的补数，我们可以看到，-x和M - X对于M来讲是同余的。</p>
+<p>因为这个性质，在我们做整数的减法时，可以转化为其补数的加法。例如对于两个字长固定的正整数x，y来说，<code>(x - y) mod M = (x + M - y) mod M</code>，因为补数加法同余的性质，我们截断（取余）溢出位之后，这两个结果在二进制层面上的表示是一样的。例如：</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">x         15  0000 1111</span><br><span class="line">y         125 0111 1101</span><br><span class="line">M - y     3   0000 0011</span><br><span class="line">x + M - y 18  0001 0010</span><br></pre></td></tr></table></figure>
+<p>加上符号位之后<code>18 - 2&lt;sup&gt;7&lt;/sup&gt; = 12 - 128 = -110 （1001 0010）</code>，正是对应减法的计算结果。如果我们直接把符号位带入<code>M - y</code>的话，对应的二进制就是<code>1000 0011</code>，是不是正好是-125的补码？同理：</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">x         125 0111 1101</span><br><span class="line">y         15  0000 1111</span><br><span class="line">M - y     113 0111 0001</span><br><span class="line">x + M - y 238 1110 1110</span><br></pre></td></tr></table></figure>
+<p>由于最高位为符号位，溢出被截断，所以<code>238 - 2&lt;sup&gt;7&lt;/sup&gt; = 238 - 128 = 110 (0110 1110)</code>，也是对应减法的计算结果。同理如果直接把符号位带入<code>M - y</code>，对应的二进制就是<code>1111 0001</code>，也是-15对应的补码。</p>
+<p>我们可以看出来，直接把符号位带入的话，其二进制就是对应负数的补码，并且，符号位可以参与运算，不需要进行符号位的截断操作：</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">x     15   0000 1111</span><br><span class="line">-y    -125 1000 0011</span><br><span class="line">x - y -110 1001 0010</span><br><span class="line"></span><br><span class="line">x     125 0111 1101</span><br><span class="line">-y    -15 1111 0001</span><br><span class="line">x - y 110 0110 1110</span><br></pre></td></tr></table></figure>
+<p>所以整数的减法可以在二进制层面用补码的加法实现，这样本质上整数的加法和减法，在二进制层面都变成了加法。这也就是为什么我们要用补码来表示符号数的原因。</p>
+<p>另外值得一提的是，<code>M - y = (M - 1) - y + 1</code>，<code>(M - 1) - y</code>正好代表除了y的符号位全部取反，即反码；然后反码加一，变成了补码。</p>
+<p>无符号数的减法也是类似的，那么显而易见地，在考虑溢出的情况下，k位无符号数和有符号数的加减法结果分别为（T<sub>k</sub>代表只截取最低k位，TC(x)表示x的补码）：</p>
+<ul>
+<li>无符号数<ul>
+<li><code>x + y = T&lt;sub&gt;k&lt;/sub&gt;(x + y)</code></li>
+<li><code>x - y = T&lt;sub&gt;k&lt;/sub&gt;(x + TC(Expanding(-y)))</code></li>
+</ul>
+</li>
+<li>有符号数<br>  x ± y = T<sub>k</sub>(TC(x) + TC(±y))</li>
+</ul>
 ]]></content>
       <categories>
         <category>Computer System</category>
