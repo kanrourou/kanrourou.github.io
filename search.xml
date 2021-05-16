@@ -5,7 +5,7 @@
     <url>/2021/05/16/book_reading_csapp_2_floating_point/</url>
     <content><![CDATA[<h2 id="浮点数的表示"><a href="#浮点数的表示" class="headerlink" title="浮点数的表示"></a>浮点数的表示</h2><h3 id="实数数的二进制表示"><a href="#实数数的二进制表示" class="headerlink" title="实数数的二进制表示"></a>实数数的二进制表示</h3><p>计算机用浮点数表示实数，二进制层面的表示和十进制是十分类似的：<br><a id="more"></a></p>
 <p><img src="/images/csapp_2_floating_point_0.png" alt></p>
-<p>其中在小数点左边的每一位有2<sub>m</sub>权重，右边的每一位有2<sup>-n</sup>的权重。所以每一个用如上方式表示的浮点数，其值为：</p>
+<p>其中在小数点左边的每一位有2<sup>m</sup>权重，右边的每一位有2<sup>-n</sup>的权重。所以每一个用如上方式表示的浮点数，其值为：</p>
 <p><img src="/images/csapp_2_floating_point_1.png" alt></p>
 <p>我们可以看出来，在有限长度编码的条件下，我们是没有办法精确表示任意实数的，比如说1 / 3或者5 / 7，所以只能近似表示。</p>
 <h3 id="IEEE754标准"><a href="#IEEE754标准" class="headerlink" title="IEEE754标准"></a>IEEE754标准</h3><p>如果我们用如上的编码方式在计算机中表示实数，那么其限制是很大的，比如5 * 2<sup>100</sup>需要至少一百位来表示，在表示很大的数的时候不效率。所以IEEE标准规定了浮点数V的表示方法如下：</p>
@@ -33,14 +33,18 @@
 <li>对于单精度，因为k = 8，Bias = 127，指数E的范围为-126 (1 - 127) ~ 127 (254 - 127)。</li>
 <li>对于双精度，同理k = 11, Bias = 1023，指数E的范围为-1022 (1 - 1023) ~ 1023 (2046 - 1023)。</li>
 </ol>
-<p>对于二进制的尾数部分f，其二进制表示为0.f<sub>n - 1&lt;.sub&gt;…f<sub>1</sub>f<sub>0</sub>，也就是说小数点是在最高位的左边，所以0 &lt;= f &lt; 1。但是对于M的值，我们默认前面有一个前导1，所以尾数部分真实表示的值为1.f<sub>n - 1&lt;.sub&gt;…f<sub>1</sub>f<sub>0</sub>，M = 1 + f，因而M的取值范围为1 &lt;= M &lt; 2。默认前导1的理由是在这种情况下，我们可以白嫖一位有效数字，不需要在f的部分去表示这个1。</sub></sub></p>
+<p>对于二进制的尾数部分f，其二进制表示为0.f<sub>n - 1</sub>…f<sub>1</sub>f<sub>0</sub>，也就是说小数点是在最高位的左边，所以0 &lt;= f &lt; 1。但是对于M的值，我们默认前面有一个前导1，所以尾数部分真实表示的值为1.f<sub>n - 1&lt;.sub&gt;…f<sub>1</sub>f<sub>0</sub>，M = 1 + f，因而M的取值范围为1 &lt;= M &lt; 2。默认前导1的理由是在这种情况下，我们可以白嫖一位有效数字，不需要在f的部分去表示这个1。</sub></p>
 <h4 id="Denormailized-Values"><a href="#Denormailized-Values" class="headerlink" title="Denormailized Values"></a>Denormailized Values</h4><p>这种情况的前提是指数部分全为0，这种情况下，我们约定指数部分的值为E = 1 - Bias。并且尾数部分没有前导1，所以M = f。Denormalized Values主要有两个作用:</p>
 <ol>
 <li>表示0，指数和尾数部分全为0。需要注意+0和-0是不一样的，因为符号位有区别。</li>
 <li>表示十分接近0的数。这个不难理解，因为指数部分已经十分小了 (单精度-126，双精度-1022)。</li>
 </ol>
 <p>另外值得注意的一点事，约定E = 1 - Bias的原因是其和Normailzed Values的指数最小值一样，所以其保证了从Denomralized Values的最大值到Normalized Values最小值的平滑转换。</p>
-<h4 id="Special-Values"><a href="#Special-Values" class="headerlink" title="Special Values"></a>Special Values</h4><p>这个情况发生在指数部分全为1的时候。</p>
+<h4 id="Special-Values"><a href="#Special-Values" class="headerlink" title="Special Values"></a>Special Values</h4><p>这个情况发生在指数部分全为1的时候:</p>
+<ol>
+<li>当尾数数部分全为0，根据符号位表示+∞或者-∞，无穷可以用来表示溢出。</li>
+<li>当尾数部分不全为0的时候，表示NaN。</li>
+</ol>
 ]]></content>
       <categories>
         <category>Computer System</category>
