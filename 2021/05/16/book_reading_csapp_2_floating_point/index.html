@@ -46,20 +46,23 @@
   };
 </script>
 
-  <meta name="description" content="ZooKeeper is a service for coordinating processes of distributed applications, which provides wait-free coordination for Internet-scale systems.">
-<meta name="keywords" content="Distributed System,Infrastructure,Paper Reading">
+  <meta name="description" content="浮点数的表示实数数的二进制表示计算机用浮点数表示实数数，二进制层面的表示和十进制是十分类似的：">
+<meta name="keywords" content="Computer System,Book Reading,CSAPP">
 <meta property="og:type" content="article">
-<meta property="og:title" content="Paper Reading: ZooKeeper">
-<meta property="og:url" content="http://yoursite.com/2021/01/02/paper_reading_zookeeper/index.html">
+<meta property="og:title" content="Book Reading: CSAPP, Chapter 2, 浮点数的表示和运算">
+<meta property="og:url" content="http://yoursite.com/2021/05/16/book_reading_csapp_2_floating_point/index.html">
 <meta property="og:site_name" content="码字的呵呵君">
-<meta property="og:description" content="ZooKeeper is a service for coordinating processes of distributed applications, which provides wait-free coordination for Internet-scale systems.">
+<meta property="og:description" content="浮点数的表示实数数的二进制表示计算机用浮点数表示实数数，二进制层面的表示和十进制是十分类似的：">
 <meta property="og:locale" content="default">
-<meta property="og:updated_time" content="2021-01-03T20:29:08.363Z">
+<meta property="og:image" content="http://yoursite.com/images/csapp_2_floating_point_0.png">
+<meta property="og:image" content="http://yoursite.com/images/csapp_2_floating_point_1.png">
+<meta property="og:updated_time" content="2021-05-16T23:31:29.311Z">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="Paper Reading: ZooKeeper">
-<meta name="twitter:description" content="ZooKeeper is a service for coordinating processes of distributed applications, which provides wait-free coordination for Internet-scale systems.">
+<meta name="twitter:title" content="Book Reading: CSAPP, Chapter 2, 浮点数的表示和运算">
+<meta name="twitter:description" content="浮点数的表示实数数的二进制表示计算机用浮点数表示实数数，二进制层面的表示和十进制是十分类似的：">
+<meta name="twitter:image" content="http://yoursite.com/images/csapp_2_floating_point_0.png">
 
-<link rel="canonical" href="http://yoursite.com/2021/01/02/paper_reading_zookeeper/">
+<link rel="canonical" href="http://yoursite.com/2021/05/16/book_reading_csapp_2_floating_point/">
 
 
 <script id="page-configurations">
@@ -71,7 +74,7 @@
   };
 </script>
 
-  <title>Paper Reading: ZooKeeper | 码字的呵呵君</title>
+  <title>Book Reading: CSAPP, Chapter 2, 浮点数的表示和运算 | 码字的呵呵君</title>
   
     <script async src="https://www.googletagmanager.com/gtag/js?id=UA-133451584-2"></script>
     <script>
@@ -195,7 +198,7 @@
   
   
   <article itemscope itemtype="http://schema.org/Article" class="post-block " lang="default">
-    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2021/01/02/paper_reading_zookeeper/">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2021/05/16/book_reading_csapp_2_floating_point/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="image" content="/images/avatar.gif">
@@ -208,7 +211,7 @@
     </span>
       <header class="post-header">
         <h1 class="post-title" itemprop="name headline">
-          Paper Reading: ZooKeeper
+          Book Reading: CSAPP, Chapter 2, 浮点数的表示和运算
         </h1>
 
         <div class="post-meta">
@@ -217,36 +220,30 @@
                 <i class="fa fa-calendar-o"></i>
               </span>
               <span class="post-meta-item-text">Posted on</span>
+              
 
-              <time title="Created: 2021-01-02 00:00:00" itemprop="dateCreated datePublished" datetime="2021-01-02T00:00:00-08:00">2021-01-02</time>
+              <time title="Created: 2021-05-16 00:00:00 / Modified: 16:31:29" itemprop="dateCreated datePublished" datetime="2021-05-16T00:00:00-07:00">2021-05-16</time>
             </span>
-              <span class="post-meta-item">
-                <span class="post-meta-item-icon">
-                  <i class="fa fa-calendar-check-o"></i>
-                </span>
-                <span class="post-meta-item-text">Edited on</span>
-                <time title="Modified: 2021-01-03 12:29:08" itemprop="dateModified" datetime="2021-01-03T12:29:08-08:00">2021-01-03</time>
-              </span>
             <span class="post-meta-item">
               <span class="post-meta-item-icon">
                 <i class="fa fa-folder-o"></i>
               </span>
               <span class="post-meta-item-text">In</span>
                 <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/System-Infrastructure/" itemprop="url" rel="index">
-                    <span itemprop="name">System Infrastructure</span>
+                  <a href="/categories/Computer-System/" itemprop="url" rel="index">
+                    <span itemprop="name">Computer System</span>
                   </a>
                 </span>
                   , 
                 <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/System-Infrastructure/Coordination-Service/" itemprop="url" rel="index">
-                    <span itemprop="name">Coordination Service</span>
+                  <a href="/categories/Computer-System/Computing/" itemprop="url" rel="index">
+                    <span itemprop="name">Computing</span>
                   </a>
                 </span>
             </span>
 
           
-            <span id="/2021/01/02/paper_reading_zookeeper/" class="post-meta-item leancloud_visitors" data-flag-title="Paper Reading: ZooKeeper" title="Views">
+            <span id="/2021/05/16/book_reading_csapp_2_floating_point/" class="post-meta-item leancloud_visitors" data-flag-title="Book Reading: CSAPP, Chapter 2, 浮点数的表示和运算" title="Views">
               <span class="post-meta-item-icon">
                 <i class="fa fa-eye"></i>
               </span>
@@ -261,8 +258,8 @@
       </span>
       <span class="post-meta-item-text">Valine: </span>
     
-    <a title="valine" href="/2021/01/02/paper_reading_zookeeper/#comments" itemprop="discussionUrl">
-      <span class="post-comments-count valine-comment-count" data-xid="/2021/01/02/paper_reading_zookeeper/" itemprop="commentCount"></span>
+    <a title="valine" href="/2021/05/16/book_reading_csapp_2_floating_point/#comments" itemprop="discussionUrl">
+      <span class="post-comments-count valine-comment-count" data-xid="/2021/05/16/book_reading_csapp_2_floating_point/" itemprop="commentCount"></span>
     </a>
   </span>
   
@@ -272,14 +269,14 @@
                 <i class="fa fa-file-word-o"></i>
               </span>
                 <span class="post-meta-item-text">Symbols count in article: </span>
-              <span>6k</span>
+              <span>1k</span>
             </span>
             <span class="post-meta-item" title="Reading time">
               <span class="post-meta-item-icon">
                 <i class="fa fa-clock-o"></i>
               </span>
                 <span class="post-meta-item-text">Reading time &asymp;</span>
-              <span>5 mins.</span>
+              <span>1 mins.</span>
             </span>
 
         </div>
@@ -291,34 +288,37 @@
     <div class="post-body" itemprop="articleBody">
 
       
-        <p><a href="https://www.usenix.org/legacy/events/atc10/tech/full_papers/Hunt.pdf" target="_blank" rel="noopener">ZooKeeper</a> is a service for coordinating processes of distributed applications, which provides wait-free coordination for Internet-scale systems.<br><a id="more"></a></p>
-<h2 id="Design-Decisions"><a href="#Design-Decisions" class="headerlink" title="Design Decisions"></a>Design Decisions</h2><p>Moved away from implementing specific primitives on the server side, opted for exposing an API that enables application developers to implement their own primitives, which enables new primitives without requiring changes to the service core.</p>
-<p>Moved away from blocking primitives, such as locks (e.g. Chubby). Since blocking primitives can cause, among other problems, slow or faulty clients to impact negatively the performance of faster clients. Instead, ZooKeeper implements an API that manipulates simple wait-free data objects (znodes) organized hierarchically as in file systems.</p>
-<p>ZooKeepers guarantees two following properties for client operations:</p>
+        <h2 id="浮点数的表示"><a href="#浮点数的表示" class="headerlink" title="浮点数的表示"></a>浮点数的表示</h2><h3 id="实数数的二进制表示"><a href="#实数数的二进制表示" class="headerlink" title="实数数的二进制表示"></a>实数数的二进制表示</h3><p>计算机用浮点数表示实数数，二进制层面的表示和十进制是十分类似的：<br><a id="more"></a></p>
+<p><img src="/images/csapp_2_floating_point_0.png" alt></p>
+<p>其中在小数点左边的每一位有2<sub>m</sub>权重，右边的每一位有2<sub>-n</sub>的权重。所以每一个用如上方式表示的浮点数，其值为：</p>
+<p><img src="/images/csapp_2_floating_point_1.png" alt></p>
+<p>我们可以看出来，在有限长度编码的条件下，我们是没有办法精确表示任意实数的，比如说1 / 3或者5 / 7，所以只能近似表示。</p>
+<h3 id="IEEE-754标准"><a href="#IEEE-754标准" class="headerlink" title="IEEE 754标准"></a>IEEE 754标准</h3><p>如果我们用如上的编码方式在计算机中表示实数，那么其限制是很大的，比如5 * 2<sup>100</sup>需要至少一百位来表示，在表示很大的数的时候不效率。所以IEEE标准规定了浮点数V的表示方法如下：</p>
+<p>V = (-1)<sup>s</sup> x M x 2<sup>E</sup></p>
+<p>其中s，M和E分别表示：</p>
 <ol>
-<li>FIFO client order: all requests from <strong>a given client</strong> are executed in the order that they were sent by the client. Note this order guarantee is per client level, for example, read operation order is not guaranteed among clients, since read operations are handled locally by the connected server.</li>
-<li>Linearizable writes: all requests that update the state of ZooKeeper are serializable and respect precendence. This is guaranteed by implementing a leader-based atomic broadcast protocol, called Zab.</li>
+<li>s代表符号位，为1的时候表示负数，为0的时候表示正数。</li>
+<li>M代表尾数(significand), 代表有效数字，可以理解成小数点还没移动时的数。</li>
+<li>E代表指数(exponent)，或又称阶码，可以看到正是这个数决定了小数点是向左还是向右，会移动几位。</li>
 </ol>
-<p>Improve read performace by caching data on the client side, for example, the process can cache the identifier fo the current leader instead of probing ZooKeeper every time in needs to know the leader. ZooKeepers uses a watch mechanism, with this mechanism, a client can watch for an update to a given data object and receive a notification upon an update.</p>
-<h2 id="Service-Overview"><a href="#Service-Overview" class="headerlink" title="Service Overview"></a>Service Overview</h2><p>The ZooKeeper provides to its clients the abstraction of a set of data nodes (znodes), organized according to a hierarchical name space, referred by the standard UNIX notation for file system paths. All znodes store data, and all znodes, except for <strong>ephemeral znodes</strong>, can have children. There are two types of znodes that a client can create:</p>
+<p>所以每一个浮点数的二进制表示，也会分为三个部分：</p>
 <ol>
-<li>Regular: Clients manipulate regular znodes by creating and deleting them explicitly.</li>
-<li>Ephemeral: Clients create such znodes, and they either delete them explicitly, or let the system remove them automatically when the session that creates them terminates.</li>
+<li>一位来表示符号位s。</li>
+<li>长度为k的位数来表示指数部分E。</li>
+<li>长度为n的位数来表示位数部分M。</li>
 </ol>
-<p>ZooKeepers implements watches to allow clients to receive timely notification of chanes wihout requiring polling. Watches are one-time triggers associated with a session; they are unregistered once triggered or the session closes. Watches indicate that a change has happened, but do not provide the change. Session events, such as connection loss events, are also sent to watch callbacks so that clients knows that clients know that watch events may be delayed.</p>
-<p>Znodes map to abstractions of the client application, typically corresponding to meta-data used for coordination purposes. Although znodes have not been designed for general data storage, ZooKeepers does allow clients to store some information that can be used for meta-data or configuration in a distributed computation. It also has associated meta-data with time stamps and version numbers which allow clients to keep track of its status.</p>
-<p>A client connects to ZooKeeper and initiates a session. ZooKeeper considers a client faulty if it does not receive anything from its session for more than that timeout.</p>
-<h2 id="APIs"><a href="#APIs" class="headerlink" title="APIs"></a>APIs</h2><p>The common used APIs provided by ZooKeeper are:</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">create(path, data, flags), where flags enables a client to select the type of znode: regular, ephemeral, and set the sequential flag, which is a monotonicaly increaseing counter appended to its name.</span><br><span class="line">delete(path, version), continue when the version matches.</span><br><span class="line">exists(path, watch), the watch flag enables client to set a watch on the znode.</span><br><span class="line">getData(path, watch), watch flag works the same way as exists().</span><br><span class="line">setData(path, data, version), continue when the version matches.</span><br><span class="line">getChildren(path, watch).</span><br><span class="line">sync(path), flush all the pending updates.</span><br></pre></td></tr></table></figure>
-<p>All methods have both sync and async version, and <strong>ZooKeeper client</strong> guarantees that the corresponding callbacks for each operation are invoked in order.</p>
-<p>Refer to the paper to see example primitives implemented by these APIs, including configration management, group membership, read/write locks, etc.</p>
-<h2 id="Implementation"><a href="#Implementation" class="headerlink" title="Implementation"></a>Implementation</h2><p>ZooKeeper provides high availability by replicating the data on each server. For recoverability, it forces writes to be on the disk media before they are applied to the in-memory database. And it will keep a replay log of commited operations and generate periodic snapshots of the in-memory database.</p>
-<p>For read request, they are serviced from the local replica, the local replica is guaranteed to be not diverged, although at any point in time some servers have applied more transactions than others. This will introduce problem that a read operation might return stale value. To gurantee a read operation retrieves the latest updated value, a client calls sync followed by a read operation.</p>
-<p>For write request, they are forwarded to a single server, called the leader. The leader executes the request and broadcast the change to followers through Zab, an atomic broadcast protocol. Zab uses majority quorums to decide on a proposal and provides stronger order guarantees than regular atomic broadcast. Write ahead log is used to keep track of all changes to the database. Zab normally only deliver messages in order and exactly once, but may redeliver a message during recovery. Because the idempotent transaction is used, the end state is still same as long as they delivered in order.</p>
-<p>When taking snapshot of a ZooKeeper server, the server state is not locked, instead, it depth frist scan of the tree and atomically reading each znode and write them to disk. The result might not correspond to the state of ZooKeeper at any point in time since some subsets of the state changes are delivered during the generation of the snapshot. However, since state changes are idempotent, we can apply it multiple times as long as they are in order.</p>
-<p>Servers process writes in order and do not process other wirtes or reads concurrently. This ensure strict succession of notifications. Note that servers handle notification locally, only the server that a client is connected to tracks and triggers notification for that client.</p>
-<p>Each read reqeust is processed and tagged with a zxid that corresponds to the last transaction seen by the server. If the client needs to connect to a new server, the new server ensures that is view of the ZooKeeper data is at least as recent as the view of the client by checking the last zxid of the client against its last zxid. And the connection won’t be establised until the server has caught up. The client is guarateed to be able to find another server that has a recent view of the system since the client only sees changes that have been replicated to a majority of the ZooKeeper servers.</p>
-<p>ZooKeeper uses timeouts to detect client session failures. If the client cannot communicate with a server to send a request, it connects to a differernt server to re-establish the session.</p>
+<p>例如，对于单精度和双精度浮点数，IEEE规定的标准如下：</p>
+<ol>
+<li>对于单精度浮点(float)，最高位符号位，k = 8, n = 23。</li>
+<li>对于双精度浮点(double), 最高位符号位，k = 11, n = 52。</li>
+</ol>
+<p>具体编码和解码的时候我们分以下三种情况：</p>
+<h2 id="Normalized-Values"><a href="#Normalized-Values" class="headerlink" title="Normalized Values"></a>Normalized Values</h2><p>这是最普遍的情况，这种情况发生的前提是指数部分不全为0或者1。因为二进制的指数部分e我们是按照无符号数表示，其需要表示指数值E为负的情况，所以这种情况下，我们约定E = e - Bias，其中Bias表示的值等于2<sup>k - 1</sup> - 1，所以：</p>
+<ol>
+<li>对于单精度，因为k = 8，Bias = 127，指数E的范围为-126 (1 - 127) ~ 127 (254 - 127)。</li>
+<li>对于双精度，同理k = 11, Bias = 1023，指数E的范围为-1022 (1 - 1023) ~ 1023 (2046 - 1023)。</li>
+</ol>
+<p>对于二进制的尾数部分f，其二进制表示为0.f<sub>n - 1&lt;.sub&gt;…f<sub>1</sub>f<sub>0</sub>，也就是说小数点是在最高位的左边，所以0 &lt;= f &lt; 1。但是对于M的值，我们默认前面有一个前导1，所以尾数部分真实表示的值为1.f<sub>n - 1&lt;.sub&gt;…f<sub>1</sub>f<sub>0</sub>，M = 1 + f，因而M的取值范围为1 &lt;= M &lt; 2。默认前导1的理由是在这种情况下，我们可以白嫖一位有效数字，不需要在f的部分去表示这个1。</sub></sub></p>
 
     </div>
 
@@ -328,9 +328,9 @@
 
       <footer class="post-footer">
           <div class="post-tags">
-              <a href="/tags/Distributed-System/" rel="tag"># Distributed System</a>
-              <a href="/tags/Infrastructure/" rel="tag"># Infrastructure</a>
-              <a href="/tags/Paper-Reading/" rel="tag"># Paper Reading</a>
+              <a href="/tags/Computer-System/" rel="tag"># Computer System</a>
+              <a href="/tags/Book-Reading/" rel="tag"># Book Reading</a>
+              <a href="/tags/CSAPP/" rel="tag"># CSAPP</a>
           </div>
 
         
@@ -339,13 +339,10 @@
         
     <div class="post-nav">
       <div class="post-nav-item">
-    <a href="/2019/12/08/run_with_the_wind/" rel="prev" title="于是开始奔跑">
-      <i class="fa fa-chevron-left"></i> 于是开始奔跑
+    <a href="/2021/05/12/book_reading_csapp_2_integer/" rel="prev" title="Book Reading: CSAPP, Chapter 2, 整数的表示和运算">
+      <i class="fa fa-chevron-left"></i> Book Reading: CSAPP, Chapter 2, 整数的表示和运算
     </a></div>
-      <div class="post-nav-item">
-    <a href="/2021/01/03/paper_reading_kafka/" rel="next" title="Paper Reading: Kafka">
-      Paper Reading: Kafka <i class="fa fa-chevron-right"></i>
-    </a></div>
+      <div class="post-nav-item"></div>
     </div>
       </footer>
     
@@ -406,7 +403,7 @@
 
       <!--noindex-->
       <div class="post-toc-wrap sidebar-panel">
-          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#Design-Decisions"><span class="nav-number">1.</span> <span class="nav-text">Design Decisions</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Service-Overview"><span class="nav-number">2.</span> <span class="nav-text">Service Overview</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#APIs"><span class="nav-number">3.</span> <span class="nav-text">APIs</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Implementation"><span class="nav-number">4.</span> <span class="nav-text">Implementation</span></a></li></ol></div>
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#浮点数的表示"><span class="nav-number">1.</span> <span class="nav-text">浮点数的表示</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#实数数的二进制表示"><span class="nav-number">1.1.</span> <span class="nav-text">实数数的二进制表示</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#IEEE-754标准"><span class="nav-number">1.2.</span> <span class="nav-text">IEEE 754标准</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Normalized-Values"><span class="nav-number">2.</span> <span class="nav-text">Normalized Values</span></a></li></ol></div>
       </div>
       <!--/noindex-->
 

@@ -1,6 +1,51 @@
 <?xml version="1.0" encoding="utf-8"?>
 <search>
   <entry>
+    <title>Book Reading: CSAPP, Chapter 2, 浮点数的表示和运算</title>
+    <url>/2021/05/16/book_reading_csapp_2_floating_point/</url>
+    <content><![CDATA[<h2 id="浮点数的表示"><a href="#浮点数的表示" class="headerlink" title="浮点数的表示"></a>浮点数的表示</h2><h3 id="实数数的二进制表示"><a href="#实数数的二进制表示" class="headerlink" title="实数数的二进制表示"></a>实数数的二进制表示</h3><p>计算机用浮点数表示实数数，二进制层面的表示和十进制是十分类似的：<br><a id="more"></a></p>
+<p><img src="/images/csapp_2_floating_point_0.png" alt></p>
+<p>其中在小数点左边的每一位有2<sub>m</sub>权重，右边的每一位有2<sub>-n</sub>的权重。所以每一个用如上方式表示的浮点数，其值为：</p>
+<p><img src="/images/csapp_2_floating_point_1.png" alt></p>
+<p>我们可以看出来，在有限长度编码的条件下，我们是没有办法精确表示任意实数的，比如说1 / 3或者5 / 7，所以只能近似表示。</p>
+<h3 id="IEEE-754标准"><a href="#IEEE-754标准" class="headerlink" title="IEEE 754标准"></a>IEEE 754标准</h3><p>如果我们用如上的编码方式在计算机中表示实数，那么其限制是很大的，比如5 * 2<sup>100</sup>需要至少一百位来表示，在表示很大的数的时候不效率。所以IEEE标准规定了浮点数V的表示方法如下：</p>
+<p>V = (-1)<sup>s</sup> x M x 2<sup>E</sup></p>
+<p>其中s，M和E分别表示：</p>
+<ol>
+<li>s代表符号位，为1的时候表示负数，为0的时候表示正数。</li>
+<li>M代表尾数(significand), 代表有效数字，可以理解成小数点还没移动时的数。</li>
+<li>E代表指数(exponent)，或又称阶码，可以看到正是这个数决定了小数点是向左还是向右，会移动几位。</li>
+</ol>
+<p>所以每一个浮点数的二进制表示，也会分为三个部分：</p>
+<ol>
+<li>一位来表示符号位s。</li>
+<li>长度为k的位数来表示指数部分E。</li>
+<li>长度为n的位数来表示位数部分M。</li>
+</ol>
+<p>例如，对于单精度和双精度浮点数，IEEE规定的标准如下：</p>
+<ol>
+<li>对于单精度浮点(float)，最高位符号位，k = 8, n = 23。</li>
+<li>对于双精度浮点(double), 最高位符号位，k = 11, n = 52。</li>
+</ol>
+<p>具体编码和解码的时候我们分以下三种情况：</p>
+<h2 id="Normalized-Values"><a href="#Normalized-Values" class="headerlink" title="Normalized Values"></a>Normalized Values</h2><p>这是最普遍的情况，这种情况发生的前提是指数部分不全为0或者1。因为二进制的指数部分e我们是按照无符号数表示，其需要表示指数值E为负的情况，所以这种情况下，我们约定E = e - Bias，其中Bias表示的值等于2<sup>k - 1</sup> - 1，所以：</p>
+<ol>
+<li>对于单精度，因为k = 8，Bias = 127，指数E的范围为-126 (1 - 127) ~ 127 (254 - 127)。</li>
+<li>对于双精度，同理k = 11, Bias = 1023，指数E的范围为-1022 (1 - 1023) ~ 1023 (2046 - 1023)。</li>
+</ol>
+<p>对于二进制的尾数部分f，其二进制表示为0.f<sub>n - 1&lt;.sub&gt;…f<sub>1</sub>f<sub>0</sub>，也就是说小数点是在最高位的左边，所以0 &lt;= f &lt; 1。但是对于M的值，我们默认前面有一个前导1，所以尾数部分真实表示的值为1.f<sub>n - 1&lt;.sub&gt;…f<sub>1</sub>f<sub>0</sub>，M = 1 + f，因而M的取值范围为1 &lt;= M &lt; 2。默认前导1的理由是在这种情况下，我们可以白嫖一位有效数字，不需要在f的部分去表示这个1。</sub></sub></p>
+]]></content>
+      <categories>
+        <category>Computer System</category>
+        <category>Computing</category>
+      </categories>
+      <tags>
+        <tag>Computer System</tag>
+        <tag>Book Reading</tag>
+        <tag>CSAPP</tag>
+      </tags>
+  </entry>
+  <entry>
     <title>Book Reading: CSAPP, Chapter 2, 整数的表示和运算</title>
     <url>/2021/05/12/book_reading_csapp_2_integer/</url>
     <content><![CDATA[<h2 id="整数的表示"><a href="#整数的表示" class="headerlink" title="整数的表示"></a>整数的表示</h2><h3 id="无符号数与有符号数"><a href="#无符号数与有符号数" class="headerlink" title="无符号数与有符号数"></a>无符号数与有符号数</h3><p>无符号数的表示非常直接，因为没有符号，k位的二进制就表示0 ~ 2<sup>k</sup> - 1范围内的整数。对于 [x<sub>k - 1</sub>, x<sub>k - 2</sub>, …, x<sub>0</sub>]，其表示的值为：<br><a id="more"></a></p>
@@ -96,8 +141,8 @@
         <category>Computing</category>
       </categories>
       <tags>
-        <tag>Book Reading</tag>
         <tag>Computer System</tag>
+        <tag>Book Reading</tag>
         <tag>CSAPP</tag>
       </tags>
   </entry>
@@ -172,9 +217,9 @@
         <category>Concurrency</category>
       </categories>
       <tags>
+        <tag>Book Reading</tag>
         <tag>Java</tag>
         <tag>Concurrency</tag>
-        <tag>Book Reading</tag>
       </tags>
   </entry>
   <entry>
@@ -229,9 +274,9 @@
         <category>Concurrency</category>
       </categories>
       <tags>
+        <tag>Book Reading</tag>
         <tag>Java</tag>
         <tag>Concurrency</tag>
-        <tag>Book Reading</tag>
       </tags>
   </entry>
   <entry>
@@ -291,9 +336,9 @@
         <category>Concurrency</category>
       </categories>
       <tags>
+        <tag>Book Reading</tag>
         <tag>Java</tag>
         <tag>Concurrency</tag>
-        <tag>Book Reading</tag>
       </tags>
   </entry>
   <entry>
@@ -344,9 +389,9 @@
         <category>Concurrency</category>
       </categories>
       <tags>
+        <tag>Book Reading</tag>
         <tag>Java</tag>
         <tag>Concurrency</tag>
-        <tag>Book Reading</tag>
       </tags>
   </entry>
   <entry>
