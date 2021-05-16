@@ -46,20 +46,20 @@
   };
 </script>
 
-  <meta name="description" content="浮点数的表示实数数的二进制表示计算机用浮点数表示实数数，二进制层面的表示和十进制是十分类似的：">
+  <meta name="description" content="浮点数的表示实数数的二进制表示计算机用浮点数表示实数，二进制层面的表示和十进制是十分类似的：">
 <meta name="keywords" content="Computer System,Book Reading,CSAPP">
 <meta property="og:type" content="article">
 <meta property="og:title" content="Book Reading: CSAPP, Chapter 2, 浮点数的表示和运算">
 <meta property="og:url" content="http://yoursite.com/2021/05/16/book_reading_csapp_2_floating_point/index.html">
 <meta property="og:site_name" content="码字的呵呵君">
-<meta property="og:description" content="浮点数的表示实数数的二进制表示计算机用浮点数表示实数数，二进制层面的表示和十进制是十分类似的：">
+<meta property="og:description" content="浮点数的表示实数数的二进制表示计算机用浮点数表示实数，二进制层面的表示和十进制是十分类似的：">
 <meta property="og:locale" content="default">
 <meta property="og:image" content="http://yoursite.com/images/csapp_2_floating_point_0.png">
 <meta property="og:image" content="http://yoursite.com/images/csapp_2_floating_point_1.png">
-<meta property="og:updated_time" content="2021-05-16T23:31:29.311Z">
+<meta property="og:updated_time" content="2021-05-16T23:45:46.794Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="Book Reading: CSAPP, Chapter 2, 浮点数的表示和运算">
-<meta name="twitter:description" content="浮点数的表示实数数的二进制表示计算机用浮点数表示实数数，二进制层面的表示和十进制是十分类似的：">
+<meta name="twitter:description" content="浮点数的表示实数数的二进制表示计算机用浮点数表示实数，二进制层面的表示和十进制是十分类似的：">
 <meta name="twitter:image" content="http://yoursite.com/images/csapp_2_floating_point_0.png">
 
 <link rel="canonical" href="http://yoursite.com/2021/05/16/book_reading_csapp_2_floating_point/">
@@ -222,7 +222,7 @@
               <span class="post-meta-item-text">Posted on</span>
               
 
-              <time title="Created: 2021-05-16 00:00:00 / Modified: 16:31:29" itemprop="dateCreated datePublished" datetime="2021-05-16T00:00:00-07:00">2021-05-16</time>
+              <time title="Created: 2021-05-16 00:00:00 / Modified: 16:45:46" itemprop="dateCreated datePublished" datetime="2021-05-16T00:00:00-07:00">2021-05-16</time>
             </span>
             <span class="post-meta-item">
               <span class="post-meta-item-icon">
@@ -269,7 +269,7 @@
                 <i class="fa fa-file-word-o"></i>
               </span>
                 <span class="post-meta-item-text">Symbols count in article: </span>
-              <span>1k</span>
+              <span>1.4k</span>
             </span>
             <span class="post-meta-item" title="Reading time">
               <span class="post-meta-item-icon">
@@ -288,12 +288,12 @@
     <div class="post-body" itemprop="articleBody">
 
       
-        <h2 id="浮点数的表示"><a href="#浮点数的表示" class="headerlink" title="浮点数的表示"></a>浮点数的表示</h2><h3 id="实数数的二进制表示"><a href="#实数数的二进制表示" class="headerlink" title="实数数的二进制表示"></a>实数数的二进制表示</h3><p>计算机用浮点数表示实数数，二进制层面的表示和十进制是十分类似的：<br><a id="more"></a></p>
+        <h2 id="浮点数的表示"><a href="#浮点数的表示" class="headerlink" title="浮点数的表示"></a>浮点数的表示</h2><h3 id="实数数的二进制表示"><a href="#实数数的二进制表示" class="headerlink" title="实数数的二进制表示"></a>实数数的二进制表示</h3><p>计算机用浮点数表示实数，二进制层面的表示和十进制是十分类似的：<br><a id="more"></a></p>
 <p><img src="/images/csapp_2_floating_point_0.png" alt></p>
-<p>其中在小数点左边的每一位有2<sub>m</sub>权重，右边的每一位有2<sub>-n</sub>的权重。所以每一个用如上方式表示的浮点数，其值为：</p>
+<p>其中在小数点左边的每一位有2<sub>m</sub>权重，右边的每一位有2<sup>-n</sup>的权重。所以每一个用如上方式表示的浮点数，其值为：</p>
 <p><img src="/images/csapp_2_floating_point_1.png" alt></p>
 <p>我们可以看出来，在有限长度编码的条件下，我们是没有办法精确表示任意实数的，比如说1 / 3或者5 / 7，所以只能近似表示。</p>
-<h3 id="IEEE-754标准"><a href="#IEEE-754标准" class="headerlink" title="IEEE 754标准"></a>IEEE 754标准</h3><p>如果我们用如上的编码方式在计算机中表示实数，那么其限制是很大的，比如5 * 2<sup>100</sup>需要至少一百位来表示，在表示很大的数的时候不效率。所以IEEE标准规定了浮点数V的表示方法如下：</p>
+<h3 id="IEEE754标准"><a href="#IEEE754标准" class="headerlink" title="IEEE754标准"></a>IEEE754标准</h3><p>如果我们用如上的编码方式在计算机中表示实数，那么其限制是很大的，比如5 * 2<sup>100</sup>需要至少一百位来表示，在表示很大的数的时候不效率。所以IEEE标准规定了浮点数V的表示方法如下：</p>
 <p>V = (-1)<sup>s</sup> x M x 2<sup>E</sup></p>
 <p>其中s，M和E分别表示：</p>
 <ol>
@@ -313,12 +313,19 @@
 <li>对于双精度浮点(double), 最高位符号位，k = 11, n = 52。</li>
 </ol>
 <p>具体编码和解码的时候我们分以下三种情况：</p>
-<h2 id="Normalized-Values"><a href="#Normalized-Values" class="headerlink" title="Normalized Values"></a>Normalized Values</h2><p>这是最普遍的情况，这种情况发生的前提是指数部分不全为0或者1。因为二进制的指数部分e我们是按照无符号数表示，其需要表示指数值E为负的情况，所以这种情况下，我们约定E = e - Bias，其中Bias表示的值等于2<sup>k - 1</sup> - 1，所以：</p>
+<h4 id="Normalized-Values"><a href="#Normalized-Values" class="headerlink" title="Normalized Values"></a>Normalized Values</h4><p>这是最普遍的情况，这种情况发生的前提是指数部分不全为0或者1。因为二进制的指数部分e我们是按照无符号数表示，其需要表示指数值E为负的情况，所以这种情况下，我们约定E = e - Bias，其中Bias表示的值等于2<sup>k - 1</sup> - 1，所以：</p>
 <ol>
 <li>对于单精度，因为k = 8，Bias = 127，指数E的范围为-126 (1 - 127) ~ 127 (254 - 127)。</li>
 <li>对于双精度，同理k = 11, Bias = 1023，指数E的范围为-1022 (1 - 1023) ~ 1023 (2046 - 1023)。</li>
 </ol>
 <p>对于二进制的尾数部分f，其二进制表示为0.f<sub>n - 1&lt;.sub&gt;…f<sub>1</sub>f<sub>0</sub>，也就是说小数点是在最高位的左边，所以0 &lt;= f &lt; 1。但是对于M的值，我们默认前面有一个前导1，所以尾数部分真实表示的值为1.f<sub>n - 1&lt;.sub&gt;…f<sub>1</sub>f<sub>0</sub>，M = 1 + f，因而M的取值范围为1 &lt;= M &lt; 2。默认前导1的理由是在这种情况下，我们可以白嫖一位有效数字，不需要在f的部分去表示这个1。</sub></sub></p>
+<h4 id="Denormailized-Values"><a href="#Denormailized-Values" class="headerlink" title="Denormailized Values"></a>Denormailized Values</h4><p>这种情况的前提是指数部分全为0，这种情况下，我们约定指数部分的值为E = 1 - Bias。并且尾数部分没有前导1，所以M = f。Denormalized Values主要有两个作用:</p>
+<ol>
+<li>表示0，指数和尾数部分全为0。需要注意+0和-0是不一样的，因为符号位有区别。</li>
+<li>表示十分接近0的数。这个不难理解，因为指数部分已经十分小了 (单精度-126，双精度-1022)。</li>
+</ol>
+<p>另外值得注意的一点事，约定E = 1 - Bias的原因是其和Normailzed Values的指数最小值一样，所以其保证了从Denomralized Values的最大值到Normalized Values最小值的平滑转换。</p>
+<h4 id="Special-Values"><a href="#Special-Values" class="headerlink" title="Special Values"></a>Special Values</h4><p>这个情况发生在指数部分全为1的时候。</p>
 
     </div>
 
@@ -403,7 +410,7 @@
 
       <!--noindex-->
       <div class="post-toc-wrap sidebar-panel">
-          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#浮点数的表示"><span class="nav-number">1.</span> <span class="nav-text">浮点数的表示</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#实数数的二进制表示"><span class="nav-number">1.1.</span> <span class="nav-text">实数数的二进制表示</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#IEEE-754标准"><span class="nav-number">1.2.</span> <span class="nav-text">IEEE 754标准</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Normalized-Values"><span class="nav-number">2.</span> <span class="nav-text">Normalized Values</span></a></li></ol></div>
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#浮点数的表示"><span class="nav-number">1.</span> <span class="nav-text">浮点数的表示</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#实数数的二进制表示"><span class="nav-number">1.1.</span> <span class="nav-text">实数数的二进制表示</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#IEEE754标准"><span class="nav-number">1.2.</span> <span class="nav-text">IEEE754标准</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#Normalized-Values"><span class="nav-number">1.2.1.</span> <span class="nav-text">Normalized Values</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#Denormailized-Values"><span class="nav-number">1.2.2.</span> <span class="nav-text">Denormailized Values</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#Special-Values"><span class="nav-number">1.2.3.</span> <span class="nav-text">Special Values</span></a></li></ol></li></ol></li></ol></div>
       </div>
       <!--/noindex-->
 
