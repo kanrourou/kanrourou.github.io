@@ -33,7 +33,7 @@
 <li>对于单精度，因为k = 8，Bias = 127，指数E的范围为-126 (1 - 127) ~ 127 (254 - 127)。</li>
 <li>对于双精度，同理k = 11, Bias = 1023，指数E的范围为-1022 (1 - 1023) ~ 1023 (2046 - 1023)。</li>
 </ol>
-<p>对于二进制的尾数部分f，其二进制表示为0.f<sub>n - 1</sub>…f<sub>1</sub>f<sub>0</sub>，也就是说小数点是在最高位的左边，所以0 &lt;= f &lt; 1。但是对于M的值，我们默认前面有一个前导1，所以尾数部分真实表示的值为1.f<sub>n - 1&lt;.sub&gt;…f<sub>1</sub>f<sub>0</sub>，M = 1 + f，因而M的取值范围为1 &lt;= M &lt; 2。默认前导1的理由是在这种情况下，我们可以白嫖一位有效数字，不需要在f的部分去表示这个1。</sub></p>
+<p>对于二进制的尾数部分f，其二进制表示为0.f<sub>n - 1</sub>…f<sub>1</sub>f<sub>0</sub>，也就是说小数点是在最高位的左边，所以0 &lt;= f &lt; 1。但是对于M的值，我们默认前面有一个前导1，所以尾数部分真实表示的值为1.f<sub>n - 1</sub>…f<sub>1</sub>f<sub>0</sub>，M = 1 + f，因而M的取值范围为1 &lt;= M &lt; 2。默认前导1的理由是在这种情况下，我们可以白嫖一位有效数字，不需要在f的部分去表示这个1。</p>
 <h4 id="Denormailized-Values"><a href="#Denormailized-Values" class="headerlink" title="Denormailized Values"></a>Denormailized Values</h4><p>这种情况的前提是指数部分全为0，这种情况下，我们约定指数部分的值为E = 1 - Bias。并且尾数部分没有前导1，所以M = f。Denormalized Values主要有两个作用:</p>
 <ol>
 <li>表示0，指数和尾数部分全为0。需要注意+0和-0是不一样的，因为符号位有区别。</li>
