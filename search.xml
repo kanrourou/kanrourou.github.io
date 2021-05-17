@@ -79,6 +79,10 @@
 <li>x = (-1)<sup>s<sub>x</sub></sup> * M<sub>x</sub> * 2<sup>E<sub>x</sub></sup></li>
 <li>y = (-1)<sup>s<sub>y</sub></sup> * M<sub>y</sub> * 2<sup>E<sub>y</sub></sup></li>
 </ul>
+<p>那么运算的结果为：</p>
+<ul>
+<li>x + y  = ((-1)<sup>s<sub>x</sub></sup> * M<sub>x</sub> * 2<sup>E<sub>x</sub> - E<sub>y</sub></sup> + (-1)<sup>s<sub>y</sub></sup> <em> M<sub>y</sub>) </em> 2<sup>E<sub>y</sub></sup></li>
+</ul>
 ]]></content>
       <categories>
         <category>Computer System</category>
