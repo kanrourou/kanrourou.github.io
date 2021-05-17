@@ -59,7 +59,7 @@
 <meta property="og:image" content="http://yoursite.com/images/csapp_2_floating_point_3.png">
 <meta property="og:image" content="http://yoursite.com/images/csapp_2_floating_point_4.png">
 <meta property="og:image" content="http://yoursite.com/images/csapp_2_floating_point_5.png">
-<meta property="og:updated_time" content="2021-05-17T01:08:30.192Z">
+<meta property="og:updated_time" content="2021-05-17T01:21:05.690Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="Book Reading: CSAPP, Chapter 2, 浮点数的表示和运算">
 <meta name="twitter:description" content="浮点数的表示实数数的二进制表示计算机用浮点数表示实数，二进制层面的表示和十进制是十分类似的：">
@@ -225,7 +225,7 @@
               <span class="post-meta-item-text">Posted on</span>
               
 
-              <time title="Created: 2021-05-16 00:00:00 / Modified: 18:08:30" itemprop="dateCreated datePublished" datetime="2021-05-16T00:00:00-07:00">2021-05-16</time>
+              <time title="Created: 2021-05-16 00:00:00 / Modified: 18:21:05" itemprop="dateCreated datePublished" datetime="2021-05-16T00:00:00-07:00">2021-05-16</time>
             </span>
             <span class="post-meta-item">
               <span class="post-meta-item-icon">
@@ -272,7 +272,7 @@
                 <i class="fa fa-file-word-o"></i>
               </span>
                 <span class="post-meta-item-text">Symbols count in article: </span>
-              <span>2.5k</span>
+              <span>2.6k</span>
             </span>
             <span class="post-meta-item" title="Reading time">
               <span class="post-meta-item-icon">
@@ -340,6 +340,7 @@
 <p><img src="/images/csapp_2_floating_point_4.png" alt></p>
 <p>从Denormalized Values到Normalized Values的平滑转换是靠相同的E以及人为规定的有无默认前导1实现的：</p>
 <p><img src="/images/csapp_2_floating_point_5.png" alt></p>
+<p>另外如果二进制的表示更大的那个数，其真实的值也更大。</p>
 <h3 id="浮点数的表示范围"><a href="#浮点数的表示范围" class="headerlink" title="浮点数的表示范围"></a>浮点数的表示范围</h3><p>通过以上规则不难推断出浮点数的表示范围，我们以单精度举例（k = 8, n = 23）:</p>
 <p>最大正数为s = 0, E = 127, M = (1.1111 1111 1111 1111 1111 111)<sub>2</sub>的情况，约为3.402823e+38。<br>最小Normalized正数为s = 0, E = -126, M = (1.0000 0000 0000 0000 0000 000)<sub>2</sub>，约为1.18 × 10^−38。<br>最小Denormalized正数为s = 0, E = -126, M = (0.0000 0000 0000 0000 0000 001)<sub>2</sub>，约为1.4e-45。</p>
 <p>负数同理。</p>
@@ -371,6 +372,14 @@
 <ul>
 <li>x + y  = ((-1)<sup>s<sub>x</sub></sup> * M<sub>x</sub> * 2<sup>E<sub>x</sub> - E<sub>y</sub></sup> + (-1)<sup>s<sub>y</sub></sup> <em> M<sub>y</sub>) </em> 2<sup>E<sub>y</sub></sup></li>
 </ul>
+<p>一般的运算步骤为：</p>
+<ol>
+<li>对阶：把指数部分阶码对成一样，这样尾数部分经过移动后就可以直接相加。由于有效位数部分左移会丢失高位有效位，所以一般是采取右移，也就是小阶向大阶看齐。</li>
+<li>尾数部分相加：无符号数相加。</li>
+<li>规格化：若求和结果大于1，需要尾数右移一位，阶码加一。</li>
+<li>舍入：右移出去的位，直接舍去。</li>
+<li>检测溢出：检测阶码是否溢出。</li>
+</ol>
 
     </div>
 
