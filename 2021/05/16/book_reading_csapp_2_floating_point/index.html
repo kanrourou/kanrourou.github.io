@@ -59,7 +59,7 @@
 <meta property="og:image" content="http://yoursite.com/images/csapp_2_floating_point_3.png">
 <meta property="og:image" content="http://yoursite.com/images/csapp_2_floating_point_4.png">
 <meta property="og:image" content="http://yoursite.com/images/csapp_2_floating_point_5.png">
-<meta property="og:updated_time" content="2021-05-17T01:21:05.690Z">
+<meta property="og:updated_time" content="2021-05-17T01:25:54.456Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="Book Reading: CSAPP, Chapter 2, 浮点数的表示和运算">
 <meta name="twitter:description" content="浮点数的表示实数数的二进制表示计算机用浮点数表示实数，二进制层面的表示和十进制是十分类似的：">
@@ -225,7 +225,7 @@
               <span class="post-meta-item-text">Posted on</span>
               
 
-              <time title="Created: 2021-05-16 00:00:00 / Modified: 18:21:05" itemprop="dateCreated datePublished" datetime="2021-05-16T00:00:00-07:00">2021-05-16</time>
+              <time title="Created: 2021-05-16 00:00:00 / Modified: 18:25:54" itemprop="dateCreated datePublished" datetime="2021-05-16T00:00:00-07:00">2021-05-16</time>
             </span>
             <span class="post-meta-item">
               <span class="post-meta-item-icon">
@@ -272,14 +272,14 @@
                 <i class="fa fa-file-word-o"></i>
               </span>
                 <span class="post-meta-item-text">Symbols count in article: </span>
-              <span>2.6k</span>
+              <span>2.8k</span>
             </span>
             <span class="post-meta-item" title="Reading time">
               <span class="post-meta-item-icon">
                 <i class="fa fa-clock-o"></i>
               </span>
                 <span class="post-meta-item-text">Reading time &asymp;</span>
-              <span>2 mins.</span>
+              <span>3 mins.</span>
             </span>
 
         </div>
@@ -380,6 +380,7 @@
 <li>舍入：右移出去的位，直接舍去。</li>
 <li>检测溢出：检测阶码是否溢出。</li>
 </ol>
+<p>另外我们回到之前的不满足结合律的例子 <code>(3.14 + 1e10) - 1e10</code>，其本质原因就是在对阶的过程中，要右移的位数过多，因为单精度总共才23位表示尾数，双精度52位，右移过多导致有效位数被舍入，所以导致了精度的缺失。</p>
 
     </div>
 
