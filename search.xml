@@ -50,7 +50,7 @@
 <p>我们可以看出来这种表示方法的几个特点：</p>
 <p>如果把浮点数映射到数轴上，我们可以看到其分布是随着其绝对值的变大而变稀疏的。这是因为相邻两个浮点数的间隔取决于指数E，E越小的话相邻两个浮点数的间隔越小；同理E越大的话，相邻两个浮点数的间隔越大：</p>
 <p><img src="/images/csapp_2_floating_point_4.png" alt></p>
-<p>从Denormalized Values到Normalized Values的平滑转换是靠相同的E已经人为规定的有无默认前导1实现的：</p>
+<p>从Denormalized Values到Normalized Values的平滑转换是靠相同的E以及人为规定的有无默认前导1实现的：</p>
 <p><img src="/images/csapp_2_floating_point_5.png" alt></p>
 <h3 id="浮点数的表示范围"><a href="#浮点数的表示范围" class="headerlink" title="浮点数的表示范围"></a>浮点数的表示范围</h3><p>通过以上规则不难推断出浮点数的表示范围，我们以单精度举例（k = 8, n = 23）:</p>
 <p>最大正数为s = 0, E = 127, M = (1.1111 1111 1111 1111 1111 111)<sub>2</sub>的情况，约为3.402823e+38。<br>最小Normalized正数为s = 0, E = -126, M = (1.0000 0000 0000 0000 0000 000)<sub>2</sub>，约为1.18 × 10^−38。<br>最小Denormalized正数为s = 0, E = -126, M = (0.0000 0000 0000 0000 0000 001)<sub>2</sub>，约为1.4e-45。</p>
@@ -70,13 +70,14 @@
 <p>对于加法，如果a &gt;= b, 那么对于任何除了NaN的数x，a + x &gt; = b + x。</p>
 <p>对乘法，如果a &gt; = b, 那么对于任何除了NaN的数x:</p>
 <ol>
-<li>a <em> x &gt;= b </em> x，当x &gt;= 0 的时候。</li>
-<li>a <em> x &lt;= b </em> x，当x &lt;= 0 的时候。</li>
+<li>a * x &gt;= b * x，当x &gt;= 0 的时候。</li>
+<li>a * x &lt;= b * x，当x &lt;= 0 的时候。</li>
 </ol>
 <p>值得注意的一点是这种单调性对整数的加法和乘法是不满足的。</p>
 <p>对于浮点数运算时的具体操作，我们用加法举例，假设存在两个浮点数x和y:</p>
 <ul>
-<li>x = (-1)<sup>s<sub>x</sub></sup> <em> M<sub>x</sub> </em> 2<sup>E<sub>x</sub></sup></li>
+<li>x = (-1)<sup>s<sub>x</sub></sup> * M<sub>x</sub> * 2<sup>E<sub>x</sub></sup></li>
+<li>y = (-1)<sup>s<sub>y</sub></sup> * M<sub>y</sub> * 2<sup>E<sub>y</sub></sup></li>
 </ul>
 ]]></content>
       <categories>
