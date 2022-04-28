@@ -1,6 +1,37 @@
 <?xml version="1.0" encoding="utf-8"?>
 <search>
   <entry>
+    <title>修复使用LeanCloud国际版时Valine阅读量和评论的bug</title>
+    <url>/2022/04/27/fix_valine_leancloud_bug/</url>
+    <content><![CDATA[<p>在这篇<a href="https://kanrourou.github.io/2021/01/03/valine_for_pv_and_comments/" target="_blank" rel="noopener">文章</a>当中我们介绍过用Valine支持阅读量和评论的方法。<br><a id="more"></a><br>Valine通过LeanCloud提供的BAAS储存服务管理阅读量和评论，具体原理为：</p>
+<ol>
+<li>Valie会查找页面当中<code>class</code>值为<code>leancloud_visitor</code>的元素，获取其<code>id</code>为键值。</li>
+<li>键值一般为文章发布日期和文章标题的组合。</li>
+<li>发送请求到对应LeanCloud的app查询对应键值的阅读量。</li>
+<li>将得到的值写入<code>class</code>值为<code>leancloud-visitors-count</code>的元素里。</li>
+</ol>
+<p>一般而言1、2、4步都不容易出错，并且很容易查看页面的源码来确认。第3步一般保证<code>config</code>文件当中的<code>appid</code>和<code>appkey</code>不出错即可，但之前有几次因为LeadCloud自身协议的更改导致阅读量和评论功能无法使用。</p>
+<p>LeanCloud之前要求所有的国内版业务域名备案不然服务无法使用，显然为了区区一个博客备案过于麻烦，我们之间使用国际版便可解决问题。</p>
+<p>但是前段时间突然又发现博客的阅读量和评论功能出问题，具体表现文无法读取文章的阅读量和评论，也无法写评论。</p>
+<p><img src="/images/leancloud_error.png" alt></p>
+<p>查看控制台之后，发现通过通用域名<code>us.leancloud.cn</code>发送的<code>HTTP GET/PUT</code>请求返回<code>ERR_NAME_NOT_RESOLVED</code>的错误。一番搜索之后，发现LeanCloud国际版的通用域名已经停止使用，详情参见对应的github <a href="https://github.com/xCss/Valine/issues/340" target="_blank" rel="noopener">issue</a>。我们需要使用服务的自定义域名，具体可在此处查找：</p>
+<p><img src="/images/leancloud_url.png" alt></p>
+<p>将其填入<code>config</code>中的Valine配置：</p>
+<figure class="highlight yml"><table><tr><td class="code"><pre><span class="line"><span class="attr">serverURLs:</span> <span class="attr">https://xxxxxxxx.api.lncldglobal.com</span> <span class="comment"># 把xxxxxxxx替换成你自己AppID的前8位字符</span></span><br></pre></td></tr></table></figure>
+<p>之后重新部署即可修复问题。</p>
+]]></content>
+      <categories>
+        <category>Programming</category>
+        <category>Javascript</category>
+        <category>Hexo</category>
+      </categories>
+      <tags>
+        <tag>Hexo</tag>
+        <tag>JavaScript</tag>
+        <tag>NexT</tag>
+      </tags>
+  </entry>
+  <entry>
     <title>Book Reading: Java Concurrency in Practice, Chapter 7</title>
     <url>/2021/05/29/book_reading_java_concurrency_7/</url>
     <content><![CDATA[<h2 id="Task-cancellation"><a href="#Task-cancellation" class="headerlink" title="Task cancellation"></a>Task cancellation</h2><p>An activity is <em>cancellable</em> if external code can move it to completion before its normal completion.<br><a id="more"></a></p>
