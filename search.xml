@@ -11,10 +11,10 @@
 <li>将得到的值写入<code>class</code>值为<code>leancloud-visitors-count</code>的元素里。</li>
 </ol>
 <p>一般而言1、2、4步都不容易出错，并且很容易查看页面的源码来确认。第3步一般保证<code>config</code>文件当中的<code>appid</code>和<code>appkey</code>不出错即可，但之前有几次因为LeadCloud自身协议的更改导致阅读量和评论功能无法使用。</p>
-<p>LeanCloud之前要求所有的国内版业务域名备案不然服务无法使用，显然为了区区一个博客备案过于麻烦，我们之间使用国际版便可解决问题。</p>
-<p>但是前段时间突然又发现博客的阅读量和评论功能出问题，具体表现文无法读取文章的阅读量和评论，也无法写评论。</p>
+<p>LeanCloud之前要求所有的国内版业务域名备案不然服务无法使用，显然为了区区一个博客备案过于麻烦，我们直接使用国际版便可解决问题。</p>
+<p>但是前段时间突然又发现博客的阅读量和评论功能出问题，具体表现为无法读取文章的阅读量和评论，也无法写评论。</p>
 <p><img src="/images/leancloud_error.png" alt></p>
-<p>查看控制台之后，发现通过通用域名<code>us.leancloud.cn</code>发送的<code>HTTP GET/PUT</code>请求返回<code>ERR_NAME_NOT_RESOLVED</code>的错误。一番搜索之后，发现LeanCloud国际版的通用域名已经停止使用，详情参见对应的github <a href="https://github.com/xCss/Valine/issues/340" target="_blank" rel="noopener">issue</a>。我们需要使用服务的自定义域名，具体可在此处查找：</p>
+<p>查看控制台之后，发现通过通用域名<code>us.leancloud.cn</code>发送的<code>HTTP GET/POST</code>请求返回<code>ERR_NAME_NOT_RESOLVED</code>的错误。一番搜索之后，发现LeanCloud国际版的通用域名已经停止使用，详情参见对应的github <a href="https://github.com/xCss/Valine/issues/340" target="_blank" rel="noopener">issue</a>。我们需要使用服务的自定义域名，具体可在此处查找：</p>
 <p><img src="/images/leancloud_url.png" alt></p>
 <p>将其填入<code>config</code>中的Valine配置：</p>
 <figure class="highlight yml"><table><tr><td class="code"><pre><span class="line"><span class="attr">serverURLs:</span> <span class="attr">https://xxxxxxxx.api.lncldglobal.com</span> <span class="comment"># 把xxxxxxxx替换成你自己AppID的前8位字符</span></span><br></pre></td></tr></table></figure>
