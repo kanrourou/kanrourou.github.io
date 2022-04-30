@@ -1198,130 +1198,6 @@
   
   
   <article itemscope itemtype="http://schema.org/Article" class="post-block home" lang="default">
-    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2021/01/17/java_memory_model/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.gif">
-      <meta itemprop="name" content="hehejun">
-      <meta itemprop="description" content="">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="码字的呵呵君">
-    </span>
-      <header class="post-header">
-        <h1 class="post-title" itemprop="name headline">
-          
-            <a href="/2021/01/17/java_memory_model/" class="post-title-link" itemprop="url">The Java Memory Model</a>
-        </h1>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              <span class="post-meta-item-text">Posted on</span>
-              
-
-              <time title="Created: 2021-01-17 00:00:00 / Modified: 23:34:20" itemprop="dateCreated datePublished" datetime="2021-01-17T00:00:00-08:00">2021-01-17</time>
-            </span>
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              <span class="post-meta-item-text">In</span>
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/Programming/" itemprop="url" rel="index">
-                    <span itemprop="name">Programming</span>
-                  </a>
-                </span>
-                  , 
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/Programming/Java/" itemprop="url" rel="index">
-                    <span itemprop="name">Java</span>
-                  </a>
-                </span>
-                  , 
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/Programming/Java/Concurrency/" itemprop="url" rel="index">
-                    <span itemprop="name">Concurrency</span>
-                  </a>
-                </span>
-            </span>
-
-          
-            <span id="/2021/01/17/java_memory_model/" class="post-meta-item leancloud_visitors" data-flag-title="The Java Memory Model" title="Views">
-              <span class="post-meta-item-icon">
-                <i class="fa fa-eye"></i>
-              </span>
-              <span class="post-meta-item-text">Views: </span>
-              <span class="leancloud-visitors-count"></span>
-            </span>
-  
-  <span class="post-meta-item">
-    
-      <span class="post-meta-item-icon">
-        <i class="fa fa-comment-o"></i>
-      </span>
-      <span class="post-meta-item-text">Valine: </span>
-    
-    <a title="valine" href="/2021/01/17/java_memory_model/#comments" itemprop="discussionUrl">
-      <span class="post-comments-count valine-comment-count" data-xid="/2021/01/17/java_memory_model/" itemprop="commentCount"></span>
-    </a>
-  </span>
-  
-  <br>
-            <span class="post-meta-item" title="Symbols count in article">
-              <span class="post-meta-item-icon">
-                <i class="fa fa-file-word-o"></i>
-              </span>
-                <span class="post-meta-item-text">Symbols count in article: </span>
-              <span>4.3k</span>
-            </span>
-            <span class="post-meta-item" title="Reading time">
-              <span class="post-meta-item-icon">
-                <i class="fa fa-clock-o"></i>
-              </span>
-                <span class="post-meta-item-text">Reading time &asymp;</span>
-              <span>4 mins.</span>
-            </span>
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <h2 id="什么是内存模型？我们为什么需要一个内存模型？"><a href="#什么是内存模型？我们为什么需要一个内存模型？" class="headerlink" title="什么是内存模型？我们为什么需要一个内存模型？"></a>什么是内存模型？我们为什么需要一个内存模型？</h2><p>我们之前在详解<a href="https://kanrourou.github.io/2021/01/13/understand_synchronized_keyword/" target="_blank" rel="noopener"><code>synchronized</code></a>、<a href="https://kanrourou.github.io/2021/01/15/understand_volatile_keyword/" target="_blank" rel="noopener"><code>volatie</code></a>和<a href="https://kanrourou.github.io/2021/01/17/understand_final_keyword/" target="_blank" rel="noopener"><code>final</code></a>的文章当中讲过，底层JVM、编译器、处理器执行指令的顺序并不保证和程序员所写的代码的顺序一样。在单线程中，只要遵从<code>as-if-serial</code>语义，就可以进行重排，所以对于程序员来说，底层的实现只是造成了一个程序是按照自己的代码顺序执行的假象。<br>
-          <!--noindex-->
-            <div class="post-button">
-              <a class="btn" href="/2021/01/17/java_memory_model/#more" rel="contents">
-                Read more &raquo;
-              </a>
-            </div>
-          <!--/noindex-->
-        
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
-        
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block home" lang="default">
     <link itemprop="mainEntityOfPage" href="http://yoursite.com/2021/01/17/understand_final_keyword/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -1428,6 +1304,130 @@
           <!--noindex-->
             <div class="post-button">
               <a class="btn" href="/2021/01/17/understand_final_keyword/#more" rel="contents">
+                Read more &raquo;
+              </a>
+            </div>
+          <!--/noindex-->
+        
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+        
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block home" lang="default">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2021/01/17/java_memory_model/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="hehejun">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="码字的呵呵君">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          
+            <a href="/2021/01/17/java_memory_model/" class="post-title-link" itemprop="url">The Java Memory Model</a>
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+              
+
+              <time title="Created: 2021-01-17 00:00:00 / Modified: 23:34:20" itemprop="dateCreated datePublished" datetime="2021-01-17T00:00:00-08:00">2021-01-17</time>
+            </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">In</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/Programming/" itemprop="url" rel="index">
+                    <span itemprop="name">Programming</span>
+                  </a>
+                </span>
+                  , 
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/Programming/Java/" itemprop="url" rel="index">
+                    <span itemprop="name">Java</span>
+                  </a>
+                </span>
+                  , 
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/Programming/Java/Concurrency/" itemprop="url" rel="index">
+                    <span itemprop="name">Concurrency</span>
+                  </a>
+                </span>
+            </span>
+
+          
+            <span id="/2021/01/17/java_memory_model/" class="post-meta-item leancloud_visitors" data-flag-title="The Java Memory Model" title="Views">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-eye"></i>
+              </span>
+              <span class="post-meta-item-text">Views: </span>
+              <span class="leancloud-visitors-count"></span>
+            </span>
+  
+  <span class="post-meta-item">
+    
+      <span class="post-meta-item-icon">
+        <i class="fa fa-comment-o"></i>
+      </span>
+      <span class="post-meta-item-text">Valine: </span>
+    
+    <a title="valine" href="/2021/01/17/java_memory_model/#comments" itemprop="discussionUrl">
+      <span class="post-comments-count valine-comment-count" data-xid="/2021/01/17/java_memory_model/" itemprop="commentCount"></span>
+    </a>
+  </span>
+  
+  <br>
+            <span class="post-meta-item" title="Symbols count in article">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-file-word-o"></i>
+              </span>
+                <span class="post-meta-item-text">Symbols count in article: </span>
+              <span>4.3k</span>
+            </span>
+            <span class="post-meta-item" title="Reading time">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-clock-o"></i>
+              </span>
+                <span class="post-meta-item-text">Reading time &asymp;</span>
+              <span>4 mins.</span>
+            </span>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <h2 id="什么是内存模型？我们为什么需要一个内存模型？"><a href="#什么是内存模型？我们为什么需要一个内存模型？" class="headerlink" title="什么是内存模型？我们为什么需要一个内存模型？"></a>什么是内存模型？我们为什么需要一个内存模型？</h2><p>我们之前在详解<a href="https://kanrourou.github.io/2021/01/13/understand_synchronized_keyword/" target="_blank" rel="noopener"><code>synchronized</code></a>、<a href="https://kanrourou.github.io/2021/01/15/understand_volatile_keyword/" target="_blank" rel="noopener"><code>volatie</code></a>和<a href="https://kanrourou.github.io/2021/01/17/understand_final_keyword/" target="_blank" rel="noopener"><code>final</code></a>的文章当中讲过，底层JVM、编译器、处理器执行指令的顺序并不保证和程序员所写的代码的顺序一样。在单线程中，只要遵从<code>as-if-serial</code>语义，就可以进行重排，所以对于程序员来说，底层的实现只是造成了一个程序是按照自己的代码顺序执行的假象。<br>
+          <!--noindex-->
+            <div class="post-button">
+              <a class="btn" href="/2021/01/17/java_memory_model/#more" rel="contents">
                 Read more &raquo;
               </a>
             </div>
