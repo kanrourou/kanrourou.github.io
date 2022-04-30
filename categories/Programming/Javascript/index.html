@@ -48,13 +48,13 @@
 
   <meta property="og:type" content="website">
 <meta property="og:title" content="码字的呵呵君">
-<meta property="og:url" content="http://yoursite.com/categories/Programming/JavaScript/index.html">
+<meta property="og:url" content="http://yoursite.com/categories/Programming/Javascript/index.html">
 <meta property="og:site_name" content="码字的呵呵君">
 <meta property="og:locale" content="default">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="码字的呵呵君">
 
-<link rel="canonical" href="http://yoursite.com/categories/Programming/JavaScript/">
+<link rel="canonical" href="http://yoursite.com/categories/Programming/Javascript/">
 
 
 <script id="page-configurations">
@@ -66,7 +66,7 @@
   };
 </script>
 
-  <title>Category: JavaScript | 码字的呵呵君</title>
+  <title>Category: Javascript | 码字的呵呵君</title>
   
     <script async src="https://www.googletagmanager.com/gtag/js?id=UA-133451584-2"></script>
     <script>
@@ -191,14 +191,14 @@
   <div class="post-block">
     <div class="posts-collapse">
       <div class="collection-title">
-        <h1 class="collection-header">JavaScript
+        <h1 class="collection-header">Javascript
           <small>Category</small>
         </h1>
       </div>
 
       
     <div class="collection-year">
-      <h1 class="collection-header">2021</h1>
+      <h1 class="collection-header">2022</h1>
     </div>
 
   <article itemscope itemtype="http://schema.org/Article">
@@ -206,58 +206,15 @@
 
       <div class="post-meta">
         <time itemprop="dateCreated"
-              datetime="2021-01-03T00:00:00-08:00"
-              content="2021-01-03">
-          01-03
+              datetime="2022-04-27T00:00:00-07:00"
+              content="2022-04-27">
+          04-27
         </time>
       </div>
 
       <h2 class="post-title">
-          <a class="post-title-link" href="/2021/01/03/valine_for_pv_and_comments/" itemprop="url">
-            <span itemprop="name">Use Valine to set up blog comments and PV</span>
-          </a>
-      </h2>
-
-    </header>
-  </article>
-    <div class="collection-year">
-      <h1 class="collection-header">2019</h1>
-    </div>
-
-  <article itemscope itemtype="http://schema.org/Article">
-    <header class="post-header">
-
-      <div class="post-meta">
-        <time itemprop="dateCreated"
-              datetime="2019-03-18T00:00:00-07:00"
-              content="2019-03-18">
-          03-18
-        </time>
-      </div>
-
-      <h2 class="post-title">
-          <a class="post-title-link" href="/2019/03/18/hexo_next_page_user_views/" itemprop="url">
-            <span itemprop="name">Hexo: Adding PV/UV  counters to NexT theme</span>
-          </a>
-      </h2>
-
-    </header>
-  </article>
-
-  <article itemscope itemtype="http://schema.org/Article">
-    <header class="post-header">
-
-      <div class="post-meta">
-        <time itemprop="dateCreated"
-              datetime="2019-03-17T00:00:00-07:00"
-              content="2019-03-17">
-          03-17
-        </time>
-      </div>
-
-      <h2 class="post-title">
-          <a class="post-title-link" href="/2019/03/17/hexo_github_pages_blog/" itemprop="url">
-            <span itemprop="name">Create your own blog with Hexo and Github Pages</span>
+          <a class="post-title-link" href="/2022/04/27/fix_valine_leancloud_bug/" itemprop="url">
+            <span itemprop="name">修复使用LeanCloud国际版时Valine阅读量和评论的bug</span>
           </a>
       </h2>
 
@@ -344,13 +301,13 @@
       <div class="site-state-item site-state-categories">
             <a href="/categories/">
           
-        <span class="site-state-item-count">13</span>
+        <span class="site-state-item-count">14</span>
         <span class="site-state-item-name">categories</span></a>
       </div>
       <div class="site-state-item site-state-tags">
             <a href="/tags/">
           
-        <span class="site-state-item-count">13</span>
+        <span class="site-state-item-count">15</span>
         <span class="site-state-item-name">tags</span></a>
       </div>
   </nav>
@@ -413,6 +370,80 @@
       </span>
     </span>
 </div>
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+<script src="/js/utils.js"></script><script src="/js/motion.js"></script>
+<script src="/js/schemes/pisces.js"></script>
+<script src="/js/next-boot.js"></script>
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+
+<script>
+NexT.utils.loadComments(() => {
+  NexT.utils.getScript('https://cdn.jsdelivr.net/npm/valine@1.4.18/dist/Valine.min.js', () => {
+    var GUEST = ['nick', 'mail', 'link'];
+    var guest = 'nick,mail,link';
+    guest = guest.split(',').filter(item => {
+      return GUEST.includes(item);
+    });
+    new Valine({
+      el: '#comments',
+      verify: false,
+      notify: false,
+      appId: 'PKvEM4W15eyM8pCk7qvGlvYF-MdYXbMMI',
+      appKey: 'u3RYtOW2Dcu1hAgNEtjsAMip',
+      placeholder: "Just go go",
+      avatar: 'mm',
+      meta: guest,
+      pageSize: '10' || 10,
+      visitor: true,
+      lang: '' || 'zh-cn',
+      path: location.pathname,
+      recordIP: false,
+      serverURLs: 'https://pkvem4w1.api.lncldglobal.com'
+    });
+  }, window.Valine);
+});
+</script>
+
+</body>
+</html>
+iv>
 
 
 
