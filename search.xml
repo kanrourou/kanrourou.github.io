@@ -37,16 +37,20 @@
 <p>For assignement, concatenation, and appending:</p>
 <ol>
 <li>Assignment<ul>
-<li>C-style: Array is not assignable, use <code>memcopy</code> or <code>std::copy</code> instead.</li>
+<li>C-style: Array is not assignable, use <code>strcopy</code> or <code>strncopy</code> instead.</li>
 <li><code>string</code>: Can do assignment.</li>
 </ul>
 </li>
 <li>Concatenation &amp; Appending: <ul>
 <li>C-style: Use <code>strcat</code> or <code>strncat</code>.</li>
-<li><code>string</code>: Use +.</li>
+<li><code>string</code>: Use <code>+</code>.</li>
 </ul>
 </li>
 </ol>
+<p>Note when you use <code>strcpy</code>:</p>
+<figure class="highlight c++"><table><tr><td class="code"><pre><span class="line"><span class="keyword">char</span> food[<span class="number">10</span>] = <span class="string">"carrots"</span>;</span><br><span class="line"><span class="built_in">strcpy</span>(food, <span class="string">"a picnic basket filled with many goodies"</span>);</span><br></pre></td></tr></table></figure>
+<p>In this case, the funciton copies the rest of the string into the memory bytes immediately following the array, which can overwrite other memory the program is using. To avoid the problem, you should use <code>strncpy</code> instead, which takes third argument: the maximum number of characters to be copied. Be aware, when the function run out of space before it reaches the end of the string, it doesn’t add the null character. So you need to do:</p>
+<figure class="highlight c++"><table><tr><td class="code"><pre><span class="line"><span class="built_in">strncpy</span>(food, <span class="string">"a picnic basket filled with many goodies"</span>, <span class="number">9</span>);</span><br><span class="line">food[<span class="number">9</span>] = <span class="string">'\0'</span>;</span><br></pre></td></tr></table></figure>
 <p>One C++11 addiiton is raw string. In a raw string, characters simply stand for themselves (no escape). If you allow a <code>&quot;</code> inside a string literal, you no longer can use it to delimit the ends of a string. Therefore, raw string use <code>&quot;(</code> and <code>)&quot;</code> as delimiters, and they use an <code>R</code> prefix to identify them as raw string:</p>
 <figure class="highlight c++"><table><tr><td class="code"><pre><span class="line"><span class="built_in">cout</span> &lt;&lt; <span class="string">R"(Jim "King" Tutt uses "\n" instead of endl.)"</span> &lt;&lt; <span class="string">'\n'</span>;</span><br></pre></td></tr></table></figure>
 <p>This would display the following:</p>
@@ -92,6 +96,30 @@
 <li>If the smallest enum value is 0 or greater then 0, then the lower limit is 0. Otherwise, using same approach but toss in a minus sign. For example, if the smallest value is -6, the lower limit is -8 + 1 = -7.</li>
 </ul>
 <p>The idea is that the compiler can choose how much space to use to hold an enum. It might use 1 bytes or less for a enum with a small range, and 4 bytes for an eum with <code>long</code> values.</p>
+<h2 id="Pointer"><a href="#Pointer" class="headerlink" title="Pointer"></a>Pointer</h2><p>The following declaration creates one pointer (p1) and one ordinary <code>int</code> (p2):</p>
+<figure class="highlight c++"><table><tr><td class="code"><pre><span class="line"><span class="keyword">int</span> *p1, p2;</span><br></pre></td></tr></table></figure>
+<p>When you create a pointer in C++, it allocates memory to hold the address, but it does not allocate memory to hold the data which the address points. Creating space for the data involves a separate step:</p>
+<figure class="highlight c++"><table><tr><td class="code"><pre><span class="line"><span class="keyword">long</span> *fellow;</span><br><span class="line">*fellow = <span class="number">223</span>; <span class="comment">// place a value in never-never land</span></span><br></pre></td></tr></table></figure>
+<p>Given the fellow is not initialized, its valud is undefiend and can have any value. It results in placing value in a place you won’t know where it is, which will potentially crash app and cause hard to trace bugs. But following code works:</p>
+<figure class="highlight c++"><table><tr><td class="code"><pre><span class="line"><span class="keyword">char</span> *str;</span><br><span class="line">str = <span class="string">"test"</span>;</span><br></pre></td></tr></table></figure>
+<p>The constant <code>&quot;test&quot;</code> actually represents the address of the string (address of its first element), so the statement assigns the address of <code>&quot;test&quot;</code> to the <code>str</code> pointer. Typically, a compiler sets aside an area in memory to hold all the quoted string used in the program source code, associating each stored string with its address.</p>
+<p>Pointers are underlying integer but not integer types, which means you cannot directly assign an <code>int</code> to pointer, you will need to explicit cast:</p>
+<figure class="highlight c++"><table><tr><td class="code"><pre><span class="line"><span class="keyword">int</span> *pt;</span><br><span class="line">pt = (<span class="keyword">int</span> *) <span class="number">0xB8000000</span>;</span><br></pre></td></tr></table></figure>
+<p>To allocate memory, you can use <code>new</code> (C style <code>malloc</code> also works) to allocate a block of memory on <code>heap</code>. The other half is the <code>delete</code> operator, which enables you to return memory to the memory pool when you are finished with it.</p>
+<figure class="highlight c++"><table><tr><td class="code"><pre><span class="line"><span class="keyword">int</span> *ps = <span class="keyword">new</span> <span class="keyword">int</span>;</span><br><span class="line">\\ ...</span><br><span class="line"><span class="keyword">delete</span> ps;</span><br></pre></td></tr></table></figure>
+<p>This removes the memory to which <code>ps</code> points; it doesn’t remove the pointer <code>ps</code> itself, you can reuse <code>ps</code>.</p>
+<p>You should not attempt to free a block of memory that you have previously freed. The C++ Standard says the result of such attempt is undefined.</p>
+<p>To create and free dynamic array (dynamic binding instead of static binding), you can do following:</p>
+<figure class="highlight c++"><table><tr><td class="code"><pre><span class="line"><span class="keyword">int</span> *psome = <span class="keyword">new</span> <span class="keyword">int</span> [<span class="number">10</span>];</span><br><span class="line"><span class="keyword">delete</span> [] psome;</span><br></pre></td></tr></table></figure>
+<p>The program does keep track of the amount of memory allocated so that it can be correctly freed at a later time. But that information isn’t publicly available; you can’t use the <code>sizeof</code> operator, for example, to find the number of bytes in a dynamically allocated array.</p>
+<p>It is safe to apply <code>delete</code> to the null pointer (nothing happens).</p>
+<p>Array name is essentially the address of the first element. Thus, in many respects you can use pointer names and array names in the same way. One difference is that you can change the value of a pointer, whereas an array name is a constant:</p>
+<figure class="highlight c++"><table><tr><td class="code"><pre><span class="line">pointername = pointername + <span class="number">1</span>; <span class="comment">// valid</span></span><br><span class="line">arrayname = arrayname + <span class="number">1</span>; <span class="comment">// not allowed</span></span><br></pre></td></tr></table></figure>
+<p>Taking the address of an array is another case in which the name of an array is not interpreted as its address:</p>
+<figure class="highlight c++"><table><tr><td class="code"><pre><span class="line"><span class="keyword">short</span> tell[<span class="number">10</span>]; <span class="comment">// array of 20 bytes</span></span><br><span class="line"><span class="built_in">cout</span> &lt;&lt; tell &lt;&lt; <span class="built_in">endl</span>; <span class="comment">// displays &amp;tell[0]</span></span><br><span class="line"><span class="built_in">cout</span> &lt;&lt; &amp;tell &lt;&lt; <span class="built_in">endl</span>; <span class="comment">// displays address of whole array</span></span><br></pre></td></tr></table></figure>
+<p>Numerically, these two addresses are the same, but conceptually <code>&amp;tell[0]</code>, and hence <code>tell</code>, is the address of a 2-byte block of memory, whereas <code>&amp;tell</code> is the address of a 20 byte block of memory. Another way of expressing this is to say that <code>tell</code> is type pointer-to-<code>short</code>, or <code>short *</code>, and <code>&amp;tell</code> is type pointer-to-array-of-20-<code>shorts</code> or <code>short (*)[20]</code>.</p>
+<p>Note <code>[]</code> has a higher priority than <code>*</code>, so types below are different:</p>
+<figure class="highlight c++"><table><tr><td class="code"><pre><span class="line"><span class="keyword">short</span> (*p)[<span class="number">20</span>]; <span class="comment">// represents a pointer to a short array</span></span><br><span class="line"><span class="keyword">short</span> *p[<span class="number">20</span>]; <span class="comment">// represents an array of pointers to short</span></span><br></pre></td></tr></table></figure>
 ]]></content>
       <categories>
         <category>Programming</category>
