@@ -54,7 +54,7 @@
 <meta property="og:site_name" content="码字的呵呵君">
 <meta property="og:description" content="ArraysDeclaring an array: typeName arrayName[arraySize] arraySize must be a integer constant, const value or const expression, for which all values are known at compilation time. In particular, arrayS">
 <meta property="og:locale" content="default">
-<meta property="og:updated_time" content="2022-05-03T07:16:24.494Z">
+<meta property="og:updated_time" content="2022-05-03T07:20:01.648Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="Book Reading: C++ Primer Plus, Chapter 4">
 <meta name="twitter:description" content="ArraysDeclaring an array: typeName arrayName[arraySize] arraySize must be a integer constant, const value or const expression, for which all values are known at compilation time. In particular, arrayS">
@@ -225,7 +225,7 @@
                   <i class="fa fa-calendar-check-o"></i>
                 </span>
                 <span class="post-meta-item-text">Edited on</span>
-                <time title="Modified: 2022-05-03 00:16:24" itemprop="dateModified" datetime="2022-05-03T00:16:24-07:00">2022-05-03</time>
+                <time title="Modified: 2022-05-03 00:20:01" itemprop="dateModified" datetime="2022-05-03T00:20:01-07:00">2022-05-03</time>
               </span>
             <span class="post-meta-item">
               <span class="post-meta-item-icon">
@@ -394,7 +394,7 @@
 <p>Pointers are underlying integer but not integer types, which means you cannot directly assign an <code>int</code> to pointer, you will need to explicit cast:</p>
 <figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">int</span> *pt;</span><br><span class="line">pt = (<span class="keyword">int</span> *) <span class="number">0xB8000000</span>;</span><br></pre></td></tr></table></figure>
 <p>To allocate memory, you can use <code>new</code> (C style <code>malloc</code> also works) to allocate a block of memory on <code>heap</code>. The other half is the <code>delete</code> operator, which enables you to return memory to the memory pool when you are finished with it.</p>
-<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">int</span> *ps = <span class="keyword">new</span> <span class="keyword">int</span>;</span><br><span class="line">\\ ...</span><br><span class="line"><span class="keyword">delete</span> ps;</span><br></pre></td></tr></table></figure>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">int</span> *ps = <span class="keyword">new</span> <span class="keyword">int</span>;</span><br><span class="line"><span class="comment">// ...</span></span><br><span class="line"><span class="keyword">delete</span> ps;</span><br></pre></td></tr></table></figure>
 <p>This removes the memory to which <code>ps</code> points; it doesn’t remove the pointer <code>ps</code> itself, you can reuse <code>ps</code>.</p>
 <p>You should not attempt to free a block of memory that you have previously freed. The C++ Standard says the result of such attempt is undefined.</p>
 <p>To create and free dynamic array (dynamic binding instead of static binding), you can do following:</p>
