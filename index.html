@@ -190,6 +190,187 @@
   
   
   <article itemscope itemtype="http://schema.org/Article" class="post-block home" lang="default">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2022/05/05/cpp_primer_plus_7/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="hehejun">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="码字的呵呵君">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          
+            <a href="/2022/05/05/cpp_primer_plus_7/" class="post-title-link" itemprop="url">Book Reading: C++ Primer Plus, Chapter 7</a>
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+              
+
+              <time title="Created: 2022-05-05 00:00:00 / Modified: 00:42:32" itemprop="dateCreated datePublished" datetime="2022-05-05T00:00:00-07:00">2022-05-05</time>
+            </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">In</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/Programming/" itemprop="url" rel="index">
+                    <span itemprop="name">Programming</span>
+                  </a>
+                </span>
+                  , 
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/Programming/C/" itemprop="url" rel="index">
+                    <span itemprop="name">C++</span>
+                  </a>
+                </span>
+            </span>
+
+          
+            <span id="/2022/05/05/cpp_primer_plus_7/" class="post-meta-item leancloud_visitors" data-flag-title="Book Reading: C++ Primer Plus, Chapter 7" title="Views">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-eye"></i>
+              </span>
+              <span class="post-meta-item-text">Views: </span>
+              <span class="leancloud-visitors-count"></span>
+            </span>
+  
+  <span class="post-meta-item">
+    
+      <span class="post-meta-item-icon">
+        <i class="fa fa-comment-o"></i>
+      </span>
+      <span class="post-meta-item-text">Valine: </span>
+    
+    <a title="valine" href="/2022/05/05/cpp_primer_plus_7/#comments" itemprop="discussionUrl">
+      <span class="post-comments-count valine-comment-count" data-xid="/2022/05/05/cpp_primer_plus_7/" itemprop="commentCount"></span>
+    </a>
+  </span>
+  
+  <br>
+            <span class="post-meta-item" title="Symbols count in article">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-file-word-o"></i>
+              </span>
+                <span class="post-meta-item-text">Symbols count in article: </span>
+              <span>7.4k</span>
+            </span>
+            <span class="post-meta-item" title="Reading time">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-clock-o"></i>
+              </span>
+                <span class="post-meta-item-text">Reading time &asymp;</span>
+              <span>7 mins.</span>
+            </span>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <h2 id="Funtion-Definition"><a href="#Funtion-Definition" class="headerlink" title="Funtion Definition"></a>Funtion Definition</h2><p>The return value cannot be an array. Everything else is possible. (Interestingly, even though a C++ function can’t return an array directly, it can return an array that is part of a structure or object.)</p>
+<p>Why need a function declaration prototype? For example, when the function finishes calculation, it places its return value at some specific location, perhaps in a CPU register or memory. Because the prototype states the return type, the compiler knows how many bytes to retrieve and how to interpret then. </p>
+<p>Can’t the compiler search for how the function is defined? One problem with that approach is that it is not very efficient. The compiler would have to put compiling <code>main()</code> on hold while search the rest of file. The only way to avoid using a function prototype is to place the function definition before its first use. But that is not always possible.</p>
+<p>The function prototype does not require that you provide name for the variable; a list of type is enough:</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">cheers</span><span class="params">(<span class="keyword">int</span>)</span></span>; <span class="comment">// okay to drop variable names in prototype</span></span><br></pre></td></tr></table></figure>
+<p>The variable names in the prototype just act as placeholders, so if you do use names, they don’t have to match the names in the function definition.</p>
+<p>Ellipsis in C++ allows the function to accept an indeterminate number of arguments. It is also known as the variable argument list. Ellipsis tells the compiler to not check the ype and number of the parameters the function should accept which allows the user to pass the variable argument list. Example:</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">double</span> <span class="title">average</span><span class="params">(<span class="keyword">int</span> count, ...)</span> </span>&#123;</span><br><span class="line">  <span class="comment">// used to iterate on ellipsis.</span></span><br><span class="line">  va_list <span class="built_in">list</span>;</span><br><span class="line"></span><br><span class="line">  <span class="comment">// initialize position of va_list</span></span><br><span class="line">  va_start(<span class="built_in">list</span>, count);</span><br><span class="line"></span><br><span class="line">  <span class="keyword">double</span> avg = <span class="number">0.0</span>;</span><br><span class="line">  <span class="keyword">for</span> (<span class="keyword">int</span> i = <span class="number">0</span>; i &lt; count; ++i) &#123;</span><br><span class="line">    avg += <span class="keyword">static_cast</span>&lt;<span class="keyword">double</span>&gt;(va_arg(<span class="built_in">list</span>, <span class="keyword">int</span>)) / count;</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="comment">// end use of va_list</span></span><br><span class="line">  va_end(<span class="built_in">list</span>);</span><br><span class="line"></span><br><span class="line">  <span class="keyword">return</span> avg;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>Here is explanation:</p>
+<ul>
+<li><code>va_list</code> type is used to access teh values in the ellipsis. It will be conceptually easy for you if you think of ellipsis as an array. In that case, <code>va_list</code> will act as the iterator type. The <code>va_list</code> is not a special type. It is a macro definition.</li>
+<li><code>va_start</code> points to the <code>va_list</code> at the starting point of the ellipsis. It takes two arguments: <code>va_list</code> itself and the last normal parameter (non-ellipsis).</li>
+<li><code>va_arg</code> returns the value whih <code>va_list</code> is currently referring to and also moeves <code>va_list</code> to the next parameter. It also takes two arguments: <code>va_list</code> itself and the type of the parameter we are trying to access.</li>
+<li><code>va_end</code> takes only one argument: <code>va_list</code> itself. It is used to clean up the <code>va_list</code> macro.</li>
+</ul>
+<p>In general, prototyping produces automatic type casts to the expected types. (Funciton overloading can create ambiguous situation, however, that prevents some automatic type casts, see Chapter 8.) Automatic type coversion doesn’t head off all possible errors. For example, the conversion result type cannot hold the data, which results in data loss. Also prototype results in type conversion only when it makes sense. It won’t, for example, convert aninteger to a structure or pointer.</p>
+<p>Prototyping takes place during compiler time and is termed <em>static type checking</em>. Static type checking, as you’ve just seen, catches many errors that are much more difficult to catch during runtime.</p>
+<h2 id="Functions-and-Arrays"><a href="#Functions-and-Arrays" class="headerlink" title="Functions and Arrays"></a>Functions and Arrays</h2><p>You can pass either the array type or pointer to function to process the array:</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">sum_arr</span><span class="params">(<span class="keyword">int</span> arr[], <span class="keyword">int</span> n)</span></span>;</span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">sum_arr</span><span class="params">(<span class="keyword">int</span> *arr, <span class="keyword">int</span> n)</span></span>;</span><br></pre></td></tr></table></figure>
+<p>It turns out that both headers are correct because in C++ the notation <code>int *arr</code> and <code>int arr[]</code> have the identical meaning when (and only when) used in a function header or function prototype.</p>
+<p>C++ by default pass argument value, and this is still true when you pass array or pointer. The function still passes a value that’s assigned to a new variable. But that value is a single address, not the content of the array.</p>
+<p>You can declare pointer points to constant data. This means that you can’t use it to change the data:</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">show_array</span><span class="params">(<span class="keyword">const</span> <span class="keyword">double</span> arr[], <span class="keyword">int</span> n)</span></span>;</span><br></pre></td></tr></table></figure>
+<p>In this case <code>show_array</code> treats the array as read-only data.</p>
+<p>But things will be tricky when we combine pointers and <code>const</code>. There are two ways to use <code>const</code> with pointer:</p>
+<ol>
+<li>Make a pointer point to a constant object, and that prevents you from using the pointer to change the pointed-to value.</li>
+<li>Make the pointer itself constant, and that prevents you from changing where the pointer points.</li>
+</ol>
+<p>To declare a pointer that points to a constant:</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">int</span> age = <span class="number">39</span>;</span><br><span class="line"><span class="keyword">const</span> <span class="keyword">int</span> *pt = &amp;age;</span><br><span class="line"></span><br><span class="line">*pt += <span class="number">1</span>; <span class="comment">// invalid</span></span><br><span class="line"><span class="built_in">cin</span> &gt;&gt; *pt; <span class="comment">// invalid</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">int</span> *pm = pt; <span class="comment">// invalid</span></span><br></pre></td></tr></table></figure>
+<p>This declartion doesn’t necessarily mean that the value it points to is really a constant; it just means the value is a constant insofar as <code>pt</code> is concerned. C++ prohibits you from assigning the address of a <code>const</code> to a non-<code>const</code> pointer. (unless use type cast to override it, e,g. <code>const-cast</code>)</p>
+<p>You can assign the address of either <code>const</code> data or non-<code>const</code> data to a pointer-to-<code>const</code>, provided that the data type is not itself a pointer, but you can assign the address of non-<code>const</code> data only to a non-<code>const</code> pointer.</p>
+<p>The above declaration doesn’t prevent you from chaning the value of <code>pt</code> itself. That is, you can assign a new address to <code>pt</code>:</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">int</span> sage = <span class="number">80</span>;</span><br><span class="line">pt = &amp;sage; <span class="comment">// okay to point to another location</span></span><br></pre></td></tr></table></figure>
+<p>To make it impossible to change the value of the pointer itself:</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">int</span> sloth = <span class="number">3</span>;</span><br><span class="line"><span class="keyword">const</span> <span class="keyword">int</span> *ps = &amp;sloth; <span class="comment">// a pointer to const int</span></span><br><span class="line"><span class="keyword">int</span>* <span class="keyword">const</span> pt = &amp;sloth; <span class="comment">// a const pointer to int</span></span><br></pre></td></tr></table></figure>
+<p>Also if you like, you can declare a <code>const</code> pointer to a <code>const</code> object:</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">double</span> trouble = <span class="number">2.0E30</span>;</span><br><span class="line"><span class="keyword">const</span> <span class="keyword">double</span>* <span class="keyword">const</span> stick = &amp;trouble;</span><br></pre></td></tr></table></figure>
+<h2 id="Functions-and-Two-Dimensional-Arrays"><a href="#Functions-and-Two-Dimensional-Arrays" class="headerlink" title="Functions and Two-Dimensional Arrays"></a>Functions and Two-Dimensional Arrays</h2><p>Suppose, for example, that you start with the code to sum a 2D array:</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">int</span> data[<span class="number">3</span>][<span class="number">4</span>] = &#123;&#123;<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>, <span class="number">4</span>&#125;, &#123;<span class="number">9</span>, <span class="number">8</span>, <span class="number">7</span>, <span class="number">6</span>&#125;, &#123;<span class="number">2</span>, <span class="number">4</span>, <span class="number">6</span>, <span class="number">8</span>&#125;&#125;;</span><br><span class="line"><span class="keyword">int</span> total = sum(data, <span class="number">3</span>);</span><br></pre></td></tr></table></figure>
+<p>What should the prototype for <code>sum()</code> look like? Well, <code>data</code> is the name of an array with three elements. The first element is, itself, an array of four <code>int</code> values. Thus the type of <code>data</code> is pointer-to-array-of-four-<code>int</code>, so prototype would be this:</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">sum</span><span class="params">(<span class="keyword">int</span> (*ar2)[<span class="number">4</span>], <span class="keyword">int</span> size)</span></span>;</span><br></pre></td></tr></table></figure>
+<p>Or an alternative format:</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">sum</span><span class="params">(<span class="keyword">int</span> ar2[][<span class="number">4</span>], <span class="keyword">int</span> size)</span></span>;</span><br></pre></td></tr></table></figure>
+<h2 id="Pointer-to-Functions"><a href="#Pointer-to-Functions" class="headerlink" title="Pointer to Functions"></a>Pointer to Functions</h2><p>Funcitons, like data items, have addresses. A function’s address is the memory address at which the stored machine language code for the function begins.</p>
+<p>Obtaining the address of a function is simple. You just use the function name without trailing parenthesis. That is, if <code>think()</code> is a function, then <code>think</code> is the address of the function. To pass a function as an argument, you pass the function name.</p>
+<p>A pointer to a function has to specify to what type of function the pointer points. This means the declaration should identify the function’s return type and the function’s signature, for example:</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">double</span> (*pf)(<span class="keyword">int</span>); <span class="comment">// points to function takes int and returns double</span></span><br></pre></td></tr></table></figure>
+<p>Note that parentheses have a higher precedence than <code>*</code> operator, so <code>*pf(int)</code> means <code>pf()</code> is a function that returns a pointer, whereas <code>(*pf)(int)</code> means <code>pf</code> is a pointer to a function:</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">double</span> (*pf)(<span class="keyword">int</span>); <span class="comment">// function pointer</span></span><br><span class="line"><span class="function"><span class="keyword">double</span> *<span class="title">pf</span><span class="params">(<span class="keyword">int</span>)</span></span>; <span class="comment">// function returns a pointer</span></span><br></pre></td></tr></table></figure>
+<p>To invode a function by using function pointer, all you have to do is use <code>(*pf)</code> as if it were a function name:</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">double</span> y = (*pf)(<span class="number">5</span>);</span><br></pre></td></tr></table></figure>
+<p>Actually, C++ allows you to use <code>pf</code> as if it were a function name:</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">double</span> y = pf(<span class="number">5</span>);</span><br></pre></td></tr></table></figure>
+<p>Things could become complicated when putting them together, for example, to define an array of function pointers:</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> <span class="keyword">double</span>* (*pa[<span class="number">3</span>])(<span class="keyword">const</span> <span class="keyword">double</span>*, <span class="keyword">int</span>);</span><br></pre></td></tr></table></figure>
+<p>This defines an array of 3 pointers which point to function taking <code>const double*</code> and <code>int</code> as input and returns <code>const double*</code>.</p>
+<p>But why put <code>[3]</code> there? Well, <code>pa</code> is an array of three things, and the starting point for declaring an array of three things is this:<code>pa[3]</code>. The rest of declaration is about what kind of thing is to be placed in the array. Remember operator precedence ranks <code>[]</code> higher than <code>*</code>, so <code>*pa[3]</code> says <code>pa</code> is an array of three pointers.</p>
+<p>Can we use <code>auto</code> here like this?</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">auto</span> pa[<span class="number">3</span>] = &#123;f1, f2, f3&#125;;</span><br></pre></td></tr></table></figure>
+<p>No, automatic type deduction works with a single initializer value, not an initialization list.</p>
+<p>To get the address of array of function pointers, can simply use auto:</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">auto</span> pc = &amp;pa;</span><br></pre></td></tr></table></figure>
+<p>Or if you prefer to you by yourself:</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> <span class="keyword">double</span>* (*(*pd)[<span class="number">3</span>])(<span class="keyword">const</span> <span class="keyword">double</span>*, <span class="keyword">int</span>) = &amp;pa</span><br></pre></td></tr></table></figure>
+<p>Remember the inner <code>(*pd)[3]</code> represent the pointer to an array of 3 elements, the rest of the declaration is just aboue what is stored in the array.</p>
+<p>To call funciton with <code>pd</code>, you can do either way of these:</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">(*pd)[i](av, <span class="number">3</span>);</span><br><span class="line">*(*pd)[i](av, <span class="number">3</span>);</span><br></pre></td></tr></table></figure>
+<p>Well, this complicated definition make it quite intimidating, but we get <code>typedef</code> to simplify it:</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">typedef</span> <span class="keyword">const</span> <span class="keyword">double</span>* (*p_fun)(<span class="keyword">const</span> <span class="keyword">double</span>*, <span class="keyword">int</span>); <span class="comment">// p_fun now a type name</span></span><br><span class="line">p_fun p1 = f1; <span class="comment">// p1 points to f1 function</span></span><br><span class="line"></span><br><span class="line">p_fun pa[<span class="number">3</span>] = &#123;f1, f2, f3&#125; <span class="comment">// pa an array of 3 function pointers</span></span><br><span class="line">p_fun (pd*)[<span class="number">3</span>] = &amp;pa; <span class="comment">// pd points to an array of 3 function pointers</span></span><br></pre></td></tr></table></figure>
+
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+        
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block home" lang="default">
     <link itemprop="mainEntityOfPage" href="http://yoursite.com/2022/04/29/cpp_primer_plus_4/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -1321,130 +1502,6 @@
   
   
 
-        
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block home" lang="default">
-    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2021/01/17/java_memory_model/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.gif">
-      <meta itemprop="name" content="hehejun">
-      <meta itemprop="description" content="">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="码字的呵呵君">
-    </span>
-      <header class="post-header">
-        <h1 class="post-title" itemprop="name headline">
-          
-            <a href="/2021/01/17/java_memory_model/" class="post-title-link" itemprop="url">The Java Memory Model</a>
-        </h1>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              <span class="post-meta-item-text">Posted on</span>
-              
-
-              <time title="Created: 2021-01-17 00:00:00 / Modified: 23:34:20" itemprop="dateCreated datePublished" datetime="2021-01-17T00:00:00-08:00">2021-01-17</time>
-            </span>
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              <span class="post-meta-item-text">In</span>
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/Programming/" itemprop="url" rel="index">
-                    <span itemprop="name">Programming</span>
-                  </a>
-                </span>
-                  , 
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/Programming/Java/" itemprop="url" rel="index">
-                    <span itemprop="name">Java</span>
-                  </a>
-                </span>
-                  , 
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/Programming/Java/Concurrency/" itemprop="url" rel="index">
-                    <span itemprop="name">Concurrency</span>
-                  </a>
-                </span>
-            </span>
-
-          
-            <span id="/2021/01/17/java_memory_model/" class="post-meta-item leancloud_visitors" data-flag-title="The Java Memory Model" title="Views">
-              <span class="post-meta-item-icon">
-                <i class="fa fa-eye"></i>
-              </span>
-              <span class="post-meta-item-text">Views: </span>
-              <span class="leancloud-visitors-count"></span>
-            </span>
-  
-  <span class="post-meta-item">
-    
-      <span class="post-meta-item-icon">
-        <i class="fa fa-comment-o"></i>
-      </span>
-      <span class="post-meta-item-text">Valine: </span>
-    
-    <a title="valine" href="/2021/01/17/java_memory_model/#comments" itemprop="discussionUrl">
-      <span class="post-comments-count valine-comment-count" data-xid="/2021/01/17/java_memory_model/" itemprop="commentCount"></span>
-    </a>
-  </span>
-  
-  <br>
-            <span class="post-meta-item" title="Symbols count in article">
-              <span class="post-meta-item-icon">
-                <i class="fa fa-file-word-o"></i>
-              </span>
-                <span class="post-meta-item-text">Symbols count in article: </span>
-              <span>4.3k</span>
-            </span>
-            <span class="post-meta-item" title="Reading time">
-              <span class="post-meta-item-icon">
-                <i class="fa fa-clock-o"></i>
-              </span>
-                <span class="post-meta-item-text">Reading time &asymp;</span>
-              <span>4 mins.</span>
-            </span>
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <h2 id="什么是内存模型？我们为什么需要一个内存模型？"><a href="#什么是内存模型？我们为什么需要一个内存模型？" class="headerlink" title="什么是内存模型？我们为什么需要一个内存模型？"></a>什么是内存模型？我们为什么需要一个内存模型？</h2><p>我们之前在详解<a href="https://kanrourou.github.io/2021/01/13/understand_synchronized_keyword/" target="_blank" rel="noopener"><code>synchronized</code></a>、<a href="https://kanrourou.github.io/2021/01/15/understand_volatile_keyword/" target="_blank" rel="noopener"><code>volatie</code></a>和<a href="https://kanrourou.github.io/2021/01/17/understand_final_keyword/" target="_blank" rel="noopener"><code>final</code></a>的文章当中讲过，底层JVM、编译器、处理器执行指令的顺序并不保证和程序员所写的代码的顺序一样。在单线程中，只要遵从<code>as-if-serial</code>语义，就可以进行重排，所以对于程序员来说，底层的实现只是造成了一个程序是按照自己的代码顺序执行的假象。<br>
-          <!--noindex-->
-            <div class="post-button">
-              <a class="btn" href="/2021/01/17/java_memory_model/#more" rel="contents">
-                Read more &raquo;
-              </a>
-            </div>
-          <!--/noindex-->
-        
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
   </div>
 
   
@@ -1517,7 +1574,7 @@
       <div class="site-state-item site-state-posts">
           <a href="/archives/">
         
-          <span class="site-state-item-count">19</span>
+          <span class="site-state-item-count">20</span>
           <span class="site-state-item-name">posts</span>
         </a>
       </div>
@@ -1564,12 +1621,12 @@
     <span class="post-meta-item-icon">
       <i class="fa fa-area-chart"></i>
     </span>
-    <span title="Symbols count total">116k</span>
+    <span title="Symbols count total">124k</span>
     <span class="post-meta-divider">|</span>
     <span class="post-meta-item-icon">
       <i class="fa fa-coffee"></i>
     </span>
-    <span title="Reading time total">1:46</span>
+    <span title="Reading time total">1:52</span>
 </div>
 
         
