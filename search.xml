@@ -1,6 +1,65 @@
 <?xml version="1.0" encoding="utf-8"?>
 <search>
   <entry>
+    <title>Paper Reading: Dremel 1</title>
+    <url>/2022/06/12/paper_reading_dremel_1/</url>
+    <content><![CDATA[<p><a href="https://static.googleusercontent.com/media/research.google.com/en//pubs/archive/36632.pdf" target="_blank" rel="noopener">Dremel</a> is a scalable, interactive ad-hoc query system for analysis of read-only nested data.<br><a id="more"></a></p>
+<h2 id="Data-Model"><a href="#Data-Model" class="headerlink" title="Data Model"></a>Data Model</h2><p>The data model is based on strongly-typed nested records. The abstract syntax is given by:</p>
+<p>τ = dom | &lt;A<sub>1</sub> : τ[<em>|?],…,A<sub>n</sub> : τ[</em>|?]&gt;</p>
+<p>where τ is an atomic type or a record type. Atomic types in dom comprise integers, floating-point numbers, string, etc. Records consist of one or multiple fields. Field i in a record has a name A<sub>i</sub> and an optional multiplicity label. Repeated field (*) may occur multiple times in a record. Optional field (?) may be missing from the record. Otherwise, a field is required, must appear exactly once.</p>
+<h2 id="Nested-Columnar-Storage"><a href="#Nested-Columnar-Storage" class="headerlink" title="Nested Columnar Storage"></a>Nested Columnar Storage</h2><p>In this section, we address the following challenges: lossless representation of record structure in a columnar format, fast encoding and efficient record assembly.</p>
+<h3 id="Repitition-and-Definition-Levels"><a href="#Repitition-and-Definition-Levels" class="headerlink" title="Repitition and Definition Levels"></a>Repitition and Definition Levels</h3><p>Values alone do not convey the structure of record. Given two values of a repeated field, we do not know at what ‘level’ the value repeated. Likewise, given a missing optional field, we don’t know which enclosing records were defined explicitly. We therefore introduce the concepts of repetition level and definition level.</p>
+<h4 id="Repetition-Levels"><a href="#Repetition-Levels" class="headerlink" title="Repetition Levels"></a>Repetition Levels</h4><p>Taking following schema tree and sample records as examples:</p>
+<p><img src="/images/schema_and_sample_records.png" alt></p>
+<p>Considering field <code>Code</code>. It occurs three times in r1. To diambiguate these occurences, we attach a repetition level to each value. It tells us at what repeated field in the field’s path the value has repeated. A more straightforward explanation would be the LCA of current and previous occurence in the data tree. The field path <code>Name.Language.Code</code> contains two repeated fields, <code>Name</code> and <code>Language</code>. Hence, the repetition level of <code>Code</code> ranges between 0 and 2; level 0 denotes the start of a new record. The repetition levels of <code>Code</code> values in r1 are 0 (New record),2 (Language),1 (Name).</p>
+<p>Notice that the second <code>Name</code> in r1 doesn’t contain any <code>Code</code> values. To determine that ‘en-gb’ occurs in the third <code>Name</code> instead of the second, we add a NULL value between ‘en’ and ‘en-gb’ in the columnar table (see figure below). <code>Code</code> is a required field, in <code>Language</code>, so the fact that it is missing implies that <code>Language</code> is not defined. In general, determining the level up to which nested records exist require extra information.</p>
+<h4 id="Definiiton-Levels"><a href="#Definiiton-Levels" class="headerlink" title="Definiiton Levels"></a>Definiiton Levels</h4><p>Each value of a field with path p, esp. every NULL, has a definition level specifying how many fields in p that could be undefined (because they are optional or repeated) are actually present in the record. To illustrate, observe that r1 has no <code>Backward</code> links. However, field <code>Links</code> is defined (at level 1). To preserve this information, we add a NULL with definiiton level 1 to the <code>Links.Backward</code> column. Similarly, the missing occurence of <code>Name.Language.Country</code> in r2 carries a definition level 1, while its missing occurences in r1 have definition levels 2 (inside <code>Name.Language) and 1 (inside</code>Name`), respectively.</p>
+<p>We use integer definition levels as opposed to is-null bits so that the data for a leaf field contains the information about the occurences of its parent fields.</p>
+<p>The repitition and definition levels of sample records are listed below:</p>
+<p><img src="/images/column_representation_of_sample_data.png" alt></p>
+<h4 id="Encoding"><a href="#Encoding" class="headerlink" title="Encoding"></a>Encoding</h4><p>Each column is stored as a set of blocks. Each blocks contains the repetition and definitionlevels (henceforth, simply called levels) and compressed field values. NULLs are not stored explicitly as they are determined by the definition levels: any definition level smaller than the number of repeated and optional fields in a field’s path denotes a NULL. Definition levels are not stored for values that are always defined (all required along field’s path). Similarly, repetition levels are stored only if required; for example, definition level 0 implies repetition level 0 (all required fields in path). Levels are packed as bit sequence. We only use as many bits as necessary; for example, if max definition level is 3, we use 2 bits per definiiton level.</p>
+<h3 id="Splitting-Records-into-Columns"><a href="#Splitting-Records-into-Columns" class="headerlink" title="Splitting Records into Columns"></a>Splitting Records into Columns</h3><p>The next challenge we address is how to produce column stripes with repetition and definition levels efficiently.</p>
+<p>The actual algorithm is straightforward, both levels can be calculated when traversing the data tree. Assuming we are scanning records in the data tree, if a field is repeated, then each instance will also be scanned also:</p>
+<ol>
+<li>Definition level will just be calculating how many optional / repeated in the field’s path.</li>
+<li>For repitition level, we will need to keep track of fields we have seen on that recursion level. If a field is visited, then its repetition level will be equal to its parent (not seen yet) or number of repeated fields (seen) on its path.</li>
+</ol>
+<p>Many datasets used at Google are sparse. Hence we try to process missing fields as cheaply as possible. To produce column stripes, we create a tree of field writers, whose structure matches the field hierarchy in the schema. The basic idea is to update field writers only when they have their own data, and not try to propagate parent state down the tree unless absolutely necessary. To do that, child writers inherit the levels from their parents. A child writer synchronizes to its parent’s level whenever a new value is added. Child writer level could get out of sync when encoutering NULL value.</p>
+<h3 id="Record-Assembly"><a href="#Record-Assembly" class="headerlink" title="Record Assembly"></a>Record Assembly</h3><p>Given a subset of fields, our goal is to reconstruct the original records as if they contained just the selected fields, with all other fields striped away. That is one of the major advantage of columnar storage becuase we don’t need to scan the whole row. The key idea is this: we create a finite state machine (FSM) that reads the field values and levels for each field, and appends the values sequentially to the output records. State transitions are labeled with repitition levels. Once a reader fetches a value, we look at the next repetiiton level to decide what next reader to use. The FSM is traversed from the start to end state once for each record.</p>
+<p>The FSM essentially represent which column to read based on the next repitition level of current field. To describe the algorithm, we introduce the concept of barrier level, which is the repitition level of the LCA of current field and next field in the sequence of proto. Because the most crucial step is to determine whether to move to the next field or a previous field. For a given field, the repetition level of next instance can range from [0, maxLevel]:</p>
+<ol>
+<li>If the next repetition level of current column is between [0, barrierLevel], go the the next field in schema tree.</li>
+<li>If the next repetition level of current column is between [barrierLevel + 1, maxLevel], for each parent field in field path whose repetition level is larger than the barrier level, set transition (field, backLevel) -&gt; parent leftmost leaf field.</li>
+</ol>
+<p>Barrier level is important here, because any repetiition level larger than it indicate the current column / field is still repeating under this LCA, which means we shouldn’t go to the next column / field in the schema tree. Instead, it should go back to the parent with the same repetition level as the next instance in the columnar storage, and start constructing that parent field again with leftmost leaf node.</p>
+<p>The FSM of <code>Document</code> proto is as below:</p>
+<p><img src="/images/full_fsm.png" alt></p>
+<p>Taking <code>Name.Language.Country</code> as an example, its repetiition level can range between [0, 2], and the barrier is <code>Name.Url</code>, the LCA is <code>Name</code> which indicates the barrier level is 1. So if the next repetition level of <code>Name.Language.Country</code> is 2, it means it still repeats under <code>Name.Language</code> so it should go back to the leftmost leaf under <code>Name.Language</code>, which is <code>Name.Language.Code</code>. Otherwise, it indicates it repeats under <code>Name</code> or a new record, so we can go to <code>Name.Url</code>.</p>
+<p>If only a subset of fields need to be retrieved, we construct a simpler FSM that is cheaper to execute. The image below depicts an FSM for reading the fields <code>DocId</code> and <code>Name.Language.Country</code>.</p>
+<p><img src="/images/partial_fsm.png" alt></p>
+<h2 id="Query-Language"><a href="#Query-Language" class="headerlink" title="Query Language"></a>Query Language</h2><p>Dremel’s query language is based on SQL and is designed to be efficietly implementable on columnar nested storage. Each SQL statement (and algebraic operators it translates to) takes as input one or multiple nested tables and their schemas and produces a nested table and its output schema.</p>
+<p><img src="/images/sample_query.png" alt></p>
+<p>To explain what the query does, consider the selction operation (the WHERE clause). The selection operator prunes away the branches of the tree that do not satisfy the specified conditions. Thus, only those nested records are retained where <code>Name.Url</code> is defined and start with <code>http</code>. Next, consider projection. Each scalar experssion in the SELECT clause emits a value at the same level of nesting as the most-repeated input field used in that expression. The COUNT expression illustrate within-record aggregation. The aggregation is done WITHIN each <code>Name</code> subrecord, and emits the number of occurences of <code>Name.Language.Code</code> for each <code>Name</code> as a non-negative 64-bit integer (uint64).</p>
+<h2 id="Query-Execution"><a href="#Query-Execution" class="headerlink" title="Query Execution"></a>Query Execution</h2><p>We discuss the core ideas in the context of a read-only system, for simplicity. Many Dremel queries are one-pass aggregations; therefore, we focus on explaining those.</p>
+<h3 id="Tree-Architecture"><a href="#Tree-Architecture" class="headerlink" title="Tree Architecture"></a>Tree Architecture</h3><p>Dremel uses a multi-level serving tree to execute queries (see image below). A root server receives incoming queries, reads metadata from the tables, and routes the queries to the next level in the serving tree. The leaf servers communicate with the storage layer or access the data on local disk. Consider a simple aggregation query below:</p>
+<figure class="highlight sql"><table><tr><td class="code"><pre><span class="line"><span class="keyword">SELECT</span> A, <span class="keyword">COUNT</span>(B) <span class="keyword">FROM</span> T <span class="keyword">GROUP</span> <span class="keyword">BY</span> A</span><br></pre></td></tr></table></figure>
+<p>When the root server receives the above query, it determins all tablets, i.e., horizontal partitions of the table, that comprise T and rewrites as the query of union of results of all sub queries.</p>
+<p>Each serving level performs a similar rewriting. Ultimately, the queries reach the leaves, which scan the tablets in T in parallel. On the way up, intermediate servers perform a parallel aggregation of partial results.</p>
+<h3 id="Query-Dispatcher"><a href="#Query-Dispatcher" class="headerlink" title="Query Dispatcher"></a>Query Dispatcher</h3><p>Dremel is a multi-user system, i.e., usually several queries are executed simultaneously. A query dispatcher schedules queries based on their priorities and balances the load. Its other important role is to provide fault tolerance when one server becomes much slower than others or a tablet replica becomes unreachable.</p>
+<p>The amount of data procesed in each query is often larger than the number of processing units available for execution, which we call slots. A slot corresponds to an execution thread on a leaf server. During execution, the query dispatcher computes a histogram of tablet processing times. If a tablet takes a disproportionately long time to process, it rechedules it on another server. Some tablets may need to be redispatched multiple times.</p>
+<p>Each server has an internal execution tree, as depicted on the right-hand side of the image above. The internal tree corresponds to a physical query execution plan, including evaluaiton of scalar expressions. An execution plan for project-select-aggregate queries consists of a set of iterators that scan input columns in lockstep and emit results of aggregates and scalar functions annotated with the correct repetition and definition levels, bypassing record assembly entirely during query execution.</p>
+]]></content>
+      <categories>
+        <category>System Infrastructure</category>
+        <category>Storage &amp; Query</category>
+      </categories>
+      <tags>
+        <tag>Infrastructure</tag>
+        <tag>Paper Reading</tag>
+        <tag>Storage</tag>
+      </tags>
+  </entry>
+  <entry>
     <title>Book Reading: C++ Primer Plus, Chapter 7</title>
     <url>/2022/05/05/cpp_primer_plus_7/</url>
     <content><![CDATA[<h2 id="Funtion-Definition"><a href="#Funtion-Definition" class="headerlink" title="Funtion Definition"></a>Funtion Definition</h2><p>The return value cannot be an array. Everything else is possible. (Interestingly, even though a C++ function can’t return an array directly, it can return an array that is part of a structure or object.)<br><a id="more"></a><br>Why need a function declaration prototype? For example, when the function finishes calculation, it places its return value at some specific location, perhaps in a CPU register or memory. Because the prototype states the return type, the compiler knows how many bytes to retrieve and how to interpret then. </p>
@@ -783,68 +842,6 @@
       </tags>
   </entry>
   <entry>
-    <title>The Java Memory Model</title>
-    <url>/2021/01/17/java_memory_model/</url>
-    <content><![CDATA[<h2 id="什么是内存模型？我们为什么需要一个内存模型？"><a href="#什么是内存模型？我们为什么需要一个内存模型？" class="headerlink" title="什么是内存模型？我们为什么需要一个内存模型？"></a>什么是内存模型？我们为什么需要一个内存模型？</h2><p>我们之前在详解<a href="https://kanrourou.github.io/2021/01/13/understand_synchronized_keyword/" target="_blank" rel="noopener"><code>synchronized</code></a>、<a href="https://kanrourou.github.io/2021/01/15/understand_volatile_keyword/" target="_blank" rel="noopener"><code>volatie</code></a>和<a href="https://kanrourou.github.io/2021/01/17/understand_final_keyword/" target="_blank" rel="noopener"><code>final</code></a>的文章当中讲过，底层JVM、编译器、处理器执行指令的顺序并不保证和程序员所写的代码的顺序一样。在单线程中，只要遵从<code>as-if-serial</code>语义，就可以进行重排，所以对于程序员来说，底层的实现只是造成了一个程序是按照自己的代码顺序执行的假象。<br><a id="more"></a><br>在多线程环境中，如果不进行额外的synchronization的操作，像单线程一样的线性执行是没有办法得到保证的。JMM的作用有两方面：</p>
-<ol>
-<li>要给开发者提供一个尽可能简单的，可以预测的多线程开发方式。</li>
-<li>同时又要尽可能减少对底层JVM、硬件的限制，在保证1的前提下，对程序进行优化。</li>
-</ol>
-<p>在一个共享内存的多处理器架构下，每个处理器都会有自己缓存，这些处理器会定期地从主内存里读取数据来更新自己的缓存。而由于硬件上的差异，不同的处理器所提供的缓存一致性是不一样的。这就需要一个内存模型来告诉程序，其可以从内存系统中得到什么保证，并且可以通过插入一下特殊指令，比如内存屏障(memory barriers)，来保证在访问共享变量的时候能够得到一些额外的保证。</p>
-<p>为了让开发者不需要接触到这些底层的不同和实现细节，JMM提供了一系列保证来判断在多线程环境下指令发生的先后顺序。同时，JVM处理了JMM与不同平台内存系统之间的差异性，通过在适当的地方插入内存屏障，来保证JMM对开发者的保证不会变。</p>
-<p>简而言之，JMM定义了在多线程环境下所有操作的一个偏序。所谓偏序，即集合里的任意两个元素不一定能互相比较，这个集合当中，只有一部分元素的先后顺序是可以确定的。而这种保证，就是<em>happens-before</em>规则。</p>
-<h2 id="Happens-Before规则"><a href="#Happens-Before规则" class="headerlink" title="Happens-Before规则"></a>Happens-Before规则</h2><p>Happens-Before规则提供了以下保证，摘抄<em>Java Concurrency in Practice</em>原文如下：</p>
-<ol>
-<li><strong>Program order rule.</strong> Each action in a thread <em>happens-before</em> every action in that thread that comes later in the program order.</li>
-<li><strong>Monitor lock rule.</strong> An unlock on a mointor lock <em>happens-before</em> every subsequent lock on that same monitor lock. This in true for both explicit lock and intrinsic lock.</li>
-<li><strong>Volatile variable rule.</strong> A write to a <code>volatile</code> field <em>happens-before</em> every subsequent read of that same field.</li>
-<li><strong>Thread start rule.</strong> A call to <code>Thread.start</code> on a thread <em>happens-before</em> every action in the started thread.</li>
-<li><strong>Thread termination rule.</strong> Any action in a thread <em>happens-before</em> any other thread detects that thread has terminated, either by successfully return from <code>Thread.join</code> or by <code>Thread.isAlive</code> returning false.</li>
-<li><strong>Interruption rule.</strong> A thread calling <code>interrupt</code> on another thread <em>happens-before</em> the interrupted thread detects the interrupt (either by have <code>InterruptedException thrown</code>, or invoking <code>isInterrupted</code> or <code>interrupted</code>).</li>
-<li><strong>Finalizer rule.</strong> The end of a constructor for an object <em>happens-before</em> the start of the finalizer for that object.</li>
-<li><strong>Transitivity.</strong> If A <em>happens-before</em> B, and B <em>happens-before</em> C, then A <em>happens-before</em> C.</li>
-</ol>
-<p>以上八条规则虽然简单，但在现实中用于判断不同线程之前的先后关系和可见性的时候十分方便。我们用在这篇<a href="https://kanrourou.github.io/2021/01/15/understand_volatile_keyword/" target="_blank" rel="noopener">文章</a>中用过的例子：</p>
-<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">Demo</span> </span>&#123;</span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">volatile</span> <span class="keyword">boolean</span> ready;</span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">int</span> number;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">static</span> <span class="class"><span class="keyword">class</span> <span class="title">ReaderThreader</span> <span class="keyword">extends</span> <span class="title">Thread</span> </span>&#123;</span><br><span class="line">        <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">run</span><span class="params">()</span> </span>&#123;</span><br><span class="line">            <span class="keyword">while</span> (!ready);</span><br><span class="line">            System.out.println(number);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">main</span><span class="params">(String[] args)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">new</span> ReaderThread().start();</span><br><span class="line">        number = <span class="number">42</span>;</span><br><span class="line">        ready = <span class="keyword">true</span>;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<p>假设线程A先执行了<code>main</code>方法，并且对<code>ready</code>进行写入。之后线程B执行<code>run()</code>方法读取<code>ready</code>的值，此时<code>number</code>的值对线程B可见吗？我们用<em>happens-before</em>规则判断：</p>
-<ol>
-<li>由规则3可知，第15行先与第7行。</li>
-<li>由规则1可知，第7行先与第8行。</li>
-<li>由规则1可知，第14行先与第15行。</li>
-<li>由规则8可知，第14行先与第15行，先于第7行，先于第8行。所以对<code>number</code>赋值42是对线程B可见的。</li>
-</ol>
-<p>我们刚刚说过了，JMM定义的顺序只是集合的偏序，也就是任何两个不满足<em>happens-before</em>的操作，其先后顺序是没有任何保障的。</p>
-<p>除此之外，JMM还对一些class library提供了<em>happens-before</em>保证：</p>
-<ol>
-<li>Placing an item in a thread-safe collection <em>happens-before</em> another thread retrieves that item from the collection.</li>
-<li>Counting down on a <code>CountDownLatch</code> <em>happens-before</em> a thread returns from <code>await</code> on that latch.</li>
-<li>Releasing a permit to a <code>Semaphore</code> <em>happens-before</em> acquiring a permit from that same <code>Samephore</code>.</li>
-<li>Actions taken by the task represented by a <code>Future</code> <em>happens-before</em> another thread successfully returns from <code>Future.get</code>.</li>
-<li>Submittig a <code>Runnable</code> or <code>Callable</code> to an <code>Executor</code> <em>happens-before</em> the task begins execution.</li>
-<li>A thread arriving at a <code>CyclicBarrier</code> or <code>Exchanger</code> <em>happens-before</em> the other threads are released from that same barrier or exchange point. If <code>CyclicBarrier</code> uses a barrier action, arriving at the barrier <em>happens-before</em> the barrier action, which in turn <em>happens-before</em> threads are released from the barrier.</li>
-</ol>
-<h2 id="Safe-Publication-and-Initialization"><a href="#Safe-Publication-and-Initialization" class="headerlink" title="Safe Publication and Initialization"></a>Safe Publication and Initialization</h2><p>我们在详解<code>final</code>这篇<a href="https://kanrourou.github.io/2021/01/17/understand_final_keyword/" target="_blank" rel="noopener">文章</a>中聊过这个问题，有多种方法可以保证safely publish an object。这里我们不细聊这个话题，来看一些例子。</p>
-<p>我们可以通过保证原子性来保证对象被安全初始化：</p>
-<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="meta">@ThreadSafe</span></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">SafeInitialization</span> </span>&#123;</span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">static</span> Resource resource;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">synchronized</span> <span class="keyword">static</span> Resource <span class="title">getInstance</span><span class="params">()</span></span>&#123;</span><br><span class="line">        <span class="keyword">if</span> (resource == <span class="keyword">null</span>)</span><br><span class="line">            resource = <span class="keyword">new</span> Resouce();</span><br><span class="line">        <span class="keyword">return</span> resouce;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<p><code>synchronized</code>保证了<code>resource</code>在初始化完成之前都不会被其他线程访问，所以这是线程安全的初始化。</p>
-<p>我们也可以用static initializer来保证安全初始化：</p>
-<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="meta">@ThreadSafe</span></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">EagerInitialization</span> </span>&#123;</span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">static</span> Resource resource = <span class="keyword">new</span> Resource();</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> Resource <span class="title">getResource</span><span class="params">()</span> </span>&#123; <span class="keyword">return</span> resource; &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<p>Static initializer的安全性是JVM提供的保证，因为JVM保证static initializer在对象被其他线程访问之前就会完成。因为JVM在调用static initializer的时候会获取锁，这个所会在其他线程确认这个类被loaded的时候获取，所以可以保证static initializer的写都立马对其他线程可见。所以在不需要其他同步操作的情况下，就可以保证初始化安全性。</p>
-<p>那么在结合上面两个技巧的情况下，我们可以实现不需要额外同步操作的线程安全版本的lazy initialization方法（另一种方法是DCL，我们在这篇<a href="https://kanrourou.github.io/2021/01/15/understand_volatile_keyword/" target="_blank" rel="noopener">文章</a>中讲过）：</p>
-<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="meta">@ThreadSafe</span></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">ResourceFactory</span> </span>&#123;</span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">static</span> <span class="class"><span class="keyword">class</span> <span class="title">ResourceHolder</span> </span>&#123;</span><br><span class="line">        <span class="keyword">public</span> <span class="keyword">static</span> Resource resource = <span class="keyword">new</span> Resource();</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> Resource <span class="title">getResouce</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        <span class="keyword">return</span> ResourceHolder.resource;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<p><code>ResourceHodler</code>的<code>resource</code>域是static initialized的，所以其保证初始化的安全性。<code>getResource</code>只有在被第一次调用的时候，才会初始化<code>resource</code>，所以其为lazy initialization。</p>
-]]></content>
-      <categories>
-        <category>Programming</category>
-        <category>Java</category>
-        <category>Concurrency</category>
-      </categories>
-      <tags>
-        <tag>Java</tag>
-        <tag>Concurrency</tag>
-      </tags>
-  </entry>
-  <entry>
     <title>深入理解final关键字</title>
     <url>/2021/01/17/understand_final_keyword/</url>
     <content><![CDATA[<h2 id="final的基本语义"><a href="#final的基本语义" class="headerlink" title="final的基本语义"></a>final的基本语义</h2><p><code>final</code>在java中是非常常用的关键字，其语义和C++中的<code>constant</code>有类似之处，都代表不变的意思，其可以用在以下地方：</p>
@@ -987,6 +984,68 @@
       </tags>
   </entry>
   <entry>
+    <title>The Java Memory Model</title>
+    <url>/2021/01/17/java_memory_model/</url>
+    <content><![CDATA[<h2 id="什么是内存模型？我们为什么需要一个内存模型？"><a href="#什么是内存模型？我们为什么需要一个内存模型？" class="headerlink" title="什么是内存模型？我们为什么需要一个内存模型？"></a>什么是内存模型？我们为什么需要一个内存模型？</h2><p>我们之前在详解<a href="https://kanrourou.github.io/2021/01/13/understand_synchronized_keyword/" target="_blank" rel="noopener"><code>synchronized</code></a>、<a href="https://kanrourou.github.io/2021/01/15/understand_volatile_keyword/" target="_blank" rel="noopener"><code>volatie</code></a>和<a href="https://kanrourou.github.io/2021/01/17/understand_final_keyword/" target="_blank" rel="noopener"><code>final</code></a>的文章当中讲过，底层JVM、编译器、处理器执行指令的顺序并不保证和程序员所写的代码的顺序一样。在单线程中，只要遵从<code>as-if-serial</code>语义，就可以进行重排，所以对于程序员来说，底层的实现只是造成了一个程序是按照自己的代码顺序执行的假象。<br><a id="more"></a><br>在多线程环境中，如果不进行额外的synchronization的操作，像单线程一样的线性执行是没有办法得到保证的。JMM的作用有两方面：</p>
+<ol>
+<li>要给开发者提供一个尽可能简单的，可以预测的多线程开发方式。</li>
+<li>同时又要尽可能减少对底层JVM、硬件的限制，在保证1的前提下，对程序进行优化。</li>
+</ol>
+<p>在一个共享内存的多处理器架构下，每个处理器都会有自己缓存，这些处理器会定期地从主内存里读取数据来更新自己的缓存。而由于硬件上的差异，不同的处理器所提供的缓存一致性是不一样的。这就需要一个内存模型来告诉程序，其可以从内存系统中得到什么保证，并且可以通过插入一下特殊指令，比如内存屏障(memory barriers)，来保证在访问共享变量的时候能够得到一些额外的保证。</p>
+<p>为了让开发者不需要接触到这些底层的不同和实现细节，JMM提供了一系列保证来判断在多线程环境下指令发生的先后顺序。同时，JVM处理了JMM与不同平台内存系统之间的差异性，通过在适当的地方插入内存屏障，来保证JMM对开发者的保证不会变。</p>
+<p>简而言之，JMM定义了在多线程环境下所有操作的一个偏序。所谓偏序，即集合里的任意两个元素不一定能互相比较，这个集合当中，只有一部分元素的先后顺序是可以确定的。而这种保证，就是<em>happens-before</em>规则。</p>
+<h2 id="Happens-Before规则"><a href="#Happens-Before规则" class="headerlink" title="Happens-Before规则"></a>Happens-Before规则</h2><p>Happens-Before规则提供了以下保证，摘抄<em>Java Concurrency in Practice</em>原文如下：</p>
+<ol>
+<li><strong>Program order rule.</strong> Each action in a thread <em>happens-before</em> every action in that thread that comes later in the program order.</li>
+<li><strong>Monitor lock rule.</strong> An unlock on a mointor lock <em>happens-before</em> every subsequent lock on that same monitor lock. This in true for both explicit lock and intrinsic lock.</li>
+<li><strong>Volatile variable rule.</strong> A write to a <code>volatile</code> field <em>happens-before</em> every subsequent read of that same field.</li>
+<li><strong>Thread start rule.</strong> A call to <code>Thread.start</code> on a thread <em>happens-before</em> every action in the started thread.</li>
+<li><strong>Thread termination rule.</strong> Any action in a thread <em>happens-before</em> any other thread detects that thread has terminated, either by successfully return from <code>Thread.join</code> or by <code>Thread.isAlive</code> returning false.</li>
+<li><strong>Interruption rule.</strong> A thread calling <code>interrupt</code> on another thread <em>happens-before</em> the interrupted thread detects the interrupt (either by have <code>InterruptedException thrown</code>, or invoking <code>isInterrupted</code> or <code>interrupted</code>).</li>
+<li><strong>Finalizer rule.</strong> The end of a constructor for an object <em>happens-before</em> the start of the finalizer for that object.</li>
+<li><strong>Transitivity.</strong> If A <em>happens-before</em> B, and B <em>happens-before</em> C, then A <em>happens-before</em> C.</li>
+</ol>
+<p>以上八条规则虽然简单，但在现实中用于判断不同线程之前的先后关系和可见性的时候十分方便。我们用在这篇<a href="https://kanrourou.github.io/2021/01/15/understand_volatile_keyword/" target="_blank" rel="noopener">文章</a>中用过的例子：</p>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">Demo</span> </span>&#123;</span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">volatile</span> <span class="keyword">boolean</span> ready;</span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">int</span> number;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">static</span> <span class="class"><span class="keyword">class</span> <span class="title">ReaderThreader</span> <span class="keyword">extends</span> <span class="title">Thread</span> </span>&#123;</span><br><span class="line">        <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">run</span><span class="params">()</span> </span>&#123;</span><br><span class="line">            <span class="keyword">while</span> (!ready);</span><br><span class="line">            System.out.println(number);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">main</span><span class="params">(String[] args)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">new</span> ReaderThread().start();</span><br><span class="line">        number = <span class="number">42</span>;</span><br><span class="line">        ready = <span class="keyword">true</span>;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>假设线程A先执行了<code>main</code>方法，并且对<code>ready</code>进行写入。之后线程B执行<code>run()</code>方法读取<code>ready</code>的值，此时<code>number</code>的值对线程B可见吗？我们用<em>happens-before</em>规则判断：</p>
+<ol>
+<li>由规则3可知，第15行先与第7行。</li>
+<li>由规则1可知，第7行先与第8行。</li>
+<li>由规则1可知，第14行先与第15行。</li>
+<li>由规则8可知，第14行先与第15行，先于第7行，先于第8行。所以对<code>number</code>赋值42是对线程B可见的。</li>
+</ol>
+<p>我们刚刚说过了，JMM定义的顺序只是集合的偏序，也就是任何两个不满足<em>happens-before</em>的操作，其先后顺序是没有任何保障的。</p>
+<p>除此之外，JMM还对一些class library提供了<em>happens-before</em>保证：</p>
+<ol>
+<li>Placing an item in a thread-safe collection <em>happens-before</em> another thread retrieves that item from the collection.</li>
+<li>Counting down on a <code>CountDownLatch</code> <em>happens-before</em> a thread returns from <code>await</code> on that latch.</li>
+<li>Releasing a permit to a <code>Semaphore</code> <em>happens-before</em> acquiring a permit from that same <code>Samephore</code>.</li>
+<li>Actions taken by the task represented by a <code>Future</code> <em>happens-before</em> another thread successfully returns from <code>Future.get</code>.</li>
+<li>Submittig a <code>Runnable</code> or <code>Callable</code> to an <code>Executor</code> <em>happens-before</em> the task begins execution.</li>
+<li>A thread arriving at a <code>CyclicBarrier</code> or <code>Exchanger</code> <em>happens-before</em> the other threads are released from that same barrier or exchange point. If <code>CyclicBarrier</code> uses a barrier action, arriving at the barrier <em>happens-before</em> the barrier action, which in turn <em>happens-before</em> threads are released from the barrier.</li>
+</ol>
+<h2 id="Safe-Publication-and-Initialization"><a href="#Safe-Publication-and-Initialization" class="headerlink" title="Safe Publication and Initialization"></a>Safe Publication and Initialization</h2><p>我们在详解<code>final</code>这篇<a href="https://kanrourou.github.io/2021/01/17/understand_final_keyword/" target="_blank" rel="noopener">文章</a>中聊过这个问题，有多种方法可以保证safely publish an object。这里我们不细聊这个话题，来看一些例子。</p>
+<p>我们可以通过保证原子性来保证对象被安全初始化：</p>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="meta">@ThreadSafe</span></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">SafeInitialization</span> </span>&#123;</span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">static</span> Resource resource;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">synchronized</span> <span class="keyword">static</span> Resource <span class="title">getInstance</span><span class="params">()</span></span>&#123;</span><br><span class="line">        <span class="keyword">if</span> (resource == <span class="keyword">null</span>)</span><br><span class="line">            resource = <span class="keyword">new</span> Resouce();</span><br><span class="line">        <span class="keyword">return</span> resouce;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p><code>synchronized</code>保证了<code>resource</code>在初始化完成之前都不会被其他线程访问，所以这是线程安全的初始化。</p>
+<p>我们也可以用static initializer来保证安全初始化：</p>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="meta">@ThreadSafe</span></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">EagerInitialization</span> </span>&#123;</span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">static</span> Resource resource = <span class="keyword">new</span> Resource();</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> Resource <span class="title">getResource</span><span class="params">()</span> </span>&#123; <span class="keyword">return</span> resource; &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>Static initializer的安全性是JVM提供的保证，因为JVM保证static initializer在对象被其他线程访问之前就会完成。因为JVM在调用static initializer的时候会获取锁，这个所会在其他线程确认这个类被loaded的时候获取，所以可以保证static initializer的写都立马对其他线程可见。所以在不需要其他同步操作的情况下，就可以保证初始化安全性。</p>
+<p>那么在结合上面两个技巧的情况下，我们可以实现不需要额外同步操作的线程安全版本的lazy initialization方法（另一种方法是DCL，我们在这篇<a href="https://kanrourou.github.io/2021/01/15/understand_volatile_keyword/" target="_blank" rel="noopener">文章</a>中讲过）：</p>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="meta">@ThreadSafe</span></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">ResourceFactory</span> </span>&#123;</span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">static</span> <span class="class"><span class="keyword">class</span> <span class="title">ResourceHolder</span> </span>&#123;</span><br><span class="line">        <span class="keyword">public</span> <span class="keyword">static</span> Resource resource = <span class="keyword">new</span> Resource();</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> Resource <span class="title">getResouce</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        <span class="keyword">return</span> ResourceHolder.resource;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p><code>ResourceHodler</code>的<code>resource</code>域是static initialized的，所以其保证初始化的安全性。<code>getResource</code>只有在被第一次调用的时候，才会初始化<code>resource</code>，所以其为lazy initialization。</p>
+]]></content>
+      <categories>
+        <category>Programming</category>
+        <category>Java</category>
+        <category>Concurrency</category>
+      </categories>
+      <tags>
+        <tag>Java</tag>
+        <tag>Concurrency</tag>
+      </tags>
+  </entry>
+  <entry>
     <title>深入理解volatile关键字</title>
     <url>/2021/01/15/understand_volatile_keyword/</url>
     <content><![CDATA[<h2 id="volatile与可见性"><a href="#volatile与可见性" class="headerlink" title="volatile与可见性"></a>volatile与可见性</h2><p>我们还是先来看一个例子，这个例子在<code>synchronized</code>这篇<a href="https://kanrourou.github.io/2021/01/13/understand_synchronized_keyword/" target="_blank" rel="noopener">文章</a>中用过:<br><a id="more"></a></p>
@@ -1117,6 +1176,39 @@
       </tags>
   </entry>
   <entry>
+    <title>Use Valine to set up blog comments and PV</title>
+    <url>/2021/01/03/valine_for_pv_and_comments/</url>
+    <content><![CDATA[<p>We have introduced one <a href="https://kanrourou.github.io/2019/03/18/hexo_next_page_user_views/" target="_blank" rel="noopener">way</a> before to configure blog PV by using the natrually supported LeanCloud counter in NexT theme. But this is somehow broken for my site, so I explored and switched to <a href="https://valine.js.org/" target="_blank" rel="noopener">Valine</a> which supports PV and comments without any backend changes.<br><a id="more"></a></p>
+<h3 id="Set-up-LeanCloud"><a href="#Set-up-LeanCloud" class="headerlink" title="Set up LeanCloud"></a>Set up LeanCloud</h3><p>The LeanCloud set up is pretty similar to what have been explained in the article above, please refer to it for more details. In general, after creating your application, you will need to create <code>Counter</code> and <code>Comment</code> classes under <code>Storage-&gt;Objects</code>, note that the class name must not be changed. And the ACL permission needs to be set to allow all users to read &amp; write.</p>
+<p><img src="/images/leancloud_classes_permission.png" alt></p>
+<p>Navigate to the security page, turn off all services except LeanStorage, and add your blog domain to web secure domains.</p>
+<p><img src="/images/leancloud_security.png" alt></p>
+<h3 id="Update-config-file"><a href="#Update-config-file" class="headerlink" title="Update config file"></a>Update config file</h3><p>Go to this <a href="https://www.jsdelivr.com/package/npm/valine" target="_blank" rel="noopener">page</a> to access Valine CDN files.</p>
+<p><img src="/images/valine_cdn.png" alt></p>
+<p>Copy the script url and modify <code>themes/next/_config.yml</code> as below:<br><figure class="highlight yml"><table><tr><td class="code"><pre><span class="line"><span class="comment"># Valine</span></span><br><span class="line"><span class="comment"># valine: //cdn.jsdelivr.net/npm/valine@1/dist/Valine.min.js</span></span><br><span class="line"><span class="comment"># valine: //cdnjs.cloudflare.com/ajax/libs/valine/1.3.4/Valine.min.js</span></span><br><span class="line"><span class="attr">valine:</span> <span class="attr">https://cdn.jsdelivr.net/npm/valine@1.4.14/dist/Valine.min.js</span></span><br></pre></td></tr></table></figure></p>
+<p>Navigate to app keys page to acquire your <code>appid</code> and <code>appkey</code>.</p>
+<p><img src="/images/lean_cloud_app_key.png" alt></p>
+<p>Then turn on Valine in the config file:<br><figure class="highlight yml"><table><tr><td class="code"><pre><span class="line"><span class="comment"># Valine</span></span><br><span class="line"><span class="comment"># More info available at https://valine.js.org</span></span><br><span class="line"><span class="attr">valine:</span></span><br><span class="line"><span class="attr">  enable:</span> <span class="literal">true</span> </span><br><span class="line"><span class="attr">  appid:</span> <span class="comment">#your id#</span></span><br><span class="line"><span class="attr">  appkey:</span> <span class="comment">#your key#</span></span><br><span class="line"><span class="attr">  notify:</span> <span class="literal">false</span> <span class="comment"># mail notifier, See: https://github.com/xCss/Valine/wiki</span></span><br><span class="line"><span class="attr">  verify:</span> <span class="literal">false</span> <span class="comment"># Verification code</span></span><br><span class="line"><span class="attr">  placeholder:</span> <span class="string">Just</span> <span class="string">go</span> <span class="string">go...</span> <span class="comment"># comment box placeholder</span></span><br><span class="line"><span class="attr">  avatar:</span> <span class="string">mm</span> <span class="comment"># gravatar style</span></span><br><span class="line"><span class="attr">  guest_info:</span> <span class="string">nick,mail,link</span> <span class="comment"># custom comment header</span></span><br><span class="line"><span class="attr">  pageSize:</span> <span class="number">10</span> <span class="comment"># pagination size</span></span><br><span class="line"><span class="attr">  visitor:</span> <span class="literal">true</span> <span class="comment"># leancloud-counter-security is not supported for now. When visitor is set to be true, appid and appkey are recommended to be the same as leancloud_visitors' for counter compatibility. Article reading statistic https://valine.js.org/visitor.html</span></span><br><span class="line"><span class="attr">  comment_count:</span> <span class="literal">true</span> <span class="comment"># if false, comment count will only be displayed in post page, not in home page</span></span><br></pre></td></tr></table></figure></p>
+<p>You can also enable the <code>visitor</code> which will display the number of views of your posts. Notes this conflicts with LeanCloud counter so you need to turn it off in the config file.</p>
+<p>Deploy the changes and you will see the comments and PV:</p>
+<p><img src="/images/comments.png" alt></p>
+<p><img src="/images/comments_pv_header_view.png" alt></p>
+<h3 id="Tips"><a href="#Tips" class="headerlink" title="Tips"></a>Tips</h3><p>The PV counter uses title combing publish date as the key. To avoid that updating the article will cause the PV to be reset, you can add the publish date in you article:<br><figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">date: 2021-01-03 15:25:41</span><br></pre></td></tr></table></figure></p>
+<p>And turn off the <code>future</code> in Hexo’s <code>_config.yml</code>.<br><figure class="highlight yml"><table><tr><td class="code"><pre><span class="line"><span class="attr">future:</span> <span class="literal">false</span></span><br></pre></td></tr></table></figure></p>
+<p>So the posted date will not be changed after you modified it, and the previous PV count will be kept.</p>
+]]></content>
+      <categories>
+        <category>Programming</category>
+        <category>JavaScript</category>
+        <category>Hexo</category>
+      </categories>
+      <tags>
+        <tag>Hexo</tag>
+        <tag>JavaScript</tag>
+        <tag>NexT</tag>
+      </tags>
+  </entry>
+  <entry>
     <title>Paper Reading: Kafka</title>
     <url>/2021/01/03/paper_reading_kafka/</url>
     <content><![CDATA[<p><a href="http://notes.stephenholiday.com/Kafka.pdf" target="_blank" rel="noopener">Kafka</a> is a distributed messaging system that developed for collecting and delivering high volumes of log data with low latency.<br><a id="more"></a></p>
@@ -1156,39 +1248,6 @@
         <tag>Distributed System</tag>
         <tag>Infrastructure</tag>
         <tag>Paper Reading</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>Use Valine to set up blog comments and PV</title>
-    <url>/2021/01/03/valine_for_pv_and_comments/</url>
-    <content><![CDATA[<p>We have introduced one <a href="https://kanrourou.github.io/2019/03/18/hexo_next_page_user_views/" target="_blank" rel="noopener">way</a> before to configure blog PV by using the natrually supported LeanCloud counter in NexT theme. But this is somehow broken for my site, so I explored and switched to <a href="https://valine.js.org/" target="_blank" rel="noopener">Valine</a> which supports PV and comments without any backend changes.<br><a id="more"></a></p>
-<h3 id="Set-up-LeanCloud"><a href="#Set-up-LeanCloud" class="headerlink" title="Set up LeanCloud"></a>Set up LeanCloud</h3><p>The LeanCloud set up is pretty similar to what have been explained in the article above, please refer to it for more details. In general, after creating your application, you will need to create <code>Counter</code> and <code>Comment</code> classes under <code>Storage-&gt;Objects</code>, note that the class name must not be changed. And the ACL permission needs to be set to allow all users to read &amp; write.</p>
-<p><img src="/images/leancloud_classes_permission.png" alt></p>
-<p>Navigate to the security page, turn off all services except LeanStorage, and add your blog domain to web secure domains.</p>
-<p><img src="/images/leancloud_security.png" alt></p>
-<h3 id="Update-config-file"><a href="#Update-config-file" class="headerlink" title="Update config file"></a>Update config file</h3><p>Go to this <a href="https://www.jsdelivr.com/package/npm/valine" target="_blank" rel="noopener">page</a> to access Valine CDN files.</p>
-<p><img src="/images/valine_cdn.png" alt></p>
-<p>Copy the script url and modify <code>themes/next/_config.yml</code> as below:<br><figure class="highlight yml"><table><tr><td class="code"><pre><span class="line"><span class="comment"># Valine</span></span><br><span class="line"><span class="comment"># valine: //cdn.jsdelivr.net/npm/valine@1/dist/Valine.min.js</span></span><br><span class="line"><span class="comment"># valine: //cdnjs.cloudflare.com/ajax/libs/valine/1.3.4/Valine.min.js</span></span><br><span class="line"><span class="attr">valine:</span> <span class="attr">https://cdn.jsdelivr.net/npm/valine@1.4.14/dist/Valine.min.js</span></span><br></pre></td></tr></table></figure></p>
-<p>Navigate to app keys page to acquire your <code>appid</code> and <code>appkey</code>.</p>
-<p><img src="/images/lean_cloud_app_key.png" alt></p>
-<p>Then turn on Valine in the config file:<br><figure class="highlight yml"><table><tr><td class="code"><pre><span class="line"><span class="comment"># Valine</span></span><br><span class="line"><span class="comment"># More info available at https://valine.js.org</span></span><br><span class="line"><span class="attr">valine:</span></span><br><span class="line"><span class="attr">  enable:</span> <span class="literal">true</span> </span><br><span class="line"><span class="attr">  appid:</span> <span class="comment">#your id#</span></span><br><span class="line"><span class="attr">  appkey:</span> <span class="comment">#your key#</span></span><br><span class="line"><span class="attr">  notify:</span> <span class="literal">false</span> <span class="comment"># mail notifier, See: https://github.com/xCss/Valine/wiki</span></span><br><span class="line"><span class="attr">  verify:</span> <span class="literal">false</span> <span class="comment"># Verification code</span></span><br><span class="line"><span class="attr">  placeholder:</span> <span class="string">Just</span> <span class="string">go</span> <span class="string">go...</span> <span class="comment"># comment box placeholder</span></span><br><span class="line"><span class="attr">  avatar:</span> <span class="string">mm</span> <span class="comment"># gravatar style</span></span><br><span class="line"><span class="attr">  guest_info:</span> <span class="string">nick,mail,link</span> <span class="comment"># custom comment header</span></span><br><span class="line"><span class="attr">  pageSize:</span> <span class="number">10</span> <span class="comment"># pagination size</span></span><br><span class="line"><span class="attr">  visitor:</span> <span class="literal">true</span> <span class="comment"># leancloud-counter-security is not supported for now. When visitor is set to be true, appid and appkey are recommended to be the same as leancloud_visitors' for counter compatibility. Article reading statistic https://valine.js.org/visitor.html</span></span><br><span class="line"><span class="attr">  comment_count:</span> <span class="literal">true</span> <span class="comment"># if false, comment count will only be displayed in post page, not in home page</span></span><br></pre></td></tr></table></figure></p>
-<p>You can also enable the <code>visitor</code> which will display the number of views of your posts. Notes this conflicts with LeanCloud counter so you need to turn it off in the config file.</p>
-<p>Deploy the changes and you will see the comments and PV:</p>
-<p><img src="/images/comments.png" alt></p>
-<p><img src="/images/comments_pv_header_view.png" alt></p>
-<h3 id="Tips"><a href="#Tips" class="headerlink" title="Tips"></a>Tips</h3><p>The PV counter uses title combing publish date as the key. To avoid that updating the article will cause the PV to be reset, you can add the publish date in you article:<br><figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">date: 2021-01-03 15:25:41</span><br></pre></td></tr></table></figure></p>
-<p>And turn off the <code>future</code> in Hexo’s <code>_config.yml</code>.<br><figure class="highlight yml"><table><tr><td class="code"><pre><span class="line"><span class="attr">future:</span> <span class="literal">false</span></span><br></pre></td></tr></table></figure></p>
-<p>So the posted date will not be changed after you modified it, and the previous PV count will be kept.</p>
-]]></content>
-      <categories>
-        <category>Programming</category>
-        <category>JavaScript</category>
-        <category>Hexo</category>
-      </categories>
-      <tags>
-        <tag>Hexo</tag>
-        <tag>JavaScript</tag>
-        <tag>NexT</tag>
       </tags>
   </entry>
   <entry>
