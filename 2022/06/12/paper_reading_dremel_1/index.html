@@ -59,7 +59,7 @@
 <meta property="og:image" content="http://yoursite.com/images/full_fsm.png">
 <meta property="og:image" content="http://yoursite.com/images/partial_fsm.png">
 <meta property="og:image" content="http://yoursite.com/images/sample_query.png">
-<meta property="og:updated_time" content="2022-06-12T08:15:16.423Z">
+<meta property="og:updated_time" content="2022-06-12T08:19:29.830Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="Paper Reading: Dremel 1">
 <meta name="twitter:description" content="Dremel is a scalable, interactive ad-hoc query system for analysis of read-only nested data.">
@@ -225,7 +225,7 @@
               <span class="post-meta-item-text">Posted on</span>
               
 
-              <time title="Created: 2022-06-12 00:00:00 / Modified: 01:15:16" itemprop="dateCreated datePublished" datetime="2022-06-12T00:00:00-07:00">2022-06-12</time>
+              <time title="Created: 2022-06-12 00:00:00 / Modified: 01:19:29" itemprop="dateCreated datePublished" datetime="2022-06-12T00:00:00-07:00">2022-06-12</time>
             </span>
             <span class="post-meta-item">
               <span class="post-meta-item-icon">
@@ -293,7 +293,7 @@
       
         <p><a href="https://static.googleusercontent.com/media/research.google.com/en//pubs/archive/36632.pdf" target="_blank" rel="noopener">Dremel</a> is a scalable, interactive ad-hoc query system for analysis of read-only nested data.<br><a id="more"></a></p>
 <h2 id="Data-Model"><a href="#Data-Model" class="headerlink" title="Data Model"></a>Data Model</h2><p>The data model is based on strongly-typed nested records. The abstract syntax is given by:</p>
-<p>τ = dom | &lt;A<sub>1</sub> : τ[<em>|?],…,A<sub>n</sub> : τ[</em>|?]&gt;</p>
+<p>τ = dom | &lt;A<sub>1</sub> : τ[*|?],…,A<sub>n</sub> : τ[*|?]&gt;</p>
 <p>where τ is an atomic type or a record type. Atomic types in dom comprise integers, floating-point numbers, string, etc. Records consist of one or multiple fields. Field i in a record has a name A<sub>i</sub> and an optional multiplicity label. Repeated field (*) may occur multiple times in a record. Optional field (?) may be missing from the record. Otherwise, a field is required, must appear exactly once.</p>
 <h2 id="Nested-Columnar-Storage"><a href="#Nested-Columnar-Storage" class="headerlink" title="Nested Columnar Storage"></a>Nested Columnar Storage</h2><p>In this section, we address the following challenges: lossless representation of record structure in a columnar format, fast encoding and efficient record assembly.</p>
 <h3 id="Repitition-and-Definition-Levels"><a href="#Repitition-and-Definition-Levels" class="headerlink" title="Repitition and Definition Levels"></a>Repitition and Definition Levels</h3><p>Values alone do not convey the structure of record. Given two values of a repeated field, we do not know at what ‘level’ the value repeated. Likewise, given a missing optional field, we don’t know which enclosing records were defined explicitly. We therefore introduce the concepts of repetition level and definition level.</p>
