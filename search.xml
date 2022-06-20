@@ -1,6 +1,122 @@
 <?xml version="1.0" encoding="utf-8"?>
 <search>
   <entry>
+    <title>Paper Reading: Dremel 2</title>
+    <url>/2022/06/19/paper_reading_dremel_2/</url>
+    <content><![CDATA[<p>In previous <a href="https://kanrourou.github.io/2022/06/12/paper_reading_dremel_1/" target="_blank" rel="noopener">article</a>, we have introduced the columnar storage of Dremel. In this <a href="https://static.googleusercontent.com/media/research.google.com/en//pubs/archive/43119.pdf" target="_blank" rel="noopener">paper</a> summary, we will focus on running query on tree structure records in Dremel.<br><a id="more"></a></p>
+<h2 id="Data"><a href="#Data" class="headerlink" title="Data"></a>Data</h2><p>The data types are defined recursively as:</p>
+<ol>
+<li>A tuple type is a list of attribute names and a (previously defined) type for each attribute.</li>
+<li>The type of an attribute is either a basic type or a tuple type. Further, attributes within a tuple type can be either required, optional, repeated, or required and repeated.</li>
+<li>A relation type is a repeated tuple type. We shall refer to the type of tuples (unrepeated) as the schema of the relation.</li>
+</ol>
+<h3 id="Representing-Schemas"><a href="#Representing-Schemas" class="headerlink" title="Representing Schemas"></a>Representing Schemas</h3><p>We use the conventional notation for types. For example, <code>int</code> and <code>string</code> will denote the basic types integer and strings. A tuple type T with attributes A<sub>1</sub>,…, A<sub>n</sub> whose types are T<sub>1</sub>,…, T<sub>n</sub>, respectively will be denoted:</p>
+<p>T = {A<sub>1</sub> : T<sub>1</sub>,…, A<sub>n</sub> : T<sub>n</sub>}</p>
+<p>The repeated type T will be denoted T<sup>*</sup>, the optional type T will be denoted T?; we also use T<sup>+</sup> to denote “one or more occurrences.”</p>
+<p>We shall use trees to represent schemas. The following rules define how a tree is constructed from a data type:</p>
+<ol>
+<li>A node that represents a tuple type has children for each attribute of that tuple type, in order from the left.</li>
+<li>The children are labeled by their corresponding attribute names.</li>
+<li>In addition, each attribution has a repetition constraint. A repeated attribute is labeled with a *; an optional attribute is labeled with a ?, an attribute that is required and repeated is labeled by a +.</li>
+<li>The root itself is labeled by the name of the type. Typically, the root type is starred, since it is the type of a relation and the relation consists of zero or more tuples of the root type.</li>
+<li>Leaf nodes are of basic type.</li>
+</ol>
+<p><img src="/images/schema_tree.png" alt></p>
+<p>For example, the schema tree above for a hypothetical data type represents advertisers at a search engine.</p>
+<h3 id="Instances-of-a-Schema"><a href="#Instances-of-a-Schema" class="headerlink" title="Instances of a Schema"></a>Instances of a Schema</h3><p>An instance of a data type or schema consists of replacement of each subtype by an appropriate number of instances of that subtype. More formally:</p>
+<ol>
+<li>An instance of a basic type is any single value of the appropriate type.</li>
+<li>An instance of a tuple type is a node whose children are each instances of one of the types of one of its attribute.</li>
+</ol>
+<p>The image below suggests a possible instance of the relation that is described by the schema tree above.</p>
+<p><img src="/images/data_tree.png" alt></p>
+<h3 id="Dummy-Occurrences"><a href="#Dummy-Occurrences" class="headerlink" title="Dummy Occurrences"></a>Dummy Occurrences</h3><p>For several reasons, including the way we flatten instances (see section below), we shall maintain a fiction about attributes that are repeated or optional. We imagine that there is one dummy occurence of this attribute, all of whose descendant leaves have the value NULL. Since this instance may have descendant interior nodes representing repeated or optional groups, those descendants are consequently treated as if they had only the dummy instance.</p>
+<p>We do not show this dummy instance in the tree diagrams, although as we shall see, there are reasons why it is useful to imagine it is there, and able to appear when needed. For instance, when we discuss querying, we shall see that sometimes all the occurences of some repeated attribute are deleted. We do no want anything else in the tree to disappear, so we replace the deleted occurences by the dummy occurrence. This viewpoint is consistent with the treatment of tree-structure instances as an outerjoin of conventional relations.</p>
+<h2 id="Querying-Tree-Structured-Data"><a href="#Querying-Tree-Structured-Data" class="headerlink" title="Querying Tree-Structured Data"></a>Querying Tree-Structured Data</h2><p>A more recent approach to query languages attempts to be more SQL-like, and to think of the instances of a tree data type as if they were tuples of a relation.</p>
+<h3 id="Flattening"><a href="#Flattening" class="headerlink" title="Flattening"></a>Flattening</h3><p>Flattening has always been regarded as a fundamental algebraic operation on nested relations. Informally, we flatten an instance of a tree data type by selecting one from each repeated group of values in all possible ways. This selection is made independently at all levels.</p>
+<p>Since filtering (selection) queries can delete all occurrences of repeated or optional attribute, we are going to want to make explicit the effect of the dummy occurrences discussed above. Thus, we define the “full flattening” (or just “flattening” when there is no ambiguity) of a tree instance to include all the tuples that result when we include all dummy instances in the flattening. To save space, we can remove those rows that are subsumed by another tuple of the flattened table. A roa r1 is subsumed by row r2 agrees with r1 wherever r1 is not NULL. We call this relation the reduced flattening of the tree.</p>
+<p>More formally, if I is an instance of some schema, we define the (ordinary) relation flatten(I) recursively as follows:</p>
+<ol>
+<li>If I is a single element of basic type, then flatten(I) is the tuple with a single component; that component is the value of I.</li>
+<li>If I is an instance of some tuple type with attributes A<sub>1</sub>,…, A<sub>n</sub>: Divide the children of the root of I into n groups, such that the first group is all the nodes that are occurrences of A<sub>1</sub>, the second group is all the occurrences of A<sub>2</sub>, and so on. For the ith group, construct a relation R<sub>i</sub> that has attributes for all leaves of the schema tree rooted at A<sub>i</sub>, as follows:<br>a. Recursively apply the flatten operation to the instance represented by each node in the group for A<sub>i</sub>. However, if A<sub>i</sub> is repeated or optional, include the dummy instance in this set of instances.<br>b. Take the union of the relation produced for each instance. The union is the relation R<sub>i</sub>.</li>
+<li>Finally, to get the relation flatten(I), take the Cartesian product R<sub>1</sub> x … x R<sub>n</sub>.</li>
+</ol>
+<p>Let us see how to flatten the instance in data tree above.</p>
+<p><img src="/images/full_flatten.png" alt></p>
+<p>The image above we present the flattening of the part of the instance with root at a1. The relation for ca1 is the cartesian product of the relation for i1, the relation for bu1, the union of the relations for s1 and s2 and, the union of the relations for cl1, cl2, and cl3. The result appears in row1 through 25. Similarly, for ca2, the result appears in rows 26 through 30.</p>
+<p>Finally, to construct the relation for a1, we take the product of the relations n1 and e1. The result looks similar to the image above but there are two new attributes (Name and Email) at the left.</p>
+<h2 id="Filter-Queries"><a href="#Filter-Queries" class="headerlink" title="Filter Queries"></a>Filter Queries</h2><p>A filter is a conjunction of comparisons AθB where A is an attribute, B is an attribute or a constant and θ can be any comparison for which given two values the outcome is “true” or “false.”</p>
+<h3 id="Querying-Flattened-Data"><a href="#Querying-Flattened-Data" class="headerlink" title="Querying Flattened Data"></a>Querying Flattened Data</h3><p>Flattening the tuples and apply the query to the ordinary relation that results. There are two problems with this idea:</p>
+<ol>
+<li>Flattening can expand greatly the amount of space needed to hold a tuple.<br>2</li>
+</ol>
+<p>Flattening the tuples and apply the query to the ordinary relation that results. There are two problems with this idea:</p>
+<ol>
+<li>Flattening can expand greatly the amount of space needed to hold a tuple.</li>
+<li>When you flatten a tree and then apply some filter to the resulting relation, it is common for there to be no way to prune the original tree to yield a tree that would have produced the result of the filtering the flattened relation.</li>
+</ol>
+<p>It is the purpose of this paper to resolve these two problems by:</p>
+<ol>
+<li>Investigating when the result of filtering a flattened relation is what we get by pruning the tree then flattening.</li>
+<li>Giving an algorithm to perform the filtering on the tree itself, whenever it is possible to do so.</li>
+</ol>
+<p>To see the problem concretely, consider the schema in figure below and an instance of that schema. The values of B and C are integers, but we give each occurrence of a B-value or C-value a name, such as b<sub>1</sub>, to make clear which attribute, B or C, each integer comes from. Suppose we apply to the instance of figure the query:</p>
+<figure class="highlight sql"><table><tr><td class="code"><pre><span class="line"><span class="keyword">SELECT</span> B, C <span class="keyword">FROM</span> A <span class="keyword">WHERE</span> B &lt; C</span><br></pre></td></tr></table></figure>
+<p><img src="/images/flatten_example_1.png" alt></p>
+<p>This example can be used to explain why we need a flattened relation where NULL’s appear. We apply this query to the flattened version, which is shown in image below. Note that relation (a) is a reduced flattened version, since we have not shown the tuple where one or both of B and C are NULL. However, in this case, the result would not change if we consider the full flattening. We shall see in section below where it becomes essential to use the full flattening.</p>
+<p><img src="/images/flatten_example_2.png" alt></p>
+<p>Notice that the second, third and sixth tuples satisfy the filter. Thus, the result of this query is shown below. However, this relation is not the flattening of any tuple with the schema. To see why, notice that such a tree-structured tuple would have B-values 10 and 20 and also have C-values 15 and 25.But the flattening of the tree would also yield the tuple (20, 15). We conclude that this SQL query cannot be executed on tree-structured tuple; it can only be executed on the flattened version of the tree, and the result has a schema differernt from the schema of the input tuples.</p>
+<p><img src="/images/flatten_example_3.png" alt></p>
+<h3 id="Handling-NULL’s-in-Query-Execution"><a href="#Handling-NULL’s-in-Query-Execution" class="headerlink" title="Handling NULL’s in Query Execution"></a>Handling NULL’s in Query Execution</h3><p>Now, using the same schema and instance, suppose we have the query:</p>
+<figure class="highlight sql"><table><tr><td class="code"><pre><span class="line"><span class="keyword">SELECT</span> * <span class="keyword">FROM</span> A</span><br><span class="line"><span class="keyword">WHERE</span> B = <span class="number">10</span> <span class="keyword">AND</span> C = <span class="number">35</span>;</span><br></pre></td></tr></table></figure>
+<p>According to the tree-pruning algorithm, the data leaves that do not satisfy the filter will be deleted. Thus the output data tree has only one leaf for attribute B (10) and not leaves for attribute C. The flattening, thus, contains only the row (10 NULL).</p>
+<p>But if we aply the query to the reduced relation (a) above, we get no tuples. Possibly, we could resolve the problem by starting with the full flattening (b), because that table has the necessary NULL’s. But according to the SQL standard, the truth value of C = 35 is UNKNOWN when C is NULL, which is not true enough.</p>
+<p>The resolution to this dilemma, we believe, is to deviate from the SQL standard by allowing UNKNOWN to be “suffcient true” to allow a row to reach the result of the query. If we do so, then rows 7 and 8 of full flattening (b) pass the filter. However, when we reduce the relation, row 7 is subsumed by row 8, so we get only the latter row as the answer.</p>
+<h2 id="The-Dominance-Relation"><a href="#The-Dominance-Relation" class="headerlink" title="The Dominance Relation"></a>The Dominance Relation</h2><p>Now, we are going to show how to distinguish queries that can be implemented on the tree-structured tuples directly, from those that cannot. By “directly”, we mean that each tuple is processed by prunning its tree, and not by creating several tuples from one. We shall then give several approaches to implementing those queries that can be executed directly on the trees.</p>
+<h3 id="Motivation-for-the-Dominance-Relation"><a href="#Motivation-for-the-Dominance-Relation" class="headerlink" title="Motivation for the Dominance Relation"></a>Motivation for the Dominance Relation</h3><p>Let us take a look at two queries on the Advertiser schema that look almost the same, but in fact behave quite differently. Query Q1:</p>
+<figure class="highlight sql"><table><tr><td class="code"><pre><span class="line"><span class="keyword">SELECT</span> CID <span class="keyword">FROM</span> Advertiser</span><br><span class="line"><span class="keyword">WHERE</span> Budget &lt; Fee;</span><br></pre></td></tr></table></figure>
+<p>Now consider query Q2:</p>
+<figure class="highlight sql"><table><tr><td class="code"><pre><span class="line"><span class="keyword">SELECT</span> CID <span class="keyword">FROM</span> Advertiser</span><br><span class="line"><span class="keyword">WHERE</span> Bid &lt; Fee;</span><br></pre></td></tr></table></figure>
+<p>These two queries are very similar but they differ in an important way, so that Q1 can be computed by tree pruning, while Q2 can not.</p>
+<p>The reason why Q2 can not be applied has already be explained in this <a href="#querying-flattened-data">section</a>.</p>
+<p>Suppose that f2 is greater than bu1 but f1 and f3 are not. Rows 4, 8, 12, 16, 20, 24 survive because bu1 &lt; f2, while row 2, 6, 10, 14, 18, 22 survive because the value of Fee in those rows is NULL, and we have adopted the convention that rows with value UNKNOWN for a filter condition pass the filter.</p>
+<p>For the subtree rooted at ca2, they are all survived because they come from the dummy Click and have NULL for the value of Fee. </p>
+<p>The result of applying Q1 to the full flattening relation results in the even rows in 2-24 and all rows in 26-30:</p>
+<p><img src="/images/full_flatten.png" alt></p>
+<p>The result of applying Q1 to prune the instance tree is like below:</p>
+<p><img src="/images/dominance_query.png" alt></p>
+<p>It turns out that regardless of the instance to which it is applied, the effect of query Q1 can always be implemented by pruning the tree for each tuple. On the other hand, we cannot normally do that for query Q2. The difference is expressed by the concept of “dominance” between nodes of the schema tree.</p>
+<h3 id="Definition-of-the-Dominance-Relation"><a href="#Definition-of-the-Dominance-Relation" class="headerlink" title="Definition of the Dominance Relation"></a>Definition of the Dominance Relation</h3><p>Definition 5.1. <em>A path in a schema tree from an ancestor A to a descendant D is star free if non of the nodes on the path, with the possible exception of A, is repeated or required-and-repeated.</em></p>
+<p>Definition 5.2. <em>An attribute A dominates another attribute B if, in the schema tree, the path from A to the lowest common ancester (LCA) of A and B is start free.</em></p>
+<p>Consider the schema of Advertiser. The LCA of Budget and Fee is Campaign. The path from Budget to Campaign has no starts, except for the star of Campaign. Since Campaign itself is the LCA, its star is not considered part of the path. We say that Budget dominates Fee, Fee does not dominate Budget. Now, consider the two attribute Bid and Fee involved in query Q2. Again the LCA is Campaign. But now, Bid and Fee each have a star on their path to the LCA (WordSet and Clicks, respectively). Therefore, neither dominates the other.</p>
+<p>For a final example, consider nodes Fee and Date. Their LCA is Clicks. Neither has a star on their path to the LCA. Therefore, Fee and Date each dominate each other.</p>
+<p>The key observation to be made is that there is only one Budget node in any instance of Campaign, the LCA of Budget and Fee. This fact makes query Q1 implementable by tree pruning. But for Q2, the LCA Campaign can have multiple Bid descendants and also multiple Fee descendants. Since awkward combinations of the Bid and Fee descendant can survive the filtering, it is impossible, in general, to implement Q2 by tree pruning.</p>
+<h3 id="Tree-Pruning-Algorithm-for-Filter-Queries"><a href="#Tree-Pruning-Algorithm-for-Filter-Queries" class="headerlink" title="Tree-Pruning Algorithm for Filter Queries"></a>Tree-Pruning Algorithm for Filter Queries</h3><p>The tree pruning algorithm works only for certain filter queries, but for this class of queries it produces a tree whose (full) flattening is the same as what we get by flattening the tree first, and then applying the query to the flattened relation. Moreover, in case where this algorithm is inapplicable, the result of applying the filter to the flattened relation cannot, in general, be expressed as the flattening of a tree that is derived from the original tree by deleting nodes.</p>
+<p>The class of filters allowed by the algorithm is those that are the AND of one or more comparisons. Each comparison is either:</p>
+<ol>
+<li>A comparison involing only one leaf attribute (e.g. compare with constants).</li>
+<li>A comparison involing two leaf attributes, one of which dominates the other.</li>
+</ol>
+<p>If we have the AND of two or more comparisons of these types, we can apply one comparisons at a time.</p>
+<p>For either type of comparisons, there is a node-deletion step followed by a recursive deletion process for ancestors of the deleted nodes. We shall start with the initial deletion.</p>
+<p>Case 1: If the comparisoin involves only one leaf attribute A, delete all leaves in the instance tree that are instances of A and that do not satisfy the predicate.</p>
+<p>Case 2: If the comparison involves leaf attriutes A and B, where A dominates B, let C be the LCA of A and B in the schema tree. In the instance tree, look at all occurrences of A and B such that the LCA of these nodes in the instance tree is an occurrence of C. If the values of the A and B nodes in the instance tree are such that the comparison is not satisfied, then delete the B node from the intance tree.</p>
+<p>Now, having deleted certain nodes from the instance tree, we need to propagate these deletions up the tree. In particular, if we delete a required node, then we have to delete the entire subtree rooted at its parent. Also, suppose n is a node in the instance tree, and it has some children that are occurrences of some attribute A, which is of kind required-and-repeated. If all these children have been deleted, then n must also be deleted. These rules can propagate up the instance tree indefinitely.</p>
+<p>The tree pruning algorithm can also handle Boolean formulas of comparisons. It does so by viewing them as a conjunction of disjunctions. The tree-pruning algorithm is modified for each conjunct as follows: if, for a certain assignment of data leaves at the attributes of the disjunction, the disjunction is not satisfied then, all these data leaves are deleted.</p>
+<p>Theorem 5.5. <em>Let I be an instance tree and let flatten(I) be the flattend relation of I. Then, for any query Q which uses a filter sunch that one attribute is a comparison dominates the other, the following holds:</em></p>
+<p>flatten(Q(I)) = Q(flatten(I))</p>
+<h2 id="Semi-flattening-and-Repetition-Context"><a href="#Semi-flattening-and-Repetition-Context" class="headerlink" title="Semi-flattening and Repetition Context"></a>Semi-flattening and Repetition Context</h2>]]></content>
+      <categories>
+        <category>System Infrastructure</category>
+        <category>Storage &amp; Query</category>
+      </categories>
+      <tags>
+        <tag>Infrastructure</tag>
+        <tag>Paper Reading</tag>
+        <tag>Query</tag>
+      </tags>
+  </entry>
+  <entry>
     <title>Paper Reading: Dremel 1</title>
     <url>/2022/06/12/paper_reading_dremel_1/</url>
     <content><![CDATA[<p><a href="https://static.googleusercontent.com/media/research.google.com/en//pubs/archive/36632.pdf" target="_blank" rel="noopener">Dremel</a> is a scalable, interactive ad-hoc query system for analysis of read-only nested data.<br><a id="more"></a></p>
@@ -842,6 +958,68 @@
       </tags>
   </entry>
   <entry>
+    <title>The Java Memory Model</title>
+    <url>/2021/01/17/java_memory_model/</url>
+    <content><![CDATA[<h2 id="什么是内存模型？我们为什么需要一个内存模型？"><a href="#什么是内存模型？我们为什么需要一个内存模型？" class="headerlink" title="什么是内存模型？我们为什么需要一个内存模型？"></a>什么是内存模型？我们为什么需要一个内存模型？</h2><p>我们之前在详解<a href="https://kanrourou.github.io/2021/01/13/understand_synchronized_keyword/" target="_blank" rel="noopener"><code>synchronized</code></a>、<a href="https://kanrourou.github.io/2021/01/15/understand_volatile_keyword/" target="_blank" rel="noopener"><code>volatie</code></a>和<a href="https://kanrourou.github.io/2021/01/17/understand_final_keyword/" target="_blank" rel="noopener"><code>final</code></a>的文章当中讲过，底层JVM、编译器、处理器执行指令的顺序并不保证和程序员所写的代码的顺序一样。在单线程中，只要遵从<code>as-if-serial</code>语义，就可以进行重排，所以对于程序员来说，底层的实现只是造成了一个程序是按照自己的代码顺序执行的假象。<br><a id="more"></a><br>在多线程环境中，如果不进行额外的synchronization的操作，像单线程一样的线性执行是没有办法得到保证的。JMM的作用有两方面：</p>
+<ol>
+<li>要给开发者提供一个尽可能简单的，可以预测的多线程开发方式。</li>
+<li>同时又要尽可能减少对底层JVM、硬件的限制，在保证1的前提下，对程序进行优化。</li>
+</ol>
+<p>在一个共享内存的多处理器架构下，每个处理器都会有自己缓存，这些处理器会定期地从主内存里读取数据来更新自己的缓存。而由于硬件上的差异，不同的处理器所提供的缓存一致性是不一样的。这就需要一个内存模型来告诉程序，其可以从内存系统中得到什么保证，并且可以通过插入一下特殊指令，比如内存屏障(memory barriers)，来保证在访问共享变量的时候能够得到一些额外的保证。</p>
+<p>为了让开发者不需要接触到这些底层的不同和实现细节，JMM提供了一系列保证来判断在多线程环境下指令发生的先后顺序。同时，JVM处理了JMM与不同平台内存系统之间的差异性，通过在适当的地方插入内存屏障，来保证JMM对开发者的保证不会变。</p>
+<p>简而言之，JMM定义了在多线程环境下所有操作的一个偏序。所谓偏序，即集合里的任意两个元素不一定能互相比较，这个集合当中，只有一部分元素的先后顺序是可以确定的。而这种保证，就是<em>happens-before</em>规则。</p>
+<h2 id="Happens-Before规则"><a href="#Happens-Before规则" class="headerlink" title="Happens-Before规则"></a>Happens-Before规则</h2><p>Happens-Before规则提供了以下保证，摘抄<em>Java Concurrency in Practice</em>原文如下：</p>
+<ol>
+<li><strong>Program order rule.</strong> Each action in a thread <em>happens-before</em> every action in that thread that comes later in the program order.</li>
+<li><strong>Monitor lock rule.</strong> An unlock on a mointor lock <em>happens-before</em> every subsequent lock on that same monitor lock. This in true for both explicit lock and intrinsic lock.</li>
+<li><strong>Volatile variable rule.</strong> A write to a <code>volatile</code> field <em>happens-before</em> every subsequent read of that same field.</li>
+<li><strong>Thread start rule.</strong> A call to <code>Thread.start</code> on a thread <em>happens-before</em> every action in the started thread.</li>
+<li><strong>Thread termination rule.</strong> Any action in a thread <em>happens-before</em> any other thread detects that thread has terminated, either by successfully return from <code>Thread.join</code> or by <code>Thread.isAlive</code> returning false.</li>
+<li><strong>Interruption rule.</strong> A thread calling <code>interrupt</code> on another thread <em>happens-before</em> the interrupted thread detects the interrupt (either by have <code>InterruptedException thrown</code>, or invoking <code>isInterrupted</code> or <code>interrupted</code>).</li>
+<li><strong>Finalizer rule.</strong> The end of a constructor for an object <em>happens-before</em> the start of the finalizer for that object.</li>
+<li><strong>Transitivity.</strong> If A <em>happens-before</em> B, and B <em>happens-before</em> C, then A <em>happens-before</em> C.</li>
+</ol>
+<p>以上八条规则虽然简单，但在现实中用于判断不同线程之前的先后关系和可见性的时候十分方便。我们用在这篇<a href="https://kanrourou.github.io/2021/01/15/understand_volatile_keyword/" target="_blank" rel="noopener">文章</a>中用过的例子：</p>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">Demo</span> </span>&#123;</span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">volatile</span> <span class="keyword">boolean</span> ready;</span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">int</span> number;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">static</span> <span class="class"><span class="keyword">class</span> <span class="title">ReaderThreader</span> <span class="keyword">extends</span> <span class="title">Thread</span> </span>&#123;</span><br><span class="line">        <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">run</span><span class="params">()</span> </span>&#123;</span><br><span class="line">            <span class="keyword">while</span> (!ready);</span><br><span class="line">            System.out.println(number);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">main</span><span class="params">(String[] args)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">new</span> ReaderThread().start();</span><br><span class="line">        number = <span class="number">42</span>;</span><br><span class="line">        ready = <span class="keyword">true</span>;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>假设线程A先执行了<code>main</code>方法，并且对<code>ready</code>进行写入。之后线程B执行<code>run()</code>方法读取<code>ready</code>的值，此时<code>number</code>的值对线程B可见吗？我们用<em>happens-before</em>规则判断：</p>
+<ol>
+<li>由规则3可知，第15行先与第7行。</li>
+<li>由规则1可知，第7行先与第8行。</li>
+<li>由规则1可知，第14行先与第15行。</li>
+<li>由规则8可知，第14行先与第15行，先于第7行，先于第8行。所以对<code>number</code>赋值42是对线程B可见的。</li>
+</ol>
+<p>我们刚刚说过了，JMM定义的顺序只是集合的偏序，也就是任何两个不满足<em>happens-before</em>的操作，其先后顺序是没有任何保障的。</p>
+<p>除此之外，JMM还对一些class library提供了<em>happens-before</em>保证：</p>
+<ol>
+<li>Placing an item in a thread-safe collection <em>happens-before</em> another thread retrieves that item from the collection.</li>
+<li>Counting down on a <code>CountDownLatch</code> <em>happens-before</em> a thread returns from <code>await</code> on that latch.</li>
+<li>Releasing a permit to a <code>Semaphore</code> <em>happens-before</em> acquiring a permit from that same <code>Samephore</code>.</li>
+<li>Actions taken by the task represented by a <code>Future</code> <em>happens-before</em> another thread successfully returns from <code>Future.get</code>.</li>
+<li>Submittig a <code>Runnable</code> or <code>Callable</code> to an <code>Executor</code> <em>happens-before</em> the task begins execution.</li>
+<li>A thread arriving at a <code>CyclicBarrier</code> or <code>Exchanger</code> <em>happens-before</em> the other threads are released from that same barrier or exchange point. If <code>CyclicBarrier</code> uses a barrier action, arriving at the barrier <em>happens-before</em> the barrier action, which in turn <em>happens-before</em> threads are released from the barrier.</li>
+</ol>
+<h2 id="Safe-Publication-and-Initialization"><a href="#Safe-Publication-and-Initialization" class="headerlink" title="Safe Publication and Initialization"></a>Safe Publication and Initialization</h2><p>我们在详解<code>final</code>这篇<a href="https://kanrourou.github.io/2021/01/17/understand_final_keyword/" target="_blank" rel="noopener">文章</a>中聊过这个问题，有多种方法可以保证safely publish an object。这里我们不细聊这个话题，来看一些例子。</p>
+<p>我们可以通过保证原子性来保证对象被安全初始化：</p>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="meta">@ThreadSafe</span></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">SafeInitialization</span> </span>&#123;</span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">static</span> Resource resource;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">synchronized</span> <span class="keyword">static</span> Resource <span class="title">getInstance</span><span class="params">()</span></span>&#123;</span><br><span class="line">        <span class="keyword">if</span> (resource == <span class="keyword">null</span>)</span><br><span class="line">            resource = <span class="keyword">new</span> Resouce();</span><br><span class="line">        <span class="keyword">return</span> resouce;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p><code>synchronized</code>保证了<code>resource</code>在初始化完成之前都不会被其他线程访问，所以这是线程安全的初始化。</p>
+<p>我们也可以用static initializer来保证安全初始化：</p>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="meta">@ThreadSafe</span></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">EagerInitialization</span> </span>&#123;</span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">static</span> Resource resource = <span class="keyword">new</span> Resource();</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> Resource <span class="title">getResource</span><span class="params">()</span> </span>&#123; <span class="keyword">return</span> resource; &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>Static initializer的安全性是JVM提供的保证，因为JVM保证static initializer在对象被其他线程访问之前就会完成。因为JVM在调用static initializer的时候会获取锁，这个所会在其他线程确认这个类被loaded的时候获取，所以可以保证static initializer的写都立马对其他线程可见。所以在不需要其他同步操作的情况下，就可以保证初始化安全性。</p>
+<p>那么在结合上面两个技巧的情况下，我们可以实现不需要额外同步操作的线程安全版本的lazy initialization方法（另一种方法是DCL，我们在这篇<a href="https://kanrourou.github.io/2021/01/15/understand_volatile_keyword/" target="_blank" rel="noopener">文章</a>中讲过）：</p>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="meta">@ThreadSafe</span></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">ResourceFactory</span> </span>&#123;</span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">static</span> <span class="class"><span class="keyword">class</span> <span class="title">ResourceHolder</span> </span>&#123;</span><br><span class="line">        <span class="keyword">public</span> <span class="keyword">static</span> Resource resource = <span class="keyword">new</span> Resource();</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> Resource <span class="title">getResouce</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        <span class="keyword">return</span> ResourceHolder.resource;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p><code>ResourceHodler</code>的<code>resource</code>域是static initialized的，所以其保证初始化的安全性。<code>getResource</code>只有在被第一次调用的时候，才会初始化<code>resource</code>，所以其为lazy initialization。</p>
+]]></content>
+      <categories>
+        <category>Programming</category>
+        <category>Java</category>
+        <category>Concurrency</category>
+      </categories>
+      <tags>
+        <tag>Java</tag>
+        <tag>Concurrency</tag>
+      </tags>
+  </entry>
+  <entry>
     <title>深入理解final关键字</title>
     <url>/2021/01/17/understand_final_keyword/</url>
     <content><![CDATA[<h2 id="final的基本语义"><a href="#final的基本语义" class="headerlink" title="final的基本语义"></a>final的基本语义</h2><p><code>final</code>在java中是非常常用的关键字，其语义和C++中的<code>constant</code>有类似之处，都代表不变的意思，其可以用在以下地方：</p>
@@ -984,68 +1162,6 @@
       </tags>
   </entry>
   <entry>
-    <title>The Java Memory Model</title>
-    <url>/2021/01/17/java_memory_model/</url>
-    <content><![CDATA[<h2 id="什么是内存模型？我们为什么需要一个内存模型？"><a href="#什么是内存模型？我们为什么需要一个内存模型？" class="headerlink" title="什么是内存模型？我们为什么需要一个内存模型？"></a>什么是内存模型？我们为什么需要一个内存模型？</h2><p>我们之前在详解<a href="https://kanrourou.github.io/2021/01/13/understand_synchronized_keyword/" target="_blank" rel="noopener"><code>synchronized</code></a>、<a href="https://kanrourou.github.io/2021/01/15/understand_volatile_keyword/" target="_blank" rel="noopener"><code>volatie</code></a>和<a href="https://kanrourou.github.io/2021/01/17/understand_final_keyword/" target="_blank" rel="noopener"><code>final</code></a>的文章当中讲过，底层JVM、编译器、处理器执行指令的顺序并不保证和程序员所写的代码的顺序一样。在单线程中，只要遵从<code>as-if-serial</code>语义，就可以进行重排，所以对于程序员来说，底层的实现只是造成了一个程序是按照自己的代码顺序执行的假象。<br><a id="more"></a><br>在多线程环境中，如果不进行额外的synchronization的操作，像单线程一样的线性执行是没有办法得到保证的。JMM的作用有两方面：</p>
-<ol>
-<li>要给开发者提供一个尽可能简单的，可以预测的多线程开发方式。</li>
-<li>同时又要尽可能减少对底层JVM、硬件的限制，在保证1的前提下，对程序进行优化。</li>
-</ol>
-<p>在一个共享内存的多处理器架构下，每个处理器都会有自己缓存，这些处理器会定期地从主内存里读取数据来更新自己的缓存。而由于硬件上的差异，不同的处理器所提供的缓存一致性是不一样的。这就需要一个内存模型来告诉程序，其可以从内存系统中得到什么保证，并且可以通过插入一下特殊指令，比如内存屏障(memory barriers)，来保证在访问共享变量的时候能够得到一些额外的保证。</p>
-<p>为了让开发者不需要接触到这些底层的不同和实现细节，JMM提供了一系列保证来判断在多线程环境下指令发生的先后顺序。同时，JVM处理了JMM与不同平台内存系统之间的差异性，通过在适当的地方插入内存屏障，来保证JMM对开发者的保证不会变。</p>
-<p>简而言之，JMM定义了在多线程环境下所有操作的一个偏序。所谓偏序，即集合里的任意两个元素不一定能互相比较，这个集合当中，只有一部分元素的先后顺序是可以确定的。而这种保证，就是<em>happens-before</em>规则。</p>
-<h2 id="Happens-Before规则"><a href="#Happens-Before规则" class="headerlink" title="Happens-Before规则"></a>Happens-Before规则</h2><p>Happens-Before规则提供了以下保证，摘抄<em>Java Concurrency in Practice</em>原文如下：</p>
-<ol>
-<li><strong>Program order rule.</strong> Each action in a thread <em>happens-before</em> every action in that thread that comes later in the program order.</li>
-<li><strong>Monitor lock rule.</strong> An unlock on a mointor lock <em>happens-before</em> every subsequent lock on that same monitor lock. This in true for both explicit lock and intrinsic lock.</li>
-<li><strong>Volatile variable rule.</strong> A write to a <code>volatile</code> field <em>happens-before</em> every subsequent read of that same field.</li>
-<li><strong>Thread start rule.</strong> A call to <code>Thread.start</code> on a thread <em>happens-before</em> every action in the started thread.</li>
-<li><strong>Thread termination rule.</strong> Any action in a thread <em>happens-before</em> any other thread detects that thread has terminated, either by successfully return from <code>Thread.join</code> or by <code>Thread.isAlive</code> returning false.</li>
-<li><strong>Interruption rule.</strong> A thread calling <code>interrupt</code> on another thread <em>happens-before</em> the interrupted thread detects the interrupt (either by have <code>InterruptedException thrown</code>, or invoking <code>isInterrupted</code> or <code>interrupted</code>).</li>
-<li><strong>Finalizer rule.</strong> The end of a constructor for an object <em>happens-before</em> the start of the finalizer for that object.</li>
-<li><strong>Transitivity.</strong> If A <em>happens-before</em> B, and B <em>happens-before</em> C, then A <em>happens-before</em> C.</li>
-</ol>
-<p>以上八条规则虽然简单，但在现实中用于判断不同线程之前的先后关系和可见性的时候十分方便。我们用在这篇<a href="https://kanrourou.github.io/2021/01/15/understand_volatile_keyword/" target="_blank" rel="noopener">文章</a>中用过的例子：</p>
-<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">Demo</span> </span>&#123;</span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">volatile</span> <span class="keyword">boolean</span> ready;</span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">int</span> number;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">static</span> <span class="class"><span class="keyword">class</span> <span class="title">ReaderThreader</span> <span class="keyword">extends</span> <span class="title">Thread</span> </span>&#123;</span><br><span class="line">        <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">run</span><span class="params">()</span> </span>&#123;</span><br><span class="line">            <span class="keyword">while</span> (!ready);</span><br><span class="line">            System.out.println(number);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">main</span><span class="params">(String[] args)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">new</span> ReaderThread().start();</span><br><span class="line">        number = <span class="number">42</span>;</span><br><span class="line">        ready = <span class="keyword">true</span>;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<p>假设线程A先执行了<code>main</code>方法，并且对<code>ready</code>进行写入。之后线程B执行<code>run()</code>方法读取<code>ready</code>的值，此时<code>number</code>的值对线程B可见吗？我们用<em>happens-before</em>规则判断：</p>
-<ol>
-<li>由规则3可知，第15行先与第7行。</li>
-<li>由规则1可知，第7行先与第8行。</li>
-<li>由规则1可知，第14行先与第15行。</li>
-<li>由规则8可知，第14行先与第15行，先于第7行，先于第8行。所以对<code>number</code>赋值42是对线程B可见的。</li>
-</ol>
-<p>我们刚刚说过了，JMM定义的顺序只是集合的偏序，也就是任何两个不满足<em>happens-before</em>的操作，其先后顺序是没有任何保障的。</p>
-<p>除此之外，JMM还对一些class library提供了<em>happens-before</em>保证：</p>
-<ol>
-<li>Placing an item in a thread-safe collection <em>happens-before</em> another thread retrieves that item from the collection.</li>
-<li>Counting down on a <code>CountDownLatch</code> <em>happens-before</em> a thread returns from <code>await</code> on that latch.</li>
-<li>Releasing a permit to a <code>Semaphore</code> <em>happens-before</em> acquiring a permit from that same <code>Samephore</code>.</li>
-<li>Actions taken by the task represented by a <code>Future</code> <em>happens-before</em> another thread successfully returns from <code>Future.get</code>.</li>
-<li>Submittig a <code>Runnable</code> or <code>Callable</code> to an <code>Executor</code> <em>happens-before</em> the task begins execution.</li>
-<li>A thread arriving at a <code>CyclicBarrier</code> or <code>Exchanger</code> <em>happens-before</em> the other threads are released from that same barrier or exchange point. If <code>CyclicBarrier</code> uses a barrier action, arriving at the barrier <em>happens-before</em> the barrier action, which in turn <em>happens-before</em> threads are released from the barrier.</li>
-</ol>
-<h2 id="Safe-Publication-and-Initialization"><a href="#Safe-Publication-and-Initialization" class="headerlink" title="Safe Publication and Initialization"></a>Safe Publication and Initialization</h2><p>我们在详解<code>final</code>这篇<a href="https://kanrourou.github.io/2021/01/17/understand_final_keyword/" target="_blank" rel="noopener">文章</a>中聊过这个问题，有多种方法可以保证safely publish an object。这里我们不细聊这个话题，来看一些例子。</p>
-<p>我们可以通过保证原子性来保证对象被安全初始化：</p>
-<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="meta">@ThreadSafe</span></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">SafeInitialization</span> </span>&#123;</span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">static</span> Resource resource;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">synchronized</span> <span class="keyword">static</span> Resource <span class="title">getInstance</span><span class="params">()</span></span>&#123;</span><br><span class="line">        <span class="keyword">if</span> (resource == <span class="keyword">null</span>)</span><br><span class="line">            resource = <span class="keyword">new</span> Resouce();</span><br><span class="line">        <span class="keyword">return</span> resouce;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<p><code>synchronized</code>保证了<code>resource</code>在初始化完成之前都不会被其他线程访问，所以这是线程安全的初始化。</p>
-<p>我们也可以用static initializer来保证安全初始化：</p>
-<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="meta">@ThreadSafe</span></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">EagerInitialization</span> </span>&#123;</span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">static</span> Resource resource = <span class="keyword">new</span> Resource();</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> Resource <span class="title">getResource</span><span class="params">()</span> </span>&#123; <span class="keyword">return</span> resource; &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<p>Static initializer的安全性是JVM提供的保证，因为JVM保证static initializer在对象被其他线程访问之前就会完成。因为JVM在调用static initializer的时候会获取锁，这个所会在其他线程确认这个类被loaded的时候获取，所以可以保证static initializer的写都立马对其他线程可见。所以在不需要其他同步操作的情况下，就可以保证初始化安全性。</p>
-<p>那么在结合上面两个技巧的情况下，我们可以实现不需要额外同步操作的线程安全版本的lazy initialization方法（另一种方法是DCL，我们在这篇<a href="https://kanrourou.github.io/2021/01/15/understand_volatile_keyword/" target="_blank" rel="noopener">文章</a>中讲过）：</p>
-<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="meta">@ThreadSafe</span></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">ResourceFactory</span> </span>&#123;</span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">static</span> <span class="class"><span class="keyword">class</span> <span class="title">ResourceHolder</span> </span>&#123;</span><br><span class="line">        <span class="keyword">public</span> <span class="keyword">static</span> Resource resource = <span class="keyword">new</span> Resource();</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> Resource <span class="title">getResouce</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        <span class="keyword">return</span> ResourceHolder.resource;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<p><code>ResourceHodler</code>的<code>resource</code>域是static initialized的，所以其保证初始化的安全性。<code>getResource</code>只有在被第一次调用的时候，才会初始化<code>resource</code>，所以其为lazy initialization。</p>
-]]></content>
-      <categories>
-        <category>Programming</category>
-        <category>Java</category>
-        <category>Concurrency</category>
-      </categories>
-      <tags>
-        <tag>Java</tag>
-        <tag>Concurrency</tag>
-      </tags>
-  </entry>
-  <entry>
     <title>深入理解volatile关键字</title>
     <url>/2021/01/15/understand_volatile_keyword/</url>
     <content><![CDATA[<h2 id="volatile与可见性"><a href="#volatile与可见性" class="headerlink" title="volatile与可见性"></a>volatile与可见性</h2><p>我们还是先来看一个例子，这个例子在<code>synchronized</code>这篇<a href="https://kanrourou.github.io/2021/01/13/understand_synchronized_keyword/" target="_blank" rel="noopener">文章</a>中用过:<br><a id="more"></a></p>
@@ -1176,39 +1292,6 @@
       </tags>
   </entry>
   <entry>
-    <title>Use Valine to set up blog comments and PV</title>
-    <url>/2021/01/03/valine_for_pv_and_comments/</url>
-    <content><![CDATA[<p>We have introduced one <a href="https://kanrourou.github.io/2019/03/18/hexo_next_page_user_views/" target="_blank" rel="noopener">way</a> before to configure blog PV by using the natrually supported LeanCloud counter in NexT theme. But this is somehow broken for my site, so I explored and switched to <a href="https://valine.js.org/" target="_blank" rel="noopener">Valine</a> which supports PV and comments without any backend changes.<br><a id="more"></a></p>
-<h3 id="Set-up-LeanCloud"><a href="#Set-up-LeanCloud" class="headerlink" title="Set up LeanCloud"></a>Set up LeanCloud</h3><p>The LeanCloud set up is pretty similar to what have been explained in the article above, please refer to it for more details. In general, after creating your application, you will need to create <code>Counter</code> and <code>Comment</code> classes under <code>Storage-&gt;Objects</code>, note that the class name must not be changed. And the ACL permission needs to be set to allow all users to read &amp; write.</p>
-<p><img src="/images/leancloud_classes_permission.png" alt></p>
-<p>Navigate to the security page, turn off all services except LeanStorage, and add your blog domain to web secure domains.</p>
-<p><img src="/images/leancloud_security.png" alt></p>
-<h3 id="Update-config-file"><a href="#Update-config-file" class="headerlink" title="Update config file"></a>Update config file</h3><p>Go to this <a href="https://www.jsdelivr.com/package/npm/valine" target="_blank" rel="noopener">page</a> to access Valine CDN files.</p>
-<p><img src="/images/valine_cdn.png" alt></p>
-<p>Copy the script url and modify <code>themes/next/_config.yml</code> as below:<br><figure class="highlight yml"><table><tr><td class="code"><pre><span class="line"><span class="comment"># Valine</span></span><br><span class="line"><span class="comment"># valine: //cdn.jsdelivr.net/npm/valine@1/dist/Valine.min.js</span></span><br><span class="line"><span class="comment"># valine: //cdnjs.cloudflare.com/ajax/libs/valine/1.3.4/Valine.min.js</span></span><br><span class="line"><span class="attr">valine:</span> <span class="attr">https://cdn.jsdelivr.net/npm/valine@1.4.14/dist/Valine.min.js</span></span><br></pre></td></tr></table></figure></p>
-<p>Navigate to app keys page to acquire your <code>appid</code> and <code>appkey</code>.</p>
-<p><img src="/images/lean_cloud_app_key.png" alt></p>
-<p>Then turn on Valine in the config file:<br><figure class="highlight yml"><table><tr><td class="code"><pre><span class="line"><span class="comment"># Valine</span></span><br><span class="line"><span class="comment"># More info available at https://valine.js.org</span></span><br><span class="line"><span class="attr">valine:</span></span><br><span class="line"><span class="attr">  enable:</span> <span class="literal">true</span> </span><br><span class="line"><span class="attr">  appid:</span> <span class="comment">#your id#</span></span><br><span class="line"><span class="attr">  appkey:</span> <span class="comment">#your key#</span></span><br><span class="line"><span class="attr">  notify:</span> <span class="literal">false</span> <span class="comment"># mail notifier, See: https://github.com/xCss/Valine/wiki</span></span><br><span class="line"><span class="attr">  verify:</span> <span class="literal">false</span> <span class="comment"># Verification code</span></span><br><span class="line"><span class="attr">  placeholder:</span> <span class="string">Just</span> <span class="string">go</span> <span class="string">go...</span> <span class="comment"># comment box placeholder</span></span><br><span class="line"><span class="attr">  avatar:</span> <span class="string">mm</span> <span class="comment"># gravatar style</span></span><br><span class="line"><span class="attr">  guest_info:</span> <span class="string">nick,mail,link</span> <span class="comment"># custom comment header</span></span><br><span class="line"><span class="attr">  pageSize:</span> <span class="number">10</span> <span class="comment"># pagination size</span></span><br><span class="line"><span class="attr">  visitor:</span> <span class="literal">true</span> <span class="comment"># leancloud-counter-security is not supported for now. When visitor is set to be true, appid and appkey are recommended to be the same as leancloud_visitors' for counter compatibility. Article reading statistic https://valine.js.org/visitor.html</span></span><br><span class="line"><span class="attr">  comment_count:</span> <span class="literal">true</span> <span class="comment"># if false, comment count will only be displayed in post page, not in home page</span></span><br></pre></td></tr></table></figure></p>
-<p>You can also enable the <code>visitor</code> which will display the number of views of your posts. Notes this conflicts with LeanCloud counter so you need to turn it off in the config file.</p>
-<p>Deploy the changes and you will see the comments and PV:</p>
-<p><img src="/images/comments.png" alt></p>
-<p><img src="/images/comments_pv_header_view.png" alt></p>
-<h3 id="Tips"><a href="#Tips" class="headerlink" title="Tips"></a>Tips</h3><p>The PV counter uses title combing publish date as the key. To avoid that updating the article will cause the PV to be reset, you can add the publish date in you article:<br><figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">date: 2021-01-03 15:25:41</span><br></pre></td></tr></table></figure></p>
-<p>And turn off the <code>future</code> in Hexo’s <code>_config.yml</code>.<br><figure class="highlight yml"><table><tr><td class="code"><pre><span class="line"><span class="attr">future:</span> <span class="literal">false</span></span><br></pre></td></tr></table></figure></p>
-<p>So the posted date will not be changed after you modified it, and the previous PV count will be kept.</p>
-]]></content>
-      <categories>
-        <category>Programming</category>
-        <category>JavaScript</category>
-        <category>Hexo</category>
-      </categories>
-      <tags>
-        <tag>Hexo</tag>
-        <tag>JavaScript</tag>
-        <tag>NexT</tag>
-      </tags>
-  </entry>
-  <entry>
     <title>Paper Reading: Kafka</title>
     <url>/2021/01/03/paper_reading_kafka/</url>
     <content><![CDATA[<p><a href="http://notes.stephenholiday.com/Kafka.pdf" target="_blank" rel="noopener">Kafka</a> is a distributed messaging system that developed for collecting and delivering high volumes of log data with low latency.<br><a id="more"></a></p>
@@ -1248,6 +1331,39 @@
         <tag>Distributed System</tag>
         <tag>Infrastructure</tag>
         <tag>Paper Reading</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>Use Valine to set up blog comments and PV</title>
+    <url>/2021/01/03/valine_for_pv_and_comments/</url>
+    <content><![CDATA[<p>We have introduced one <a href="https://kanrourou.github.io/2019/03/18/hexo_next_page_user_views/" target="_blank" rel="noopener">way</a> before to configure blog PV by using the natrually supported LeanCloud counter in NexT theme. But this is somehow broken for my site, so I explored and switched to <a href="https://valine.js.org/" target="_blank" rel="noopener">Valine</a> which supports PV and comments without any backend changes.<br><a id="more"></a></p>
+<h3 id="Set-up-LeanCloud"><a href="#Set-up-LeanCloud" class="headerlink" title="Set up LeanCloud"></a>Set up LeanCloud</h3><p>The LeanCloud set up is pretty similar to what have been explained in the article above, please refer to it for more details. In general, after creating your application, you will need to create <code>Counter</code> and <code>Comment</code> classes under <code>Storage-&gt;Objects</code>, note that the class name must not be changed. And the ACL permission needs to be set to allow all users to read &amp; write.</p>
+<p><img src="/images/leancloud_classes_permission.png" alt></p>
+<p>Navigate to the security page, turn off all services except LeanStorage, and add your blog domain to web secure domains.</p>
+<p><img src="/images/leancloud_security.png" alt></p>
+<h3 id="Update-config-file"><a href="#Update-config-file" class="headerlink" title="Update config file"></a>Update config file</h3><p>Go to this <a href="https://www.jsdelivr.com/package/npm/valine" target="_blank" rel="noopener">page</a> to access Valine CDN files.</p>
+<p><img src="/images/valine_cdn.png" alt></p>
+<p>Copy the script url and modify <code>themes/next/_config.yml</code> as below:<br><figure class="highlight yml"><table><tr><td class="code"><pre><span class="line"><span class="comment"># Valine</span></span><br><span class="line"><span class="comment"># valine: //cdn.jsdelivr.net/npm/valine@1/dist/Valine.min.js</span></span><br><span class="line"><span class="comment"># valine: //cdnjs.cloudflare.com/ajax/libs/valine/1.3.4/Valine.min.js</span></span><br><span class="line"><span class="attr">valine:</span> <span class="attr">https://cdn.jsdelivr.net/npm/valine@1.4.14/dist/Valine.min.js</span></span><br></pre></td></tr></table></figure></p>
+<p>Navigate to app keys page to acquire your <code>appid</code> and <code>appkey</code>.</p>
+<p><img src="/images/lean_cloud_app_key.png" alt></p>
+<p>Then turn on Valine in the config file:<br><figure class="highlight yml"><table><tr><td class="code"><pre><span class="line"><span class="comment"># Valine</span></span><br><span class="line"><span class="comment"># More info available at https://valine.js.org</span></span><br><span class="line"><span class="attr">valine:</span></span><br><span class="line"><span class="attr">  enable:</span> <span class="literal">true</span> </span><br><span class="line"><span class="attr">  appid:</span> <span class="comment">#your id#</span></span><br><span class="line"><span class="attr">  appkey:</span> <span class="comment">#your key#</span></span><br><span class="line"><span class="attr">  notify:</span> <span class="literal">false</span> <span class="comment"># mail notifier, See: https://github.com/xCss/Valine/wiki</span></span><br><span class="line"><span class="attr">  verify:</span> <span class="literal">false</span> <span class="comment"># Verification code</span></span><br><span class="line"><span class="attr">  placeholder:</span> <span class="string">Just</span> <span class="string">go</span> <span class="string">go...</span> <span class="comment"># comment box placeholder</span></span><br><span class="line"><span class="attr">  avatar:</span> <span class="string">mm</span> <span class="comment"># gravatar style</span></span><br><span class="line"><span class="attr">  guest_info:</span> <span class="string">nick,mail,link</span> <span class="comment"># custom comment header</span></span><br><span class="line"><span class="attr">  pageSize:</span> <span class="number">10</span> <span class="comment"># pagination size</span></span><br><span class="line"><span class="attr">  visitor:</span> <span class="literal">true</span> <span class="comment"># leancloud-counter-security is not supported for now. When visitor is set to be true, appid and appkey are recommended to be the same as leancloud_visitors' for counter compatibility. Article reading statistic https://valine.js.org/visitor.html</span></span><br><span class="line"><span class="attr">  comment_count:</span> <span class="literal">true</span> <span class="comment"># if false, comment count will only be displayed in post page, not in home page</span></span><br></pre></td></tr></table></figure></p>
+<p>You can also enable the <code>visitor</code> which will display the number of views of your posts. Notes this conflicts with LeanCloud counter so you need to turn it off in the config file.</p>
+<p>Deploy the changes and you will see the comments and PV:</p>
+<p><img src="/images/comments.png" alt></p>
+<p><img src="/images/comments_pv_header_view.png" alt></p>
+<h3 id="Tips"><a href="#Tips" class="headerlink" title="Tips"></a>Tips</h3><p>The PV counter uses title combing publish date as the key. To avoid that updating the article will cause the PV to be reset, you can add the publish date in you article:<br><figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">date: 2021-01-03 15:25:41</span><br></pre></td></tr></table></figure></p>
+<p>And turn off the <code>future</code> in Hexo’s <code>_config.yml</code>.<br><figure class="highlight yml"><table><tr><td class="code"><pre><span class="line"><span class="attr">future:</span> <span class="literal">false</span></span><br></pre></td></tr></table></figure></p>
+<p>So the posted date will not be changed after you modified it, and the previous PV count will be kept.</p>
+]]></content>
+      <categories>
+        <category>Programming</category>
+        <category>JavaScript</category>
+        <category>Hexo</category>
+      </categories>
+      <tags>
+        <tag>Hexo</tag>
+        <tag>JavaScript</tag>
+        <tag>NexT</tag>
       </tags>
   </entry>
   <entry>

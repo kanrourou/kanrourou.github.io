@@ -1,0 +1,653 @@
+<!DOCTYPE html>
+<html lang="">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 3.9.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/font-awesome.min.css">
+
+
+<script id="hexo-configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    hostname: new URL('http://yoursite.com').hostname,
+    root: '/',
+    scheme: 'Pisces',
+    version: '7.6.0',
+    exturl: false,
+    sidebar: {"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},
+    copycode: {"enable":false,"show_result":false,"style":null},
+    back2top: {"enable":true,"sidebar":false,"scrollpercent":false},
+    bookmark: {"enable":false,"color":"#222","save":"auto"},
+    fancybox: false,
+    mediumzoom: false,
+    lazyload: false,
+    pangu: false,
+    comments: {"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},
+    algolia: {
+      appID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    },
+    localsearch: {"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},
+    path: 'search.xml',
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}}
+  };
+</script>
+
+  <meta name="description" content="In previous article, we have introduced the columnar storage of Dremel. In this paper summary, we will focus on running query on tree structure records in Dremel.">
+<meta name="keywords" content="Infrastructure,Paper Reading,Query">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Paper Reading: Dremel 2">
+<meta property="og:url" content="http://yoursite.com/2022/06/19/paper_reading_dremel_2/index.html">
+<meta property="og:site_name" content="码字的呵呵君">
+<meta property="og:description" content="In previous article, we have introduced the columnar storage of Dremel. In this paper summary, we will focus on running query on tree structure records in Dremel.">
+<meta property="og:locale" content="default">
+<meta property="og:image" content="http://yoursite.com/images/schema_tree.png">
+<meta property="og:image" content="http://yoursite.com/images/data_tree.png">
+<meta property="og:image" content="http://yoursite.com/images/full_flatten.png">
+<meta property="og:image" content="http://yoursite.com/images/flatten_example_1.png">
+<meta property="og:image" content="http://yoursite.com/images/flatten_example_2.png">
+<meta property="og:image" content="http://yoursite.com/images/flatten_example_3.png">
+<meta property="og:image" content="http://yoursite.com/images/full_flatten.png">
+<meta property="og:image" content="http://yoursite.com/images/dominance_query.png">
+<meta property="og:updated_time" content="2022-06-20T07:17:50.657Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Paper Reading: Dremel 2">
+<meta name="twitter:description" content="In previous article, we have introduced the columnar storage of Dremel. In this paper summary, we will focus on running query on tree structure records in Dremel.">
+<meta name="twitter:image" content="http://yoursite.com/images/schema_tree.png">
+
+<link rel="canonical" href="http://yoursite.com/2022/06/19/paper_reading_dremel_2/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome: false,
+    isPost: true
+  };
+</script>
+
+  <title>Paper Reading: Dremel 2 | 码字的呵呵君</title>
+  
+    <script async src="https://www.googletagmanager.com/gtag/js?id=UA-133451584-2"></script>
+    <script>
+      if (CONFIG.hostname === location.hostname) {
+        window.dataLayer = window.dataLayer || [];
+        function gtag(){dataLayer.push(arguments);}
+        gtag('js', new Date());
+        gtag('config', 'UA-133451584-2');
+      }
+    </script>
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-meta">
+
+    <div>
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">码字的呵呵君</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+        <p class="site-subtitle">漫长的告别</p>
+  </div>
+
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="Toggle navigation bar">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+</div>
+
+
+<nav class="site-nav">
+  
+  <ul id="menu" class="menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-fw fa-home"></i>Home</a>
+
+  </li>
+        <li class="menu-item menu-item-about">
+
+    <a href="/about/" rel="section"><i class="fa fa-fw fa-user"></i>About</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/tags/" rel="section"><i class="fa fa-fw fa-tags"></i>Tags</a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/categories/" rel="section"><i class="fa fa-fw fa-th"></i>Categories</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-fw fa-archive"></i>Archives</a>
+
+  </li>
+  </ul>
+
+</nav>
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content">
+            
+
+  <div class="posts-expand">
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block " lang="default">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2022/06/19/paper_reading_dremel_2/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="hehejun">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="码字的呵呵君">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          Paper Reading: Dremel 2
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+
+              <time title="Created: 2022-06-19 00:00:00" itemprop="dateCreated datePublished" datetime="2022-06-19T00:00:00-07:00">2022-06-19</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-calendar-check-o"></i>
+                </span>
+                <span class="post-meta-item-text">Edited on</span>
+                <time title="Modified: 2022-06-20 00:17:50" itemprop="dateModified" datetime="2022-06-20T00:17:50-07:00">2022-06-20</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">In</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/System-Infrastructure/" itemprop="url" rel="index">
+                    <span itemprop="name">System Infrastructure</span>
+                  </a>
+                </span>
+                  , 
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/System-Infrastructure/Storage-Query/" itemprop="url" rel="index">
+                    <span itemprop="name">Storage & Query</span>
+                  </a>
+                </span>
+            </span>
+
+          
+            <span id="/2022/06/19/paper_reading_dremel_2/" class="post-meta-item leancloud_visitors" data-flag-title="Paper Reading: Dremel 2" title="Views">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-eye"></i>
+              </span>
+              <span class="post-meta-item-text">Views: </span>
+              <span class="leancloud-visitors-count"></span>
+            </span>
+  
+  <span class="post-meta-item">
+    
+      <span class="post-meta-item-icon">
+        <i class="fa fa-comment-o"></i>
+      </span>
+      <span class="post-meta-item-text">Valine: </span>
+    
+    <a title="valine" href="/2022/06/19/paper_reading_dremel_2/#comments" itemprop="discussionUrl">
+      <span class="post-comments-count valine-comment-count" data-xid="/2022/06/19/paper_reading_dremel_2/" itemprop="commentCount"></span>
+    </a>
+  </span>
+  
+  <br>
+            <span class="post-meta-item" title="Symbols count in article">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-file-word-o"></i>
+              </span>
+                <span class="post-meta-item-text">Symbols count in article: </span>
+              <span>13k</span>
+            </span>
+            <span class="post-meta-item" title="Reading time">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-clock-o"></i>
+              </span>
+                <span class="post-meta-item-text">Reading time &asymp;</span>
+              <span>12 mins.</span>
+            </span>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <p>In previous <a href="https://kanrourou.github.io/2022/06/12/paper_reading_dremel_1/" target="_blank" rel="noopener">article</a>, we have introduced the columnar storage of Dremel. In this <a href="https://static.googleusercontent.com/media/research.google.com/en//pubs/archive/43119.pdf" target="_blank" rel="noopener">paper</a> summary, we will focus on running query on tree structure records in Dremel.<br><a id="more"></a></p>
+<h2 id="Data"><a href="#Data" class="headerlink" title="Data"></a>Data</h2><p>The data types are defined recursively as:</p>
+<ol>
+<li>A tuple type is a list of attribute names and a (previously defined) type for each attribute.</li>
+<li>The type of an attribute is either a basic type or a tuple type. Further, attributes within a tuple type can be either required, optional, repeated, or required and repeated.</li>
+<li>A relation type is a repeated tuple type. We shall refer to the type of tuples (unrepeated) as the schema of the relation.</li>
+</ol>
+<h3 id="Representing-Schemas"><a href="#Representing-Schemas" class="headerlink" title="Representing Schemas"></a>Representing Schemas</h3><p>We use the conventional notation for types. For example, <code>int</code> and <code>string</code> will denote the basic types integer and strings. A tuple type T with attributes A<sub>1</sub>,…, A<sub>n</sub> whose types are T<sub>1</sub>,…, T<sub>n</sub>, respectively will be denoted:</p>
+<p>T = {A<sub>1</sub> : T<sub>1</sub>,…, A<sub>n</sub> : T<sub>n</sub>}</p>
+<p>The repeated type T will be denoted T<sup>*</sup>, the optional type T will be denoted T?; we also use T<sup>+</sup> to denote “one or more occurrences.”</p>
+<p>We shall use trees to represent schemas. The following rules define how a tree is constructed from a data type:</p>
+<ol>
+<li>A node that represents a tuple type has children for each attribute of that tuple type, in order from the left.</li>
+<li>The children are labeled by their corresponding attribute names.</li>
+<li>In addition, each attribution has a repetition constraint. A repeated attribute is labeled with a *; an optional attribute is labeled with a ?, an attribute that is required and repeated is labeled by a +.</li>
+<li>The root itself is labeled by the name of the type. Typically, the root type is starred, since it is the type of a relation and the relation consists of zero or more tuples of the root type.</li>
+<li>Leaf nodes are of basic type.</li>
+</ol>
+<p><img src="/images/schema_tree.png" alt></p>
+<p>For example, the schema tree above for a hypothetical data type represents advertisers at a search engine.</p>
+<h3 id="Instances-of-a-Schema"><a href="#Instances-of-a-Schema" class="headerlink" title="Instances of a Schema"></a>Instances of a Schema</h3><p>An instance of a data type or schema consists of replacement of each subtype by an appropriate number of instances of that subtype. More formally:</p>
+<ol>
+<li>An instance of a basic type is any single value of the appropriate type.</li>
+<li>An instance of a tuple type is a node whose children are each instances of one of the types of one of its attribute.</li>
+</ol>
+<p>The image below suggests a possible instance of the relation that is described by the schema tree above.</p>
+<p><img src="/images/data_tree.png" alt></p>
+<h3 id="Dummy-Occurrences"><a href="#Dummy-Occurrences" class="headerlink" title="Dummy Occurrences"></a>Dummy Occurrences</h3><p>For several reasons, including the way we flatten instances (see section below), we shall maintain a fiction about attributes that are repeated or optional. We imagine that there is one dummy occurence of this attribute, all of whose descendant leaves have the value NULL. Since this instance may have descendant interior nodes representing repeated or optional groups, those descendants are consequently treated as if they had only the dummy instance.</p>
+<p>We do not show this dummy instance in the tree diagrams, although as we shall see, there are reasons why it is useful to imagine it is there, and able to appear when needed. For instance, when we discuss querying, we shall see that sometimes all the occurences of some repeated attribute are deleted. We do no want anything else in the tree to disappear, so we replace the deleted occurences by the dummy occurrence. This viewpoint is consistent with the treatment of tree-structure instances as an outerjoin of conventional relations.</p>
+<h2 id="Querying-Tree-Structured-Data"><a href="#Querying-Tree-Structured-Data" class="headerlink" title="Querying Tree-Structured Data"></a>Querying Tree-Structured Data</h2><p>A more recent approach to query languages attempts to be more SQL-like, and to think of the instances of a tree data type as if they were tuples of a relation.</p>
+<h3 id="Flattening"><a href="#Flattening" class="headerlink" title="Flattening"></a>Flattening</h3><p>Flattening has always been regarded as a fundamental algebraic operation on nested relations. Informally, we flatten an instance of a tree data type by selecting one from each repeated group of values in all possible ways. This selection is made independently at all levels.</p>
+<p>Since filtering (selection) queries can delete all occurrences of repeated or optional attribute, we are going to want to make explicit the effect of the dummy occurrences discussed above. Thus, we define the “full flattening” (or just “flattening” when there is no ambiguity) of a tree instance to include all the tuples that result when we include all dummy instances in the flattening. To save space, we can remove those rows that are subsumed by another tuple of the flattened table. A roa r1 is subsumed by row r2 agrees with r1 wherever r1 is not NULL. We call this relation the reduced flattening of the tree.</p>
+<p>More formally, if I is an instance of some schema, we define the (ordinary) relation flatten(I) recursively as follows:</p>
+<ol>
+<li>If I is a single element of basic type, then flatten(I) is the tuple with a single component; that component is the value of I.</li>
+<li>If I is an instance of some tuple type with attributes A<sub>1</sub>,…, A<sub>n</sub>: Divide the children of the root of I into n groups, such that the first group is all the nodes that are occurrences of A<sub>1</sub>, the second group is all the occurrences of A<sub>2</sub>, and so on. For the ith group, construct a relation R<sub>i</sub> that has attributes for all leaves of the schema tree rooted at A<sub>i</sub>, as follows:<br>a. Recursively apply the flatten operation to the instance represented by each node in the group for A<sub>i</sub>. However, if A<sub>i</sub> is repeated or optional, include the dummy instance in this set of instances.<br>b. Take the union of the relation produced for each instance. The union is the relation R<sub>i</sub>.</li>
+<li>Finally, to get the relation flatten(I), take the Cartesian product R<sub>1</sub> x … x R<sub>n</sub>.</li>
+</ol>
+<p>Let us see how to flatten the instance in data tree above.</p>
+<p><img src="/images/full_flatten.png" alt></p>
+<p>The image above we present the flattening of the part of the instance with root at a1. The relation for ca1 is the cartesian product of the relation for i1, the relation for bu1, the union of the relations for s1 and s2 and, the union of the relations for cl1, cl2, and cl3. The result appears in row1 through 25. Similarly, for ca2, the result appears in rows 26 through 30.</p>
+<p>Finally, to construct the relation for a1, we take the product of the relations n1 and e1. The result looks similar to the image above but there are two new attributes (Name and Email) at the left.</p>
+<h2 id="Filter-Queries"><a href="#Filter-Queries" class="headerlink" title="Filter Queries"></a>Filter Queries</h2><p>A filter is a conjunction of comparisons AθB where A is an attribute, B is an attribute or a constant and θ can be any comparison for which given two values the outcome is “true” or “false.”</p>
+<h3 id="Querying-Flattened-Data"><a href="#Querying-Flattened-Data" class="headerlink" title="Querying Flattened Data"></a>Querying Flattened Data</h3><p>Flattening the tuples and apply the query to the ordinary relation that results. There are two problems with this idea:</p>
+<ol>
+<li>Flattening can expand greatly the amount of space needed to hold a tuple.<br>2</li>
+</ol>
+<p>Flattening the tuples and apply the query to the ordinary relation that results. There are two problems with this idea:</p>
+<ol>
+<li>Flattening can expand greatly the amount of space needed to hold a tuple.</li>
+<li>When you flatten a tree and then apply some filter to the resulting relation, it is common for there to be no way to prune the original tree to yield a tree that would have produced the result of the filtering the flattened relation.</li>
+</ol>
+<p>It is the purpose of this paper to resolve these two problems by:</p>
+<ol>
+<li>Investigating when the result of filtering a flattened relation is what we get by pruning the tree then flattening.</li>
+<li>Giving an algorithm to perform the filtering on the tree itself, whenever it is possible to do so.</li>
+</ol>
+<p>To see the problem concretely, consider the schema in figure below and an instance of that schema. The values of B and C are integers, but we give each occurrence of a B-value or C-value a name, such as b<sub>1</sub>, to make clear which attribute, B or C, each integer comes from. Suppose we apply to the instance of figure the query:</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">SELECT</span> B, C <span class="keyword">FROM</span> A <span class="keyword">WHERE</span> B &lt; C</span><br></pre></td></tr></table></figure>
+<p><img src="/images/flatten_example_1.png" alt></p>
+<p>This example can be used to explain why we need a flattened relation where NULL’s appear. We apply this query to the flattened version, which is shown in image below. Note that relation (a) is a reduced flattened version, since we have not shown the tuple where one or both of B and C are NULL. However, in this case, the result would not change if we consider the full flattening. We shall see in section below where it becomes essential to use the full flattening.</p>
+<p><img src="/images/flatten_example_2.png" alt></p>
+<p>Notice that the second, third and sixth tuples satisfy the filter. Thus, the result of this query is shown below. However, this relation is not the flattening of any tuple with the schema. To see why, notice that such a tree-structured tuple would have B-values 10 and 20 and also have C-values 15 and 25.But the flattening of the tree would also yield the tuple (20, 15). We conclude that this SQL query cannot be executed on tree-structured tuple; it can only be executed on the flattened version of the tree, and the result has a schema differernt from the schema of the input tuples.</p>
+<p><img src="/images/flatten_example_3.png" alt></p>
+<h3 id="Handling-NULL’s-in-Query-Execution"><a href="#Handling-NULL’s-in-Query-Execution" class="headerlink" title="Handling NULL’s in Query Execution"></a>Handling NULL’s in Query Execution</h3><p>Now, using the same schema and instance, suppose we have the query:</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">SELECT</span> * <span class="keyword">FROM</span> A</span><br><span class="line"><span class="keyword">WHERE</span> B = <span class="number">10</span> <span class="keyword">AND</span> C = <span class="number">35</span>;</span><br></pre></td></tr></table></figure>
+<p>According to the tree-pruning algorithm, the data leaves that do not satisfy the filter will be deleted. Thus the output data tree has only one leaf for attribute B (10) and not leaves for attribute C. The flattening, thus, contains only the row (10 NULL).</p>
+<p>But if we aply the query to the reduced relation (a) above, we get no tuples. Possibly, we could resolve the problem by starting with the full flattening (b), because that table has the necessary NULL’s. But according to the SQL standard, the truth value of C = 35 is UNKNOWN when C is NULL, which is not true enough.</p>
+<p>The resolution to this dilemma, we believe, is to deviate from the SQL standard by allowing UNKNOWN to be “suffcient true” to allow a row to reach the result of the query. If we do so, then rows 7 and 8 of full flattening (b) pass the filter. However, when we reduce the relation, row 7 is subsumed by row 8, so we get only the latter row as the answer.</p>
+<h2 id="The-Dominance-Relation"><a href="#The-Dominance-Relation" class="headerlink" title="The Dominance Relation"></a>The Dominance Relation</h2><p>Now, we are going to show how to distinguish queries that can be implemented on the tree-structured tuples directly, from those that cannot. By “directly”, we mean that each tuple is processed by prunning its tree, and not by creating several tuples from one. We shall then give several approaches to implementing those queries that can be executed directly on the trees.</p>
+<h3 id="Motivation-for-the-Dominance-Relation"><a href="#Motivation-for-the-Dominance-Relation" class="headerlink" title="Motivation for the Dominance Relation"></a>Motivation for the Dominance Relation</h3><p>Let us take a look at two queries on the Advertiser schema that look almost the same, but in fact behave quite differently. Query Q1:</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">SELECT</span> CID <span class="keyword">FROM</span> Advertiser</span><br><span class="line"><span class="keyword">WHERE</span> Budget &lt; Fee;</span><br></pre></td></tr></table></figure>
+<p>Now consider query Q2:</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">SELECT</span> CID <span class="keyword">FROM</span> Advertiser</span><br><span class="line"><span class="keyword">WHERE</span> Bid &lt; Fee;</span><br></pre></td></tr></table></figure>
+<p>These two queries are very similar but they differ in an important way, so that Q1 can be computed by tree pruning, while Q2 can not.</p>
+<p>The reason why Q2 can not be applied has already be explained in this <a href="#querying-flattened-data">section</a>.</p>
+<p>Suppose that f2 is greater than bu1 but f1 and f3 are not. Rows 4, 8, 12, 16, 20, 24 survive because bu1 &lt; f2, while row 2, 6, 10, 14, 18, 22 survive because the value of Fee in those rows is NULL, and we have adopted the convention that rows with value UNKNOWN for a filter condition pass the filter.</p>
+<p>For the subtree rooted at ca2, they are all survived because they come from the dummy Click and have NULL for the value of Fee. </p>
+<p>The result of applying Q1 to the full flattening relation results in the even rows in 2-24 and all rows in 26-30:</p>
+<p><img src="/images/full_flatten.png" alt></p>
+<p>The result of applying Q1 to prune the instance tree is like below:</p>
+<p><img src="/images/dominance_query.png" alt></p>
+<p>It turns out that regardless of the instance to which it is applied, the effect of query Q1 can always be implemented by pruning the tree for each tuple. On the other hand, we cannot normally do that for query Q2. The difference is expressed by the concept of “dominance” between nodes of the schema tree.</p>
+<h3 id="Definition-of-the-Dominance-Relation"><a href="#Definition-of-the-Dominance-Relation" class="headerlink" title="Definition of the Dominance Relation"></a>Definition of the Dominance Relation</h3><p>Definition 5.1. <em>A path in a schema tree from an ancestor A to a descendant D is star free if non of the nodes on the path, with the possible exception of A, is repeated or required-and-repeated.</em></p>
+<p>Definition 5.2. <em>An attribute A dominates another attribute B if, in the schema tree, the path from A to the lowest common ancester (LCA) of A and B is start free.</em></p>
+<p>Consider the schema of Advertiser. The LCA of Budget and Fee is Campaign. The path from Budget to Campaign has no starts, except for the star of Campaign. Since Campaign itself is the LCA, its star is not considered part of the path. We say that Budget dominates Fee, Fee does not dominate Budget. Now, consider the two attribute Bid and Fee involved in query Q2. Again the LCA is Campaign. But now, Bid and Fee each have a star on their path to the LCA (WordSet and Clicks, respectively). Therefore, neither dominates the other.</p>
+<p>For a final example, consider nodes Fee and Date. Their LCA is Clicks. Neither has a star on their path to the LCA. Therefore, Fee and Date each dominate each other.</p>
+<p>The key observation to be made is that there is only one Budget node in any instance of Campaign, the LCA of Budget and Fee. This fact makes query Q1 implementable by tree pruning. But for Q2, the LCA Campaign can have multiple Bid descendants and also multiple Fee descendants. Since awkward combinations of the Bid and Fee descendant can survive the filtering, it is impossible, in general, to implement Q2 by tree pruning.</p>
+<h3 id="Tree-Pruning-Algorithm-for-Filter-Queries"><a href="#Tree-Pruning-Algorithm-for-Filter-Queries" class="headerlink" title="Tree-Pruning Algorithm for Filter Queries"></a>Tree-Pruning Algorithm for Filter Queries</h3><p>The tree pruning algorithm works only for certain filter queries, but for this class of queries it produces a tree whose (full) flattening is the same as what we get by flattening the tree first, and then applying the query to the flattened relation. Moreover, in case where this algorithm is inapplicable, the result of applying the filter to the flattened relation cannot, in general, be expressed as the flattening of a tree that is derived from the original tree by deleting nodes.</p>
+<p>The class of filters allowed by the algorithm is those that are the AND of one or more comparisons. Each comparison is either:</p>
+<ol>
+<li>A comparison involing only one leaf attribute (e.g. compare with constants).</li>
+<li>A comparison involing two leaf attributes, one of which dominates the other.</li>
+</ol>
+<p>If we have the AND of two or more comparisons of these types, we can apply one comparisons at a time.</p>
+<p>For either type of comparisons, there is a node-deletion step followed by a recursive deletion process for ancestors of the deleted nodes. We shall start with the initial deletion.</p>
+<p>Case 1: If the comparisoin involves only one leaf attribute A, delete all leaves in the instance tree that are instances of A and that do not satisfy the predicate.</p>
+<p>Case 2: If the comparison involves leaf attriutes A and B, where A dominates B, let C be the LCA of A and B in the schema tree. In the instance tree, look at all occurrences of A and B such that the LCA of these nodes in the instance tree is an occurrence of C. If the values of the A and B nodes in the instance tree are such that the comparison is not satisfied, then delete the B node from the intance tree.</p>
+<p>Now, having deleted certain nodes from the instance tree, we need to propagate these deletions up the tree. In particular, if we delete a required node, then we have to delete the entire subtree rooted at its parent. Also, suppose n is a node in the instance tree, and it has some children that are occurrences of some attribute A, which is of kind required-and-repeated. If all these children have been deleted, then n must also be deleted. These rules can propagate up the instance tree indefinitely.</p>
+<p>The tree pruning algorithm can also handle Boolean formulas of comparisons. It does so by viewing them as a conjunction of disjunctions. The tree-pruning algorithm is modified for each conjunct as follows: if, for a certain assignment of data leaves at the attributes of the disjunction, the disjunction is not satisfied then, all these data leaves are deleted.</p>
+<p>Theorem 5.5. <em>Let I be an instance tree and let flatten(I) be the flattend relation of I. Then, for any query Q which uses a filter sunch that one attribute is a comparison dominates the other, the following holds:</em></p>
+<p>flatten(Q(I)) = Q(flatten(I))</p>
+<h2 id="Semi-flattening-and-Repetition-Context"><a href="#Semi-flattening-and-Repetition-Context" class="headerlink" title="Semi-flattening and Repetition Context"></a>Semi-flattening and Repetition Context</h2>
+    </div>
+
+    
+    
+    
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/Infrastructure/" rel="tag"># Infrastructure</a>
+              <a href="/tags/Paper-Reading/" rel="tag"># Paper Reading</a>
+              <a href="/tags/Query/" rel="tag"># Query</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2022/06/12/paper_reading_dremel_1/" rel="prev" title="Paper Reading: Dremel 1">
+      <i class="fa fa-chevron-left"></i> Paper Reading: Dremel 1
+    </a></div>
+      <div class="post-nav-item"></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+  </div>
+
+
+          </div>
+          
+    <div class="comments" id="comments"></div>
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let activeClass = CONFIG.comments.activeClass;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          Table of Contents
+        </li>
+        <li class="sidebar-nav-overview">
+          Overview
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#Data"><span class="nav-number">1.</span> <span class="nav-text">Data</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#Representing-Schemas"><span class="nav-number">1.1.</span> <span class="nav-text">Representing Schemas</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Instances-of-a-Schema"><span class="nav-number">1.2.</span> <span class="nav-text">Instances of a Schema</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Dummy-Occurrences"><span class="nav-number">1.3.</span> <span class="nav-text">Dummy Occurrences</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Querying-Tree-Structured-Data"><span class="nav-number">2.</span> <span class="nav-text">Querying Tree-Structured Data</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#Flattening"><span class="nav-number">2.1.</span> <span class="nav-text">Flattening</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Filter-Queries"><span class="nav-number">3.</span> <span class="nav-text">Filter Queries</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#Querying-Flattened-Data"><span class="nav-number">3.1.</span> <span class="nav-text">Querying Flattened Data</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Handling-NULL’s-in-Query-Execution"><span class="nav-number">3.2.</span> <span class="nav-text">Handling NULL’s in Query Execution</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#The-Dominance-Relation"><span class="nav-number">4.</span> <span class="nav-text">The Dominance Relation</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#Motivation-for-the-Dominance-Relation"><span class="nav-number">4.1.</span> <span class="nav-text">Motivation for the Dominance Relation</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Definition-of-the-Dominance-Relation"><span class="nav-number">4.2.</span> <span class="nav-text">Definition of the Dominance Relation</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Tree-Pruning-Algorithm-for-Filter-Queries"><span class="nav-number">4.3.</span> <span class="nav-text">Tree-Pruning Algorithm for Filter Queries</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Semi-flattening-and-Repetition-Context"><span class="nav-number">5.</span> <span class="nav-text">Semi-flattening and Repetition Context</span></a></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="hehejun"
+      src="/images/avatar.gif">
+  <p class="site-author-name" itemprop="name">hehejun</p>
+  <div class="site-description" itemprop="description"></div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">22</span>
+          <span class="site-state-item-name">posts</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+          
+        <span class="site-state-item-count">13</span>
+        <span class="site-state-item-name">categories</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+          
+        <span class="site-state-item-count">17</span>
+        <span class="site-state-item-name">tags</span></a>
+      </div>
+  </nav>
+</div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+<div class="copyright">
+  
+  &copy; 2019 – 
+  <span itemprop="copyrightYear">2022</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">hehejun</span>
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item-icon">
+      <i class="fa fa-area-chart"></i>
+    </span>
+    <span title="Symbols count total">146k</span>
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item-icon">
+      <i class="fa fa-coffee"></i>
+    </span>
+    <span title="Reading time total">2:13</span>
+</div>
+
+        
+<div class="busuanzi-count">
+  <script async src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+    <span class="post-meta-item" id="busuanzi_container_site_uv" style="display: none;">
+      <span class="post-meta-item-icon">
+        <i class="fa fa-user"></i>
+      </span>
+      <span class="site-uv" title="Total Visitors">
+        <span id="busuanzi_value_site_uv"></span>
+      </span>
+    </span>
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item" id="busuanzi_container_site_pv" style="display: none;">
+      <span class="post-meta-item-icon">
+        <i class="fa fa-eye"></i>
+      </span>
+      <span class="site-pv" title="Total Views">
+        <span id="busuanzi_value_site_pv"></span>
+      </span>
+    </span>
+</div>
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+<script src="/js/utils.js"></script><script src="/js/motion.js"></script>
+<script src="/js/schemes/pisces.js"></script>
+<script src="/js/next-boot.js"></script>
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+
+<script>
+NexT.utils.loadComments(() => {
+  NexT.utils.getScript('https://cdn.jsdelivr.net/npm/valine@1.4.18/dist/Valine.min.js', () => {
+    var GUEST = ['nick', 'mail', 'link'];
+    var guest = 'nick,mail,link';
+    guest = guest.split(',').filter(item => {
+      return GUEST.includes(item);
+    });
+    new Valine({
+      el: '#comments',
+      verify: false,
+      notify: false,
+      appId: 'PKvEM4W15eyM8pCk7qvGlvYF-MdYXbMMI',
+      appKey: 'u3RYtOW2Dcu1hAgNEtjsAMip',
+      placeholder: "Just go go",
+      avatar: 'mm',
+      meta: guest,
+      pageSize: '10' || 10,
+      visitor: true,
+      lang: '' || 'zh-cn',
+      path: location.pathname,
+      recordIP: false,
+      serverURLs: 'https://pkvem4w1.api.lncldglobal.com'
+    });
+  }, window.Valine);
+});
+</script>
+
+</body>
+</html>
