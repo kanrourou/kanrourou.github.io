@@ -48,10 +48,6 @@
 <h2 id="Filter-Queries"><a href="#Filter-Queries" class="headerlink" title="Filter Queries"></a>Filter Queries</h2><p>A filter is a conjunction of comparisons AθB where A is an attribute, B is an attribute or a constant and θ can be any comparison for which given two values the outcome is “true” or “false.”</p>
 <h3 id="Querying-Flattened-Data"><a href="#Querying-Flattened-Data" class="headerlink" title="Querying Flattened Data"></a>Querying Flattened Data</h3><p>Flattening the tuples and apply the query to the ordinary relation that results. There are two problems with this idea:</p>
 <ol>
-<li>Flattening can expand greatly the amount of space needed to hold a tuple.<br>2</li>
-</ol>
-<p>Flattening the tuples and apply the query to the ordinary relation that results. There are two problems with this idea:</p>
-<ol>
 <li>Flattening can expand greatly the amount of space needed to hold a tuple.</li>
 <li>When you flatten a tree and then apply some filter to the resulting relation, it is common for there to be no way to prune the original tree to yield a tree that would have produced the result of the filtering the flattened relation.</li>
 </ol>
