@@ -62,7 +62,7 @@
 <meta property="og:image" content="http://yoursite.com/images/flatten_example_3.png">
 <meta property="og:image" content="http://yoursite.com/images/full_flatten.png">
 <meta property="og:image" content="http://yoursite.com/images/dominance_query.png">
-<meta property="og:updated_time" content="2022-06-20T07:21:32.706Z">
+<meta property="og:updated_time" content="2022-06-21T01:00:10.219Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="Paper Reading: Dremel 2">
 <meta name="twitter:description" content="In previous article, we have introduced the columnar storage of Dremel. In this paper summary, we will focus on running query on tree structure records in Dremel.">
@@ -234,7 +234,7 @@
                   <i class="fa fa-calendar-check-o"></i>
                 </span>
                 <span class="post-meta-item-text">Edited on</span>
-                <time title="Modified: 2022-06-20 00:21:32" itemprop="dateModified" datetime="2022-06-20T00:21:32-07:00">2022-06-20</time>
+                <time title="Modified: 2022-06-20 18:00:10" itemprop="dateModified" datetime="2022-06-20T18:00:10-07:00">2022-06-20</time>
               </span>
             <span class="post-meta-item">
               <span class="post-meta-item-icon">
@@ -281,14 +281,14 @@
                 <i class="fa fa-file-word-o"></i>
               </span>
                 <span class="post-meta-item-text">Symbols count in article: </span>
-              <span>13k</span>
+              <span>15k</span>
             </span>
             <span class="post-meta-item" title="Reading time">
               <span class="post-meta-item-icon">
                 <i class="fa fa-clock-o"></i>
               </span>
                 <span class="post-meta-item-text">Reading time &asymp;</span>
-              <span>12 mins.</span>
+              <span>14 mins.</span>
             </span>
 
         </div>
@@ -379,8 +379,8 @@
 <p>The result of applying Q1 to prune the instance tree is like below:</p>
 <p><img src="/images/dominance_query.png" alt></p>
 <p>It turns out that regardless of the instance to which it is applied, the effect of query Q1 can always be implemented by pruning the tree for each tuple. On the other hand, we cannot normally do that for query Q2. The difference is expressed by the concept of “dominance” between nodes of the schema tree.</p>
-<h3 id="Definition-of-the-Dominance-Relation"><a href="#Definition-of-the-Dominance-Relation" class="headerlink" title="Definition of the Dominance Relation"></a>Definition of the Dominance Relation</h3><p>Definition 5.1. <em>A path in a schema tree from an ancestor A to a descendant D is star free if non of the nodes on the path, with the possible exception of A, is repeated or required-and-repeated.</em></p>
-<p>Definition 5.2. <em>An attribute A dominates another attribute B if, in the schema tree, the path from A to the lowest common ancester (LCA) of A and B is start free.</em></p>
+<h3 id="Definition-of-the-Dominance-Relation"><a href="#Definition-of-the-Dominance-Relation" class="headerlink" title="Definition of the Dominance Relation"></a>Definition of the Dominance Relation</h3><p>Definition 4.1. <em>A path in a schema tree from an ancestor A to a descendant D is star free if non of the nodes on the path, with the possible exception of A, is repeated or required-and-repeated.</em></p>
+<p>Definition 4.2. <em>An attribute A dominates another attribute B if, in the schema tree, the path from A to the lowest common ancester (LCA) of A and B is start free.</em></p>
 <p>Consider the schema of Advertiser. The LCA of Budget and Fee is Campaign. The path from Budget to Campaign has no starts, except for the star of Campaign. Since Campaign itself is the LCA, its star is not considered part of the path. We say that Budget dominates Fee, Fee does not dominate Budget. Now, consider the two attribute Bid and Fee involved in query Q2. Again the LCA is Campaign. But now, Bid and Fee each have a star on their path to the LCA (WordSet and Clicks, respectively). Therefore, neither dominates the other.</p>
 <p>For a final example, consider nodes Fee and Date. Their LCA is Clicks. Neither has a star on their path to the LCA. Therefore, Fee and Date each dominate each other.</p>
 <p>The key observation to be made is that there is only one Budget node in any instance of Campaign, the LCA of Budget and Fee. This fact makes query Q1 implementable by tree pruning. But for Q2, the LCA Campaign can have multiple Bid descendants and also multiple Fee descendants. Since awkward combinations of the Bid and Fee descendant can survive the filtering, it is impossible, in general, to implement Q2 by tree pruning.</p>
@@ -396,9 +396,26 @@
 <p>Case 2: If the comparison involves leaf attriutes A and B, where A dominates B, let C be the LCA of A and B in the schema tree. In the instance tree, look at all occurrences of A and B such that the LCA of these nodes in the instance tree is an occurrence of C. If the values of the A and B nodes in the instance tree are such that the comparison is not satisfied, then delete the B node from the intance tree.</p>
 <p>Now, having deleted certain nodes from the instance tree, we need to propagate these deletions up the tree. In particular, if we delete a required node, then we have to delete the entire subtree rooted at its parent. Also, suppose n is a node in the instance tree, and it has some children that are occurrences of some attribute A, which is of kind required-and-repeated. If all these children have been deleted, then n must also be deleted. These rules can propagate up the instance tree indefinitely.</p>
 <p>The tree pruning algorithm can also handle Boolean formulas of comparisons. It does so by viewing them as a conjunction of disjunctions. The tree-pruning algorithm is modified for each conjunct as follows: if, for a certain assignment of data leaves at the attributes of the disjunction, the disjunction is not satisfied then, all these data leaves are deleted.</p>
-<p>Theorem 5.5. <em>Let I be an instance tree and let flatten(I) be the flattend relation of I. Then, for any query Q which uses a filter sunch that one attribute is a comparison dominates the other, the following holds:</em></p>
+<p>Theorem 4.3. <em>Let I be an instance tree and let flatten(I) be the flattend relation of I. Then, for any query Q which uses a filter sunch that one attribute is a comparison dominates the other, the following holds:</em></p>
 <p>flatten(Q(I)) = Q(flatten(I))</p>
-<h2 id="Semi-flattening-and-Repetition-Context"><a href="#Semi-flattening-and-Repetition-Context" class="headerlink" title="Semi-flattening and Repetition Context"></a>Semi-flattening and Repetition Context</h2>
+<h2 id="Semi-flattening-and-Repetition-Context"><a href="#Semi-flattening-and-Repetition-Context" class="headerlink" title="Semi-flattening and Repetition Context"></a>Semi-flattening and Repetition Context</h2><p>In this section we introduce the concepts of semi-flattening and repetition context and then identify a class of filter and aggregate queries computed on semi-flattened data. The semi-flattened representation actually has one row for every step of this column-reading process. That is, every combination of attribute values that exists at some time during Dremel processing is represented by exactly one row of the semi-flattened table.</p>
+<h3 id="Repetition-Context"><a href="#Repetition-Context" class="headerlink" title="Repetition Context"></a>Repetition Context</h3><p>We begin by defining the class of queries for which we can apply semi-flattening. We say that all attributes should belong to the same “repetition context” which we define as follows:</p>
+<p>Definition 5.1. <em>The repetition context of leaf attributed V, denoted C<sub>V</sub>, is the set of leaf attributes that dominate V.</em></p>
+<p>Lemma 5.2. *Let V be a leaf attribute and C<sub>V</sub> its repetition context. Then the following hold:</p>
+<ol>
+<li>The attributes in C<sub>V</sub> can be put in a total order with respect to the dominance relation. That is, the members of C<sub>V<sub> can be put in a sequence V<sub>1</sub>, V<sub>2</sub>…, V<sub>m</sub> such that V<sub>i</sub> dominate V<sub>j</sub> if i&lt; j. Note that there may be several orders possible, since required or optional children of the same node can be placed in the sequence in any order.</sub></sub></li>
+<li>Suppose in some tree schema, V is a leaf and U is a member of C<sub>V</sub>. Further, let X be the LCA of V and U, and let Y be any node in the schema tree on the path from U upward to X. Then if T is a subtree of an instance tree that is rooted at an occurrence of Y, then there is only one occurrence of U in T.*</li>
+</ol>
+<p>Proof. To prove the first part of the lemma we observe that we can find all attributes that dominate V if we do the following: We focus on the path (in the schema tree) from V to the root, and we call it the primary path. If V’ dominates V, then the LCA of V and V’ is on the primary path, and the path upward from V’ to the primary path is star free (except possibly for the node on the primary path). Thus for two attributes that dominate V, the one that meets the primary path higher dominate the other. If they meet the primary path at the same node, then they dominate each other. The proof of the second part of the lemma is a consequence of the fact that there is a star free path from U to Y.</p>
+<h3 id="Seme-Flattening"><a href="#Seme-Flattening" class="headerlink" title="Seme-Flattening"></a>Seme-Flattening</h3><p>Formally, if I is an instance of some schema, we define the (ordinary) relation s-flatten(I) recursively as follows:</p>
+<ol>
+<li>If I is a single element of basic type, then s-flatten(I) is the tuple with a single component; that component is the value of I.</li>
+<li>If I is an instance of some tuple type with attributes A<sub>1</sub>, …, A<sub>n</sub>: Divide the children of the root of I into n groups, such that the first group is all the nodes that are occurrences of A<sub>1</sub>, the second group is all the occurrences of A<sub>2</sub>, and so on. For the ith group, construct a relation R<sub>i</sub> that has attributes for all the leaves of the schema tree rooted as A<sub>i</sub>, as follows:<ol>
+<li>Recursively</li>
+</ol>
+</li>
+</ol>
+
     </div>
 
     
@@ -482,7 +499,7 @@
 
       <!--noindex-->
       <div class="post-toc-wrap sidebar-panel">
-          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#Data"><span class="nav-number">1.</span> <span class="nav-text">Data</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#Representing-Schemas"><span class="nav-number">1.1.</span> <span class="nav-text">Representing Schemas</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Instances-of-a-Schema"><span class="nav-number">1.2.</span> <span class="nav-text">Instances of a Schema</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Dummy-Occurrences"><span class="nav-number">1.3.</span> <span class="nav-text">Dummy Occurrences</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Querying-Tree-Structured-Data"><span class="nav-number">2.</span> <span class="nav-text">Querying Tree-Structured Data</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#Flattening"><span class="nav-number">2.1.</span> <span class="nav-text">Flattening</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Filter-Queries"><span class="nav-number">3.</span> <span class="nav-text">Filter Queries</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#Querying-Flattened-Data"><span class="nav-number">3.1.</span> <span class="nav-text">Querying Flattened Data</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Handling-NULL’s-in-Query-Execution"><span class="nav-number">3.2.</span> <span class="nav-text">Handling NULL’s in Query Execution</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#The-Dominance-Relation"><span class="nav-number">4.</span> <span class="nav-text">The Dominance Relation</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#Motivation-for-the-Dominance-Relation"><span class="nav-number">4.1.</span> <span class="nav-text">Motivation for the Dominance Relation</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Definition-of-the-Dominance-Relation"><span class="nav-number">4.2.</span> <span class="nav-text">Definition of the Dominance Relation</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Tree-Pruning-Algorithm-for-Filter-Queries"><span class="nav-number">4.3.</span> <span class="nav-text">Tree-Pruning Algorithm for Filter Queries</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Semi-flattening-and-Repetition-Context"><span class="nav-number">5.</span> <span class="nav-text">Semi-flattening and Repetition Context</span></a></li></ol></div>
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#Data"><span class="nav-number">1.</span> <span class="nav-text">Data</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#Representing-Schemas"><span class="nav-number">1.1.</span> <span class="nav-text">Representing Schemas</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Instances-of-a-Schema"><span class="nav-number">1.2.</span> <span class="nav-text">Instances of a Schema</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Dummy-Occurrences"><span class="nav-number">1.3.</span> <span class="nav-text">Dummy Occurrences</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Querying-Tree-Structured-Data"><span class="nav-number">2.</span> <span class="nav-text">Querying Tree-Structured Data</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#Flattening"><span class="nav-number">2.1.</span> <span class="nav-text">Flattening</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Filter-Queries"><span class="nav-number">3.</span> <span class="nav-text">Filter Queries</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#Querying-Flattened-Data"><span class="nav-number">3.1.</span> <span class="nav-text">Querying Flattened Data</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Handling-NULL’s-in-Query-Execution"><span class="nav-number">3.2.</span> <span class="nav-text">Handling NULL’s in Query Execution</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#The-Dominance-Relation"><span class="nav-number">4.</span> <span class="nav-text">The Dominance Relation</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#Motivation-for-the-Dominance-Relation"><span class="nav-number">4.1.</span> <span class="nav-text">Motivation for the Dominance Relation</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Definition-of-the-Dominance-Relation"><span class="nav-number">4.2.</span> <span class="nav-text">Definition of the Dominance Relation</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Tree-Pruning-Algorithm-for-Filter-Queries"><span class="nav-number">4.3.</span> <span class="nav-text">Tree-Pruning Algorithm for Filter Queries</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Semi-flattening-and-Repetition-Context"><span class="nav-number">5.</span> <span class="nav-text">Semi-flattening and Repetition Context</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#Repetition-Context"><span class="nav-number">5.1.</span> <span class="nav-text">Repetition Context</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Seme-Flattening"><span class="nav-number">5.2.</span> <span class="nav-text">Seme-Flattening</span></a></li></ol></li></ol></div>
       </div>
       <!--/noindex-->
 
@@ -545,12 +562,12 @@
     <span class="post-meta-item-icon">
       <i class="fa fa-area-chart"></i>
     </span>
-    <span title="Symbols count total">146k</span>
+    <span title="Symbols count total">148k</span>
     <span class="post-meta-divider">|</span>
     <span class="post-meta-item-icon">
       <i class="fa fa-coffee"></i>
     </span>
-    <span title="Reading time total">2:12</span>
+    <span title="Reading time total">2:15</span>
 </div>
 
         
