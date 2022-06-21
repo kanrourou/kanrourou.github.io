@@ -110,14 +110,20 @@
 <li><em>Suppose in some tree schema, V is a leaf and U is a member of C<sub>V</sub>. Further, let X be the LCA of V and U, and let Y be any node in the schema tree on the path from U upward to X. Then if T is a subtree of an instance tree that is rooted at an occurrence of Y, then there is only one occurrence of U in T.</em></li>
 </ol>
 <p>Proof. To prove the first part of the lemma we observe that we can find all attributes that dominate V if we do the following: We focus on the path (in the schema tree) from V to the root, and we call it the primary path. If V’ dominates V, then the LCA of V and V’ is on the primary path, and the path upward from V’ to the primary path is star free (except possibly for the node on the primary path). Thus for two attributes that dominate V, the one that meets the primary path higher dominate the other. If they meet the primary path at the same node, then they dominate each other. The proof of the second part of the lemma is a consequence of the fact that there is a star free path from U to Y.</p>
-<h3 id="Seme-Flattening"><a href="#Seme-Flattening" class="headerlink" title="Seme-Flattening"></a>Seme-Flattening</h3><p>Formally, if I is an instance of some schema, we define the (ordinary) relation s-flatten(I) recursively as follows:</p>
+<h3 id="Semi-Flattening"><a href="#Semi-Flattening" class="headerlink" title="Semi-Flattening"></a>Semi-Flattening</h3><p>Formally, if I is an instance of some schema, we define the (ordinary) relation s-flatten(I) recursively as follows:</p>
 <ol>
 <li>If I is a single element of basic type, then s-flatten(I) is the tuple with a single component; that component is the value of I.</li>
 <li>If I is an instance of some tuple type with attributes A<sub>1</sub>, …, A<sub>n</sub>: Divide the children of the root of I into n groups, such that the first group is all the nodes that are occurrences of A<sub>1</sub>, the second group is all the occurrences of A<sub>2</sub>, and so on. For the ith group, construct a relation R<sub>i</sub> that has attributes for all the leaves of the schema tree rooted as A<sub>i</sub>, as follows:<ol>
-<li>Recursively apply the s-flatten operation to the instance represented by each node in the group for A<sub>i</sub>. </li>
+<li>Recursively apply the s-flatten operation to the instance represented by each node in the group for A<sub>i</sub>. However, if A<sub>i</sub> is repeated or optional, include the dummy instance in this set of instances.</li>
+<li>Take the union of the relation produced for each instance. The union is the relation R<sub>i</sub>.</li>
 </ol>
 </li>
+<li>Finally, to get the relation s-flatten(I), take a “horizontal concatenation” of R<sub>1</sub>, R<sub>2</sub>, …, R<sub>n</sub> as follows. The first row of the result is the concatenation of the first rows of R<sub>1</sub>, R<sub>2</sub>, …; the second row of the result is the concatenation of the second rows of R<sub>1</sub>, R<sub>2</sub>, …. Of course the R<sub>j</sub>‘s may not have the same number of rows. In this case we pad the short tables with extra rows that contain NULL’s.</li>
+<li>As an exception to the matter mentioned above for padding short tables with NULL’s, for each attribute that has a star free path to the current root (the root excluded) we kepp its value. Since it has a star free path to the root, it has only one value in all the rows.</li>
 </ol>
+<p>The result is the semi flattening of the given instance.</p>
+<p>Consider the schema and the data in figure below. The values, denotes by lowercase letters, correspond to attributes with the corresponding uppercase letter.</p>
+<p><img src="/images/schema_and_data.png" alt></p>
 ]]></content>
       <categories>
         <category>System Infrastructure</category>
