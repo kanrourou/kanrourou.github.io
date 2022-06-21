@@ -66,7 +66,7 @@
 <meta property="og:image" content="http://yoursite.com/images/semi_flatten.png">
 <meta property="og:image" content="http://yoursite.com/images/repitition_level.png">
 <meta property="og:image" content="http://yoursite.com/images/produce_semi_flatten.png">
-<meta property="og:updated_time" content="2022-06-21T07:35:34.879Z">
+<meta property="og:updated_time" content="2022-06-21T07:50:48.165Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="Paper Reading: Dremel 2">
 <meta name="twitter:description" content="In previous article, we have introduced the columnar storage of Dremel. In this paper summary, we will focus on running query on tree structure records in Dremel.">
@@ -238,7 +238,7 @@
                   <i class="fa fa-calendar-check-o"></i>
                 </span>
                 <span class="post-meta-item-text">Edited on</span>
-                <time title="Modified: 2022-06-21 00:35:34" itemprop="dateModified" datetime="2022-06-21T00:35:34-07:00">2022-06-21</time>
+                <time title="Modified: 2022-06-21 00:50:48" itemprop="dateModified" datetime="2022-06-21T00:50:48-07:00">2022-06-21</time>
               </span>
             <span class="post-meta-item">
               <span class="post-meta-item-icon">
@@ -285,14 +285,14 @@
                 <i class="fa fa-file-word-o"></i>
               </span>
                 <span class="post-meta-item-text">Symbols count in article: </span>
-              <span>24k</span>
+              <span>26k</span>
             </span>
             <span class="post-meta-item" title="Reading time">
               <span class="post-meta-item-icon">
                 <i class="fa fa-clock-o"></i>
               </span>
                 <span class="post-meta-item-text">Reading time &asymp;</span>
-              <span>22 mins.</span>
+              <span>24 mins.</span>
             </span>
 
         </div>
@@ -474,7 +474,14 @@
 <p><em>Next, all current (i2, bu2, bi3 and w4) repetition levels are at or above Advertiser, so columns CID, Budget and Bid move to their next element, so does column Word. Row 5 is created by the move of Bid, because it is require field (as step 3), row 6 is produced by move of CID and Budget (as step 3), their moves only produces a single row because they dominate each other. Row 7 contains new values.</em></p>
 <p><strong>Producing Rows 8, 9, 10 and 11</strong></p>
 <p><em>Rows 10 and 11 are the extra rows. Row 8 and 9 are formed by Word making one more move for each column and CID and Budget stalling.</em></p>
-<p>We say that a data leaf v covers another data leaf u if </p>
+<p>We say that a data leaf v covers another data leaf u if the attribute V for v dominates attribute U for u, and data node u and v are descendants of the same occurrence of their LCA in the schema tree. When a data leaf convers another data leaf, the repetition level of the former is the same as or above the repetition level of the latter. For instance, b1 covers w1 and w2.</p>
+<p>The algorithm we presented to produce semi-flattening from columnar storage only retains the covering relation. It does not care, for example, to show any interrelationship between data leaves for Fee and Word, because in the class of queries supported by semi-flattening, we do not have a query where query of Word and Fee are compared.</p>
+<p>Finally, a note about the functionality of the extra row that the algorithm creates before a column makes a move. For example the row (i1, bu1, NULL, NULL) in the figure above. Suppose this row did not exist. Then if neither bi1 nor bi2 values of the Bid attribute satisfy the filter, the values i1 and bu1 would not appear in the result of the query. This is wrong according to the tree-pruning algorithm.</p>
+<p>The correctness of the algorithm is a consequence of the lemma:</p>
+<p>Lemma 6.2. <em>If leaf v covers leaf u in the data tree, then the repetition level of u is either the same as the repetition level of v, or a decendant of the repetition level of v.</em></p>
+<h3 id="Definition-Level"><a href="#Definition-Level" class="headerlink" title="Definition Level"></a>Definition Level</h3><p>The definition level is a second parameter stored along with the repetition level. Its purpose is to avoid having to store NULL’s explicitly in the columns. The <em>definition level</em> tells how many subtrees between the current value and the previous value of the same column have zero occurrences.</p>
+<p>Lemma 6.3. <em>Let B be an attribute that dominates A. Let LCA(A, B) be the LCA of B and A. Suppose a data leaf v of A and a data leaf u of B occur within the same occurrence x of LCA(A, B). The repetition and the definition levels are sufficient to tell that v and u are descendants of the same occurrence of LCA(A, B).</em></p>
+<h4 id="Producing-the-Semi-flattening-1"><a href="#Producing-the-Semi-flattening-1" class="headerlink" title="Producing the Semi-flattening"></a>Producing the Semi-flattening</h4><p>The algorithm above is not modified so that whenever a column A is due for a move, it stalls for as many moves of star-free descendants of LCA<sub>A</sub> as tells the definition level of A.</p>
 
     </div>
 
@@ -559,7 +566,7 @@
 
       <!--noindex-->
       <div class="post-toc-wrap sidebar-panel">
-          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#Data"><span class="nav-number">1.</span> <span class="nav-text">Data</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#Representing-Schemas"><span class="nav-number">1.1.</span> <span class="nav-text">Representing Schemas</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Instances-of-a-Schema"><span class="nav-number">1.2.</span> <span class="nav-text">Instances of a Schema</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Dummy-Occurrences"><span class="nav-number">1.3.</span> <span class="nav-text">Dummy Occurrences</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Querying-Tree-Structured-Data"><span class="nav-number">2.</span> <span class="nav-text">Querying Tree-Structured Data</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#Flattening"><span class="nav-number">2.1.</span> <span class="nav-text">Flattening</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Filter-Queries"><span class="nav-number">3.</span> <span class="nav-text">Filter Queries</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#Querying-Flattened-Data"><span class="nav-number">3.1.</span> <span class="nav-text">Querying Flattened Data</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Handling-NULL’s-in-Query-Execution"><span class="nav-number">3.2.</span> <span class="nav-text">Handling NULL’s in Query Execution</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#The-Dominance-Relation"><span class="nav-number">4.</span> <span class="nav-text">The Dominance Relation</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#Motivation-for-the-Dominance-Relation"><span class="nav-number">4.1.</span> <span class="nav-text">Motivation for the Dominance Relation</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Definition-of-the-Dominance-Relation"><span class="nav-number">4.2.</span> <span class="nav-text">Definition of the Dominance Relation</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Tree-Pruning-Algorithm-for-Filter-Queries"><span class="nav-number">4.3.</span> <span class="nav-text">Tree-Pruning Algorithm for Filter Queries</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Semi-flattening-and-Repetition-Context"><span class="nav-number">5.</span> <span class="nav-text">Semi-flattening and Repetition Context</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#Repetition-Context"><span class="nav-number">5.1.</span> <span class="nav-text">Repetition Context</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Semi-Flattening"><span class="nav-number">5.2.</span> <span class="nav-text">Semi-Flattening</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Aggregate-Queries"><span class="nav-number">5.3.</span> <span class="nav-text">Aggregate Queries</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#Filter-and-Aggregate-Queries"><span class="nav-number">5.3.1.</span> <span class="nav-text">Filter and Aggregate Queries</span></a></li></ol></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Efficient-Data-Storage-and-Retrieval"><span class="nav-number">6.</span> <span class="nav-text">Efficient Data Storage and Retrieval</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#Repetition-Level"><span class="nav-number">6.1.</span> <span class="nav-text">Repetition Level</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#Producing-the-Semi-flattening"><span class="nav-number">6.1.1.</span> <span class="nav-text">Producing the Semi-flattening</span></a></li></ol></li></ol></li></ol></div>
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#Data"><span class="nav-number">1.</span> <span class="nav-text">Data</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#Representing-Schemas"><span class="nav-number">1.1.</span> <span class="nav-text">Representing Schemas</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Instances-of-a-Schema"><span class="nav-number">1.2.</span> <span class="nav-text">Instances of a Schema</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Dummy-Occurrences"><span class="nav-number">1.3.</span> <span class="nav-text">Dummy Occurrences</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Querying-Tree-Structured-Data"><span class="nav-number">2.</span> <span class="nav-text">Querying Tree-Structured Data</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#Flattening"><span class="nav-number">2.1.</span> <span class="nav-text">Flattening</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Filter-Queries"><span class="nav-number">3.</span> <span class="nav-text">Filter Queries</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#Querying-Flattened-Data"><span class="nav-number">3.1.</span> <span class="nav-text">Querying Flattened Data</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Handling-NULL’s-in-Query-Execution"><span class="nav-number">3.2.</span> <span class="nav-text">Handling NULL’s in Query Execution</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#The-Dominance-Relation"><span class="nav-number">4.</span> <span class="nav-text">The Dominance Relation</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#Motivation-for-the-Dominance-Relation"><span class="nav-number">4.1.</span> <span class="nav-text">Motivation for the Dominance Relation</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Definition-of-the-Dominance-Relation"><span class="nav-number">4.2.</span> <span class="nav-text">Definition of the Dominance Relation</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Tree-Pruning-Algorithm-for-Filter-Queries"><span class="nav-number">4.3.</span> <span class="nav-text">Tree-Pruning Algorithm for Filter Queries</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Semi-flattening-and-Repetition-Context"><span class="nav-number">5.</span> <span class="nav-text">Semi-flattening and Repetition Context</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#Repetition-Context"><span class="nav-number">5.1.</span> <span class="nav-text">Repetition Context</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Semi-Flattening"><span class="nav-number">5.2.</span> <span class="nav-text">Semi-Flattening</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Aggregate-Queries"><span class="nav-number">5.3.</span> <span class="nav-text">Aggregate Queries</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#Filter-and-Aggregate-Queries"><span class="nav-number">5.3.1.</span> <span class="nav-text">Filter and Aggregate Queries</span></a></li></ol></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Efficient-Data-Storage-and-Retrieval"><span class="nav-number">6.</span> <span class="nav-text">Efficient Data Storage and Retrieval</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#Repetition-Level"><span class="nav-number">6.1.</span> <span class="nav-text">Repetition Level</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#Producing-the-Semi-flattening"><span class="nav-number">6.1.1.</span> <span class="nav-text">Producing the Semi-flattening</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Definition-Level"><span class="nav-number">6.2.</span> <span class="nav-text">Definition Level</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#Producing-the-Semi-flattening-1"><span class="nav-number">6.2.1.</span> <span class="nav-text">Producing the Semi-flattening</span></a></li></ol></li></ol></li></ol></div>
       </div>
       <!--/noindex-->
 
@@ -622,12 +629,12 @@
     <span class="post-meta-item-icon">
       <i class="fa fa-area-chart"></i>
     </span>
-    <span title="Symbols count total">157k</span>
+    <span title="Symbols count total">159k</span>
     <span class="post-meta-divider">|</span>
     <span class="post-meta-item-icon">
       <i class="fa fa-coffee"></i>
     </span>
-    <span title="Reading time total">2:23</span>
+    <span title="Reading time total">2:25</span>
 </div>
 
         
